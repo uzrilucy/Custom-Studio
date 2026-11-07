@@ -1,52 +1,216 @@
 <!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"><title>커스텀 스튜디오 v0.3.0 · 테마 미리보기</title><style>
 *{box-sizing:border-box}body{margin:0;background:#eeeaf0;color:#574a60;font:15px/1.7 system-ui,sans-serif}.demo-top{position:relative;z-index:10;display:flex;align-items:center;gap:14px;padding:14px 24px;background:#fff;border-bottom:1px solid #e9ddec;flex-wrap:wrap}.demo-top strong{letter-spacing:-.4px}.demo-badge{font-size:10px;letter-spacing:1px;background:#f2eafb;color:#806092;border-radius:20px;padding:3px 9px}.demo-top select,.demo-top button{font:inherit;color:#654d6d;background:#fff;border:1px solid #d7c7df;border-radius:9px;padding:5px 10px}.demo-shell{max-width:740px;margin:26px auto 20px;margin-right:390px;box-shadow:0 12px 50px #68466412;border-radius:24px;overflow:hidden;background:#fff}.demo-chat-title{padding:20px 26px;border-bottom:1px solid #f0e3ef;display:flex;justify-content:space-between;align-items:center}.demo-chat-title small{color:#a278a1;font-size:11px}#chat{height:510px;overflow:auto;padding:12px 0;background:#f0eef3}.mes{display:flex;gap:14px;padding:20px;margin:10px;background:#fff;border-radius:12px}.avatar{width:43px;height:43px;flex-shrink:0;background:linear-gradient(130deg,#e2bade,#c4c1ed);border-radius:15px;display:grid;place-items:center;color:#744976;font-size:21px}.ch_name{font-size:13px;font-weight:750;margin-bottom:7px}.mes_text{font-size:15px;line-height:1.85}.mes_text p{margin:0 0 10px}.mes_text p:last-child{margin-bottom:0}#send_form{margin:14px;padding:14px;display:flex;align-items:center;gap:10px;border:1px solid #eee}#send_textarea{width:100%;height:42px;resize:none;border:0;font:inherit;outline:none}.demo-send{color:#9d4e80}.demo-footer{padding:0 24px 20px;font-size:11px;color:#8a7289}#extensions_settings2{max-width:740px;margin:0 auto;margin-right:390px}.menu_button{border:1px solid #dfccdf;background:#fff;color:#815576;padding:12px 18px;border-radius:12px;cursor:pointer}#demo-result{margin:12px 24px;color:#8a5f85;font-size:12px}.demo-caption{max-width:740px;margin:20px auto;margin-right:390px;font-size:12px;color:#8b7487} @media(min-width:1300px){.demo-shell,#extensions_settings2,.demo-caption{margin-left:auto;margin-right:auto;transform:translateX(-130px)}}@media(max-width:900px){.demo-shell,#extensions_settings2,.demo-caption{margin:18px 12px}.demo-top{padding:12px;gap:8px;font-size:12px}#chat{height:480px}.demo-caption{padding:0 8px}}
 .demo-preview-options{display:flex;gap:8px;align-items:center}.demo-top .drawer-icon{padding:4px}.demo-shell .demo-footer{padding-top:8px}body.cqs-chat[data-cqs-chat-style="native"] .demo-shell .mes{background:var(--cqs-message-surface)}body.cqs-chat[data-cqs-chat-style="native"] .demo-shell .mes[is_user="true"]{background:var(--cqs-message-user)}</style><style>
-/* Chat colors follow the active character. Native mode leaves the host's geometry intact. */
-body.cqs-chat #chat {
-    background-color: var(--cqs-canvas);
-    color: var(--cqs-text);
-    scrollbar-color: var(--cqs-border) transparent;
+/* ───────────────────────────────────────────────────────────────
+   채팅·상단 메뉴 꾸미기
+   실리태번 테마의 사용자 CSS나 다른 확장 테마는 !important를 자주 쓴다.
+   index.js가 문서 맨 앞에 선언한 @layer cqs-force 안의 !important는
+   레이어 밖의 어떤 !important보다도 우선하므로, 캐릭터 테마가 끝까지 이긴다.
+   모든 선택자를 :where()로 감싸 명시도를 0으로 두었다.
+   그래서 테마 소스(chatCss·menuCss, 같은 레이어에 자동 !important)는 :scope .mes처럼 써도 이 기본값을 덮는다.
+   ─────────────────────────────────────────────────────────────── */
+@layer cqs-force {
+/* 1) 실리태번 기본 UI가 읽는 SmartTheme 변수를 테마 색으로 바꾼다. */
+:where(body.cqs-menu), :where(body.cqs-chat) :where(#sheld, #options, #bg1, #bg_custom) {
+    --SmartThemeBodyColor: var(--cqs-text) !important;
+    --SmartThemeEmColor: var(--cqs-muted) !important;
+    --SmartThemeQuoteColor: var(--cqs-quote) !important;
+    --SmartThemeUnderlineColor: var(--cqs-accent) !important;
+    --SmartThemeBorderColor: var(--cqs-border) !important;
+    --SmartThemeShadowColor: transparent !important;
+    --SmartThemeBlurTintColor: color-mix(in srgb, var(--cqs-canvas) 90%, transparent) !important;
+    --SmartThemeChatTintColor: color-mix(in srgb, var(--cqs-canvas) 82%, transparent) !important;
+    --SmartThemeBotMesBlurTintColor: var(--cqs-message-surface) !important;
+    --SmartThemeUserMesBlurTintColor: var(--cqs-message-user) !important;
+    --cqs-ink-soft: color-mix(in srgb, var(--cqs-text) 62%, var(--cqs-canvas));
+    color-scheme: var(--cqs-scheme) !important;
 }
-body.cqs-chat[data-cqs-background="dots"] #chat {
-    background-image: radial-gradient(var(--cqs-border) .8px,transparent .8px);
-    background-size: 18px 18px;
+
+/* 2) 배경: 화면 전체 배경과 채팅 칸 */
+:where(body.cqs-chat) :where(#bg1, #bg_custom) {
+    background-color: var(--cqs-canvas) !important;
+    background-image:
+        radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, var(--cqs-headerA) 70%, transparent), transparent 62%),
+        radial-gradient(80% 60% at 100% 100%, color-mix(in srgb, var(--cqs-headerB) 55%, transparent), transparent 70%),
+        linear-gradient(180deg, var(--cqs-canvas), var(--cqs-canvas)) !important;
+    background-size: cover !important;
+    filter: none !important;
+    opacity: 1 !important;
 }
-body.cqs-chat[data-cqs-background="gradient"] #chat {
-    background-image: linear-gradient(150deg,var(--cqs-canvas),var(--cqs-headerB));
+:where(body.cqs-chat[data-cqs-wallpaper="true"]) :where(#bg1, #bg_custom) {
+    background-image: linear-gradient(var(--cqs-wallpaper-overlay), var(--cqs-wallpaper-overlay)), var(--cqs-wallpaper) !important;
+    background-size: auto, var(--cqs-wallpaper-size) !important;
+    background-position: center, var(--cqs-wallpaper-position) !important;
+    background-repeat: no-repeat, var(--cqs-wallpaper-repeat) !important;
 }
-body.cqs-chat[data-cqs-wallpaper="true"] #chat {
-    background-image: linear-gradient(var(--cqs-wallpaper-overlay),var(--cqs-wallpaper-overlay)),var(--cqs-wallpaper);
-    background-size: auto,var(--cqs-wallpaper-size);
-    background-position: center,var(--cqs-wallpaper-position);
-    background-repeat: no-repeat,var(--cqs-wallpaper-repeat);
+:where(body.cqs-chat #chat) {
+    background-color: color-mix(in srgb, var(--cqs-canvas) 86%, transparent) !important;
+    color: var(--cqs-text) !important;
+    scrollbar-color: var(--cqs-border) transparent !important;
+    text-shadow: none !important;
 }
-body.cqs-chat[data-cqs-chat-style="cards"] #chat .mes {
-    background: var(--cqs-message-surface);
-    color: var(--cqs-text);
-    border: 1px solid var(--cqs-border);
-    border-radius: var(--cqs-radius);
-    margin: var(--cqs-gap) 10px;
-    padding: 18px;
-    width: calc(100% - 20px);
-    box-sizing: border-box;
-    box-shadow: 0 4px 16px color-mix(in srgb,var(--cqs-accent) 5%,transparent);
-    text-shadow: none;
+:where(body.cqs-chat[data-cqs-background="dots"] #chat) {
+    background-image: radial-gradient(color-mix(in srgb, var(--cqs-border) 90%, transparent) .8px, transparent .8px) !important;
+    background-size: 18px 18px !important;
 }
-body.cqs-chat[data-cqs-chat-style="cards"] #chat .mes[is_user="true"] {background:var(--cqs-message-user);}
-body.cqs-chat[data-cqs-chat-style="cards"] #chat .mes.selected {background:var(--SmartThemeQuoteColor);color:var(--cqs-text);outline:2px solid var(--cqs-accent);outline-offset:-2px;}
-body.cqs-chat #chat .mes .mes_text {color:var(--cqs-text);font-size:var(--cqs-fontSize);line-height:var(--cqs-lineHeight);text-shadow:none;}
-body.cqs-chat #chat .mes .ch_name {color:var(--cqs-accent);text-shadow:none;}
-body.cqs-chat #chat .mes .mes_text em {color:var(--cqs-muted);}
-body.cqs-chat #chat .mes .mes_text q {color:var(--cqs-quote);}
-body.cqs-chat #chat .mes .mes_text blockquote {color:var(--cqs-quote);border-color:var(--cqs-border);}
-body.cqs-chat #chat .mes .mes_text a {color:var(--cqs-accent);}
-body.cqs-chat #chat .mes .mes_text code {background:var(--cqs-code);color:var(--cqs-text);}
-body.cqs-chat[data-cqs-chat-style="cards"] #chat .mes .avatar img {border:2px solid var(--cqs-border);border-radius:var(--cqs-buttonRadius);box-sizing:border-box;}
-body.cqs-chat #send_form {background:var(--cqs-surface);border-color:var(--cqs-border);color:var(--cqs-text);text-shadow:none;}
-body.cqs-chat[data-cqs-chat-style="cards"] #send_form {border:1px solid var(--cqs-border);border-radius:var(--cqs-radius);}
-body.cqs-chat #send_textarea {background:transparent;color:var(--cqs-text);font-size:var(--cqs-fontSize);}
-body.cqs-chat #send_textarea::placeholder {color:var(--cqs-muted);}
-body.cqs-chat #send_form :is(.fa-solid,.fa-regular,.fa-fw) {color:var(--cqs-accent);text-shadow:none;}
+:where(body.cqs-chat[data-cqs-background="gradient"] #chat) {
+    background-image: linear-gradient(150deg, color-mix(in srgb, var(--cqs-canvas) 70%, transparent), color-mix(in srgb, var(--cqs-headerB) 70%, transparent)) !important;
+}
+:where(body.cqs-chat[data-cqs-background="plain"] #chat) { background-image: none !important; }
+:where(body.cqs-chat[data-cqs-wallpaper="true"] #chat) {
+    background-color: transparent !important;
+    background-image: none !important;
+}
+
+/* 3) 메시지 칸 */
+:where(body.cqs-chat #chat .mes) {
+    color: var(--cqs-text) !important;
+    border-color: var(--cqs-border) !important;
+    text-shadow: none !important;
+}
+/* 실리 형식 유지 · 기본(평면) 모드: 사용자 CSS가 씌운 카드 배경을 걷어내고 테마 배경 위에 글을 둔다. */
+:where(body.cqs-chat[data-cqs-chat-style="native"]:not(.bubblechat, .documentstyle) #chat .mes) {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+:where(body.cqs-chat[data-cqs-chat-style="native"]:not(.bubblechat, .documentstyle) #chat .mes:not(:last-child)) {
+    border-bottom: 1px solid color-mix(in srgb, var(--cqs-border) 55%, transparent) !important;
+}
+/* 말풍선 모드 */
+:where(body.cqs-chat[data-cqs-chat-style="native"].bubblechat #chat .mes) {
+    background: var(--cqs-message-surface) !important;
+    border: 1px solid var(--cqs-border) !important;
+    box-shadow: 0 6px 18px -14px var(--cqs-shadow) !important;
+}
+:where(body.cqs-chat[data-cqs-chat-style="native"].bubblechat #chat .mes[is_user="true"]) { background: var(--cqs-message-user) !important; }
+/* 문서 모드 */
+:where(body.cqs-chat[data-cqs-chat-style="native"].documentstyle #chat .mes) {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+/* 카드 모드 */
+:where(body.cqs-chat[data-cqs-chat-style="cards"] #chat .mes) {
+    background: var(--cqs-message-surface) !important;
+    border: 1px solid var(--cqs-border) !important;
+    border-radius: var(--cqs-radius) !important;
+    margin: var(--cqs-gap) 10px !important;
+    padding: 18px !important;
+    width: calc(100% - 20px) !important;
+    box-sizing: border-box !important;
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--cqs-accent) 5%, transparent) !important;
+}
+:where(body.cqs-chat[data-cqs-chat-style="cards"] #chat .mes[is_user="true"]) { background: var(--cqs-message-user) !important; }
+:where(body.cqs-chat[data-cqs-chat-style="cards"] #chat .mes .avatar img) {
+    border: 2px solid var(--cqs-border) !important;
+    border-radius: var(--cqs-buttonRadius) !important;
+    box-sizing: border-box !important;
+}
+:where(body.cqs-chat #chat .mes.selected) { outline: 2px solid var(--cqs-accent) !important; outline-offset: -2px !important; }
+@media (max-width: 600px) {
+    :where(body.cqs-chat[data-cqs-chat-style="cards"] #chat .mes) { padding: 12px !important; margin: 8px 6px !important; width: calc(100% - 12px) !important; }
+}
+
+/* 메시지 안쪽: 본문·강조·인용. 봇 정규식 HTML(.mes_text 안의 div 등)은 건드리지 않도록 마크다운 단계의 요소만 고른다. */
+:where(body.cqs-chat #chat .mes .mes_text) {
+    color: var(--cqs-text) !important;
+    text-shadow: none !important;
+}
+:where(body.cqs-chat #chat .mes_text > p),
+:where(body.cqs-chat #chat .mes_text > :is(ul, ol) > li) { color: var(--cqs-text) !important; }
+:where(body.cqs-chat #chat :is(.mes_text, .mes_text > p, .mes_text > :is(ul, ol) > li) > :is(em, i)),
+:where(body.cqs-chat #chat .mes_text > p > :is(q, strong, b) > :is(em, i)) {
+    color: var(--cqs-muted) !important;
+    background: none !important;
+    border: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+}
+:where(body.cqs-chat #chat :is(.mes_text, .mes_text > p, .mes_text > :is(ul, ol) > li) > q),
+:where(body.cqs-chat #chat .mes_text > p > :is(em, i, strong, b) > q) {
+    color: var(--cqs-quote) !important;
+    background: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+}
+:where(body.cqs-chat #chat :is(.mes_text, .mes_text > p) > :is(strong, b)) { color: var(--cqs-text) !important; background: none !important; }
+:where(body.cqs-chat #chat .mes_text blockquote) { color: var(--cqs-quote) !important; border-color: var(--cqs-accent) !important; background: color-mix(in srgb, var(--cqs-accentSoft) 45%, transparent) !important; }
+:where(body.cqs-chat #chat .mes_text a) { color: var(--cqs-accent) !important; }
+:where(body.cqs-chat #chat .mes_text :is(code, pre)) { background: var(--cqs-code) !important; color: var(--cqs-text) !important; border-color: var(--cqs-border) !important; }
+:where(body.cqs-chat #chat .mes_text hr) { border-color: var(--cqs-border) !important; }
+
+/* 이름·시간·버튼 */
+:where(body.cqs-chat #chat .mes .ch_name :is(.name_text, .name_text *)) { color: var(--cqs-accent) !important; text-shadow: none !important; }
+:where(body.cqs-chat #chat .mes :is(.timestamp, .mesIDDisplay, .mes_timer, .tokenCounterDisplay, .mes_reasoning_header_title)) { color: var(--cqs-muted) !important; text-shadow: none !important; }
+:where(body.cqs-chat #chat .mes :is(.mes_button, .extraMesButtonsHint, .mes_edit_buttons .menu_button)) { color: var(--cqs-muted) !important; text-shadow: none !important; }
+:where(body.cqs-chat #chat .mes :is(.mes_button, .extraMesButtonsHint):hover) { color: var(--cqs-accent) !important; }
+:where(body.cqs-chat #chat :is(.swipe_left, .swipe_right, .swipes-counter)) { color: var(--cqs-muted) !important; text-shadow: none !important; }
+:where(body.cqs-chat #chat :is(.swipe_left, .swipe_right):hover) { color: var(--cqs-accent) !important; }
+:where(body.cqs-chat #chat .mes .mes_edit_textarea, body.cqs-chat #chat .mes textarea) {
+    background: var(--cqs-surface) !important; color: var(--cqs-text) !important; border-color: var(--cqs-border) !important;
+}
+
+/* 4) 입력창 */
+:where(body.cqs-chat #send_form) {
+    background: color-mix(in srgb, var(--cqs-surface) 94%, transparent) !important;
+    border-color: var(--cqs-border) !important;
+    color: var(--cqs-text) !important;
+    text-shadow: none !important;
+    box-shadow: 0 -6px 22px -18px var(--cqs-shadow) !important;
+}
+:where(body.cqs-chat[data-cqs-chat-style="cards"] #send_form) {
+    border: 1px solid var(--cqs-border) !important;
+    border-radius: var(--cqs-radius) !important;
+}
+:where(body.cqs-chat #send_form #send_textarea) { background: transparent !important; color: var(--cqs-text) !important; text-shadow: none !important; }
+:where(body.cqs-chat #send_form #send_textarea)::placeholder { color: var(--cqs-muted) !important; opacity: 1 !important; }
+:where(body.cqs-chat #send_form :is(#leftSendForm, #rightSendForm) > div) { color: var(--cqs-muted) !important; text-shadow: none !important; }
+:where(body.cqs-chat #send_form :is(#leftSendForm, #rightSendForm) > div:hover) { color: var(--cqs-accent) !important; }
+:where(body.cqs-chat #send_form #send_but) { color: var(--cqs-accent) !important; }
+:where(body.cqs-chat #send_form #mes_stop) { color: var(--cqs-danger) !important; }
+:where(body.cqs-chat #qr--bar) { background: transparent !important; border-color: var(--cqs-border) !important; }
+:where(body.cqs-chat #qr--bar .qr--button) {
+    background: var(--cqs-button) !important; color: var(--cqs-text) !important;
+    border: 1px solid var(--cqs-border) !important; border-radius: var(--cqs-buttonRadius) !important; text-shadow: none !important;
+}
+:where(body.cqs-chat #qr--bar .qr--button:hover) { background: var(--cqs-buttonHover) !important; color: var(--cqs-accent) !important; }
+:where(body.cqs-chat #options .options-content) {
+    background: var(--cqs-canvas) !important; color: var(--cqs-text) !important; border-color: var(--cqs-border) !important;
+}
+:where(body.cqs-chat #options .options-content a) { color: var(--cqs-text) !important; }
+:where(body.cqs-chat #options .options-content a:hover) { background: var(--cqs-buttonHover) !important; }
+
+/* 5) 상단 메뉴와 서랍 */
+:where(body.cqs-menu #top-bar) {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--cqs-headerA) 42%, var(--cqs-canvas)), var(--cqs-canvas)) !important;
+    border-bottom: 1px solid var(--cqs-border) !important;
+    box-shadow: 0 8px 22px -18px var(--cqs-shadow) !important;
+}
+:where(body.cqs-menu #top-settings-holder) { background: transparent !important; }
+:where(body.cqs-menu #top-settings-holder .drawer-icon) { color: var(--cqs-ink-soft) !important; text-shadow: none !important; opacity: 1 !important; }
+:where(body.cqs-menu #top-settings-holder .drawer-icon:hover) { color: var(--cqs-text) !important; }
+:where(body.cqs-menu #top-settings-holder .drawer-icon.openIcon) { color: var(--cqs-accent) !important; }
+:where(body.cqs-menu #top-settings-holder .drawer-content, body.cqs-menu #left-nav-panel, body.cqs-menu #right-nav-panel) {
+    background-color: color-mix(in srgb, var(--cqs-canvas) 96%, transparent) !important;
+    color: var(--cqs-text) !important;
+    border-color: var(--cqs-border) !important;
+    text-shadow: none !important;
+}
+:where(body.cqs-menu) :where(.drawer-content, #left-nav-panel, #right-nav-panel) :where(.text_pole, textarea, select, input:not([type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="file"])) {
+    background-color: color-mix(in srgb, var(--cqs-surface) 92%, transparent) !important;
+    color: var(--cqs-text) !important;
+    border-color: var(--cqs-border) !important;
+}
+:where(body.cqs-menu) :where(.drawer-content, #left-nav-panel, #right-nav-panel) :where(.text_pole, textarea, input)::placeholder { color: var(--cqs-muted) !important; }
+:where(body.cqs-menu) :where(.drawer-content, #left-nav-panel, #right-nav-panel) :where(.menu_button) {
+    background-color: var(--cqs-button) !important; color: var(--cqs-text) !important; border-color: var(--cqs-border) !important;
+}
+:where(body.cqs-menu) :where(.drawer-content, #left-nav-panel, #right-nav-panel) :where(.menu_button:hover) { background-color: var(--cqs-buttonHover) !important; }
+} /* @layer cqs-force */
+
+/* 글자 크기와 줄 간격은 실리 사용자 설정이 우선해도 되므로 일반 우선순위로 둔다. */
+body.cqs-chat #chat .mes .mes_text {font-size:var(--cqs-fontSize);line-height:var(--cqs-lineHeight);}
 #cqs-root, .cqs-dialog {
     --cqs-canvas:#fff5f9;--cqs-surface:#fff;--cqs-user:#f5edff;--cqs-text:#51394f;
     --cqs-muted:#80677d;--cqs-accent:#aa467b;--cqs-accentSoft:#f9e1ed;--cqs-border:#ebd3e2;
@@ -65,8 +229,8 @@ body.cqs-themed .cqs-dialog { --cqs-canvas:inherit;--cqs-surface:inherit;--cqs-u
 #cqs-root button,.cqs-dialog button {cursor:pointer;font:inherit;text-shadow:none;}
 #cqs-root button:disabled {opacity:.5;cursor:wait;}
 #cqs-root button:focus-visible,.cqs-dialog :focus-visible {outline:3px solid var(--cqs-accent);outline-offset:3px;}
-:where(#cqs-root) .cqs-handle {position:fixed;right:0;top:44%;z-index:3001;border:1px solid var(--cqs-border);border-right:0;border-radius:16px 0 0 16px;padding:15px 12px;background:linear-gradient(140deg,var(--cqs-headerA),var(--cqs-headerB));color:var(--cqs-accent);box-shadow:0 3px 12px var(--cqs-shadow);font-weight:750;}
-#cqs-panel {position:fixed;right:14px;top:70px;bottom:max(20px,env(safe-area-inset-bottom));width:min(var(--cqs-panelWidth),calc(100vw - 28px));max-height:calc(100dvh - 90px);z-index:3002;display:flex;flex-direction:column;background:var(--cqs-canvas);border:1px solid var(--cqs-border);border-radius:var(--cqs-radius);box-shadow:0 18px 56px var(--cqs-shadow);overflow:hidden;}
+:where(#cqs-root) .cqs-handle {position:fixed;right:0;top:44vh;top:44dvh;z-index:3001;border:1px solid var(--cqs-border);border-right:0;border-radius:16px 0 0 16px;padding:15px 12px;background:linear-gradient(140deg,var(--cqs-headerA),var(--cqs-headerB));color:var(--cqs-accent);box-shadow:0 3px 12px var(--cqs-shadow);font-weight:750;}
+#cqs-panel {position:fixed;right:14px;top:70px;bottom:auto;height:calc(100vh - 90px);height:calc(100dvh - 90px - env(safe-area-inset-bottom));width:min(var(--cqs-panelWidth),calc(100vw - 28px));max-height:calc(100dvh - 90px);z-index:3002;display:flex;flex-direction:column;background:var(--cqs-canvas);border:1px solid var(--cqs-border);border-radius:var(--cqs-radius);box-shadow:0 18px 56px var(--cqs-shadow);overflow:hidden;}
 :where(#cqs-root[data-side="left"]) .cqs-handle {right:auto;left:0;border-right:1px solid var(--cqs-border);border-left:0;border-radius:0 16px 16px 0;}
 #cqs-root[data-side="left"] #cqs-panel {right:auto;left:14px;}
 .cqs-header {padding:20px 20px 22px;background:linear-gradient(125deg,var(--cqs-headerA),var(--cqs-headerB));}
@@ -109,11 +273,12 @@ body.cqs-themed .cqs-dialog { --cqs-canvas:inherit;--cqs-surface:inherit;--cqs-u
 .cqs-colors {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
 .cqs-colors input {width:100%;height:36px;border:1px solid var(--cqs-border);padding:3px;background:var(--cqs-surface);border-radius:8px;}
 .cqs-actions {display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
-.cqs-settings-entry {margin:10px 0;}
+.cqs-settings-entry {display:block;width:100%;margin:10px 0;box-sizing:border-box;}
+/* 실리 .menu_button은 width:min-content라 한글이 한 글자씩 세로로 쌓인다. */
+.cqs-settings-entry .menu_button {width:100% !important;max-width:100%;min-width:0;box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 6px;padding:8px 12px;white-space:normal;word-break:keep-all;overflow-wrap:anywhere;writing-mode:horizontal-tb;line-height:1.45;text-align:center;}
 @media(max-width:600px) {
-    #cqs-panel {top:56px;bottom:max(12px,env(safe-area-inset-bottom));max-height:calc(100dvh - 68px);right:10px;}
+    #cqs-panel {top:56px;bottom:auto;height:calc(100vh - 68px);height:calc(100dvh - 68px - env(safe-area-inset-bottom));max-height:none;right:10px;}
     #cqs-root[data-side="left"] #cqs-panel {left:10px;}
-    body.cqs-chat[data-cqs-chat-style="cards"] #chat .mes {padding:12px;margin:8px 6px;width:calc(100% - 12px);}
     .cqs-dialog {padding:18px;}.cqs-colors {grid-template-columns:repeat(3,minmax(0,1fr));}
 }
 @media(prefers-reduced-motion:reduce) {:where(#cqs-root) .cqs-qr {transition:none;}:where(#cqs-root) .cqs-qr:where(:hover:not(:disabled)){transform:none;}}
@@ -137,16 +302,7 @@ body.cqs-themed .cqs-dialog { --cqs-canvas:inherit;--cqs-surface:inherit;--cqs-u
 .cqs-handle-icon img {display:block;width:var(--cqs-handle-icon-size,24px);height:var(--cqs-handle-icon-size,24px);object-fit:contain;background:transparent;border:0;border-radius:0;box-shadow:none;}
 .cqs-handle-label {overflow-wrap:anywhere;min-width:0;}
 .cqs-handle-preview {display:inline-flex;align-items:center;gap:7px;min-height:44px;max-width:100%;padding:12px;border:1px solid var(--cqs-border);border-radius:14px;background:linear-gradient(140deg,var(--cqs-headerA),var(--cqs-headerB));color:var(--cqs-accent);overflow-wrap:anywhere;}
-/* v0.2.2: SillyTavern's own chat controls (swipe arrows, message buttons, timestamps, em/quote)
-   read SmartTheme variables. Remap them inside the themed chat only, so dark or light themes stay
-   legible without touching the global theme. */
-body.cqs-chat #chat {
-    --SmartThemeBotMesBlurTintColor:var(--cqs-message-surface);--SmartThemeUserMesBlurTintColor:var(--cqs-message-user);
-    --SmartThemeBodyColor:var(--cqs-text);--SmartThemeEmColor:var(--cqs-muted);
-    --SmartThemeQuoteColor:var(--cqs-quote);--SmartThemeBorderColor:var(--cqs-border);
-    --SmartThemeUnderlineColor:var(--cqs-accent);color-scheme:var(--cqs-scheme);
-}
-body.cqs-chat #send_form {--SmartThemeBodyColor:var(--cqs-text);color-scheme:var(--cqs-scheme);}
+
 
 :where(#cqs-root) .cqs-qr {background-color:var(--cqs-qr-bg,var(--cqs-button));background-image:var(--cqs-qr-image,none);background-size:cover;background-position:center;}
 :where(#cqs-root) .cqs-qr:where(:hover:not(:disabled)) {background-color:var(--cqs-qr-bg,var(--cqs-buttonHover));background-image:var(--cqs-qr-image,none);}
@@ -171,6 +327,18 @@ body.cqs-chat #send_form {--SmartThemeBodyColor:var(--cqs-text);color-scheme:var
     .cqs-dialog-head {top:-18px;}
     .cqs-dialog-footer {bottom:-18px;}
 }
+
+/* 실리태번 모바일은 body를 position:fixed로 두고 html에 transform이 걸려 있어 html 높이가 0이 된다.
+   그 안의 고정 요소에 top/bottom이나 %를 쓰면 패널이 2px로 접히므로 높이와 위치를 화면 단위(dvh)로 준다. */
+
+/* 미리보기 중에는 설정창을 아래 막대로 접어 화면을 가리지 않는다. */
+.cqs-dialog .cqs-peek-only {display:none;}
+.cqs-dialog.cqs-peek {position:fixed;inset:auto 0 max(12px,env(safe-area-inset-bottom)) 0;z-index:4100;margin:0 auto;max-height:none;overflow:visible;padding:12px 16px;width:min(560px,calc(100vw - 24px));}
+.cqs-dialog.cqs-peek > :not(.cqs-dialog-footer) {display:none;}
+.cqs-dialog.cqs-peek .cqs-dialog-footer {position:static;margin:0;padding:0;border:0;}
+.cqs-dialog.cqs-peek .cqs-peek-only {display:inline-flex;}
+.cqs-dialog.cqs-peek::backdrop {background:transparent;backdrop-filter:none;}
+.cqs-dialog.cqs-peek .cqs-actions > :not(.cqs-peek-only) {display:none;}
 </style><body><div id="top-bar" class="demo-top"><strong>✦ 커스텀 스튜디오</strong><span class="demo-badge">INTERACTIVE PREVIEW</span><select id="demo-character" aria-label="미리보기 캐릭터"><option value="0">유리 · 테마 사용</option><option value="1">루나 · 기본 화면</option></select><button id="demo-chat">다른 대화방</button><button id="demo-theme">시크 모던 테마 켜기</button></div><main id="sheld" class="demo-shell"><div class="demo-chat-title"><strong id="demo-name">유리</strong><small>OUR LITTLE STORY</small></div><div id="chat"><article class="mes" is_user="false"><div class="avatar">✿</div><div><div class="ch_name">유리 <small>· 23:25</small></div><div class="mes_text"><p><em>창가에 놓인 작은 찻잔 위로 따뜻한 김이 피어올랐다.</em></p><p>“오늘은 어떤 이야기를 해볼까?”</p><p>유리가 책갈피를 접어두고 고개를 들었다. 아무렇지 않은 척했지만, 손끝은 이미 맞은편 자리를 가리키고 있었다.</p></div></div></article><article class="mes" is_user="true"><div class="avatar">♡</div><div><div class="ch_name">나 <small>· 23:26</small></div><div class="mes_text"><p>조금 느리게 흘러가는 하루면 좋겠어.<br>우리, 여기서 잠깐만 쉬어가자.</p></div></div></article><article class="mes" is_user="false"><div class="avatar">✿</div><div><div class="ch_name">유리 <small>· 23:26</small></div><div class="mes_text"><p>“……그런 건 먼저 말 안 해도 돼.”</p><p><em>말끝은 퉁명스러웠지만, 새로 따라준 차에는 꿀이 한 스푼 더 들어 있었다.</em></p></div></div></article></div><form id="send_form" onsubmit="return false"><textarea id="send_textarea" placeholder="우리의 다음 이야기를 적어주세요…"></textarea><span id="send_but" class="demo-send">➤</span></form><div class="demo-footer">MODERN CUTIE · milk pink / soft lavender</div></main><div id="extensions_settings2"></div><p id="demo-result" role="status"></p><p class="demo-caption">동작 미리보기입니다. 샘플 QR은 메시지를 보내지 않습니다. 시크 모던 예제로 전환하거나 확장 설정에서 HTML/CSS와 개별 QR을 편집해 보세요. 실제 실리태번 화면 배치는 사용 중인 설정에 따라 달라집니다.</p><script type="module">
 const callbacks = new Map();
 const demoStorage = { get(){try{return JSON.parse(localStorage.getItem('custom-studio-demo-v1') || 'null');}catch{return null;}}, set(value){try{localStorage.setItem('custom-studio-demo-v1',JSON.stringify(value));}catch{}} };
@@ -187,7 +355,7 @@ window.SillyTavern={getContext:()=>fixtureContext};
 window.demoExecuted=[];
 const names=[['이야기 도구',['이야기 이어가기','상태창 보기','장면 전환','인물 관계','소지품 확인','세계관 노트']],['하루의 기록',['오늘의 일기','지난 이야기','작은 선물','숨긴 버튼']]];
 const fixtureSets=names.map(([name,labels])=>({name,qrList:labels.map((label,id)=>({id,label,title:label+' · 샘플 QR',isHidden:label==='숨긴 버튼',execute:async()=>{window.demoExecuted.push({set:name,id}); document.querySelector('#demo-result').textContent='미리보기: '+label+' 선택됨 (실제 QR은 실행하지 않음)';}}))}));
-globalThis.__CQS_BUNDLED_THEMES__=[{"format": "custom-studio-theme", "version": 1, "id": "sky-blue", "name": "스카이 블루", "author": "Custom Studio", "colors": {"canvas": "#f2f7fc", "surface": "#ffffff", "user": "#e5f0fa", "text": "#22374b", "muted": "#566d83", "accent": "#2468a8", "accentSoft": "#dceaf7", "border": "#cddff0", "quote": "#2b6299", "code": "#e8f0f8", "headerA": "#d9eafa", "headerB": "#e7eefd", "button": "#f8fbfe", "buttonHover": "#e6f0fa"}, "layout": {"panelWidth": 330, "radius": 20, "buttonRadius": 14, "gap": 10, "columns": 2, "fontSize": 16, "lineHeight": 1.8}, "decoration": {"symbol": "☁", "title": "Clear shortcuts", "subtitle": "맑은 날의 작은 버튼", "background": "dots"}, "icons": {"default": {"type": "native"}, "rules": []}, "handle": {"icon": {"type": "native"}, "label": "QR", "showLabel": true, "size": 22}, "wallpaper": {"image": "", "size": "cover", "position": "center", "repeat": "no-repeat", "overlay": 0.2, "messageOpacity": 0.94}}, {"format": "custom-studio-theme", "version": 1, "id": "mint-green", "name": "민트 그린", "author": "Custom Studio", "colors": {"canvas": "#f2f8f4", "surface": "#ffffff", "user": "#e3f2e8", "text": "#213c2c", "muted": "#53705e", "accent": "#23704a", "accentSoft": "#d9eee1", "border": "#cbe2d3", "quote": "#296d49", "code": "#e6f1ea", "headerA": "#d8efe0", "headerB": "#e9f4e2", "button": "#f8fcf9", "buttonHover": "#e4f2e9"}, "layout": {"panelWidth": 330, "radius": 20, "buttonRadius": 14, "gap": 10, "columns": 2, "fontSize": 16, "lineHeight": 1.8}, "decoration": {"symbol": "✿", "title": "Fresh shortcuts", "subtitle": "산뜻하게 정리한 바로가기", "background": "dots"}, "icons": {"default": {"type": "native"}, "rules": []}, "handle": {"icon": {"type": "native"}, "label": "QR", "showLabel": true, "size": 22}, "wallpaper": {"image": "", "size": "cover", "position": "center", "repeat": "no-repeat", "overlay": 0.2, "messageOpacity": 0.94}}, {"format": "custom-studio-theme", "version": 1, "id": "chic-modern", "name": "시크 모던", "author": "Custom Studio", "colors": {"canvas": "#17181c", "surface": "#1f2025", "user": "#26272d", "text": "#ecebe7", "muted": "#a6a39c", "accent": "#d6c19c", "accentSoft": "#2e2a23", "border": "#34353b", "quote": "#e2d2b4", "code": "#222328", "headerA": "#25262c", "headerB": "#1d1e23", "button": "#1e1f24", "buttonHover": "#2a2b31"}, "layout": {"panelWidth": 330, "radius": 14, "buttonRadius": 9, "gap": 8, "columns": 2, "fontSize": 16, "lineHeight": 1.8}, "decoration": {"symbol": "◆", "title": "Studio", "subtitle": "정돈된 바로가기", "background": "plain"}, "icons": {"default": {"type": "native"}, "rules": []}, "handle": {"icon": {"type": "text", "value": "◆"}, "label": "QR", "showLabel": true, "size": 18}, "wallpaper": {"image": "", "size": "cover", "position": "center", "repeat": "no-repeat", "overlay": 0.2, "messageOpacity": 0.94}, "source": {"panelHtml": "<header class=\"cm-head\">\n  <div class=\"cm-row\"><span class=\"cm-mark\" aria-hidden=\"true\"></span><span class=\"cm-eb\" data-cqs-slot=\"eyebrow\"></span><span data-cqs-slot=\"close\"></span></div>\n  <div class=\"cm-title\" data-cqs-slot=\"heading\"></div>\n  <div class=\"cm-sub\" data-cqs-slot=\"subtitle\"></div>\n</header>\n<div class=\"cm-tools\"><span class=\"cm-find\" data-cqs-slot=\"search\"></span><span data-cqs-slot=\"refresh\"></span><span data-cqs-slot=\"settings\"></span></div>\n<div class=\"cm-body\" data-cqs-slot=\"qr\"></div>\n<footer class=\"cm-foot\" data-cqs-slot=\"status\"></footer>", "handleHtml": "", "panelCss": ":scope { --cm-line: color-mix(in srgb, var(--cqs-accent) 34%, var(--cqs-border)); }\n#cqs-panel { font-family: system-ui,-apple-system,'Pretendard','Noto Sans KR',sans-serif; border-color: var(--cqs-border); background: linear-gradient(180deg, var(--cqs-headerA), var(--cqs-canvas) 140px); box-shadow: 0 30px 70px -30px rgba(0,0,0,.8); }\n#cqs-panel .cm-head { padding: 18px 18px 12px; border-bottom: 1px solid var(--cqs-border); }\n#cqs-panel .cm-row { display: flex; align-items: center; gap: 9px; }\n#cqs-panel .cm-mark { width: 9px; height: 9px; transform: rotate(45deg); background: var(--cqs-accent); }\n#cqs-panel .cm-eb { flex: 1; min-width: 0; }\n#cqs-panel .cqs-eyebrow { font-size: 9.5px; font-weight: 700; letter-spacing: .3em; color: var(--cqs-muted); }\n#cqs-panel .cqs-close { width: 30px; height: 30px; font-size: 19px; color: var(--cqs-muted); background: transparent; box-shadow: inset 0 0 0 1px var(--cqs-border); }\n#cqs-panel .cqs-close:hover { color: var(--cqs-accent); box-shadow: inset 0 0 0 1px var(--cm-line); }\n#cqs-panel .cm-title h2 { margin: 14px 0 4px; font-size: 21px; font-weight: 700; letter-spacing: -.02em; color: var(--cqs-text); }\n#cqs-panel .cm-sub p { margin: 0; font-size: 12px; color: var(--cqs-muted); }\n#cqs-panel .cm-tools { display: flex; gap: 6px; padding: 12px 14px 4px; }\n#cqs-panel .cm-find { flex: 1; min-width: 0; display: flex; }\n#cqs-panel .cm-tools input { width: 100%; min-width: 0; padding: 9px 12px; border-radius: 8px; font: 13px system-ui,-apple-system,'Pretendard','Noto Sans KR',sans-serif; color: var(--cqs-text); background: var(--cqs-surface); border: 1px solid var(--cqs-border); }\n#cqs-panel .cm-tools input:focus { outline: none; border-color: var(--cm-line); }\n#cqs-panel .cm-tools .cqs-button { min-height: 36px; padding: 7px 11px; border-radius: 8px; font-size: 12px; color: var(--cqs-muted); background: var(--cqs-surface); }\n#cqs-panel .cm-tools .cqs-button:hover { color: var(--cqs-accent); border-color: var(--cm-line); }\n#cqs-panel .cqs-set-title { font-size: 10px; letter-spacing: .24em; color: var(--cqs-muted); }\n#cqs-panel .cqs-set-title::after { content: \"\"; flex: 1; height: 1px; background: var(--cqs-border); order: 3; }\n#cqs-panel .cqs-count { order: 2; color: var(--cqs-onAccent); background: var(--cqs-accent); }\n#cqs-panel .cqs-qr { min-height: 56px; padding: 10px 12px; flex-direction: row; justify-content: flex-start; gap: 10px; text-align: left; border-color: var(--cqs-border); transition: border-color .18s, background .18s; }\n#cqs-panel .cqs-qr:hover:not(:disabled) { transform: none; border-color: var(--cm-line); }\n#cqs-panel .cqs-qr-icon { flex: none; width: 30px; height: 30px; border-radius: 7px; display: grid; place-items: center; font-size: 13px; background: var(--cqs-accentSoft); }\n#cqs-panel .cqs-qr-label { font-size: 13px; font-weight: 600; text-align: left; }\n#cqs-panel .cm-foot { border-top: 1px solid var(--cqs-border); background: var(--cqs-surface); }\n#cqs-panel .cm-foot .cqs-status { border: 0; padding: 12px 16px; background: none; }\n:scope > .cqs-handle { top: 42vh; top: 42dvh; border-radius: 10px 0 0 10px; color: var(--cqs-accent); background: var(--cqs-surface); border-color: var(--cm-line); }\n:scope[data-side=\"left\"] > .cqs-handle { border-radius: 0 10px 10px 0; }", "chatCss": ":scope #send_form#send_form { border-radius: 12px; border: 1px solid var(--cqs-border); }\n:scope #send_form:focus-within { border-color: color-mix(in srgb, var(--cqs-accent) 45%, transparent); }\n:scope #chat .mes .avatar img { box-shadow: 0 0 0 1px var(--cqs-border); }", "menuCss": ":scope#top-bar { background: var(--cqs-canvas); border-bottom: 1px solid var(--cqs-border); }\n:scope .drawer-icon.openIcon, :scope .drawer-icon:hover { color: var(--cqs-accent); }"}}];
+globalThis.__CQS_BUNDLED_THEMES__=[{"format": "custom-studio-theme", "version": 1, "id": "sky-blue", "name": "스카이 블루", "author": "Custom Studio", "colors": {"canvas": "#f2f7fc", "surface": "#ffffff", "user": "#e5f0fa", "text": "#22374b", "muted": "#566d83", "accent": "#2468a8", "accentSoft": "#dceaf7", "border": "#cddff0", "quote": "#2b6299", "code": "#e8f0f8", "headerA": "#d9eafa", "headerB": "#e7eefd", "button": "#f8fbfe", "buttonHover": "#e6f0fa"}, "layout": {"panelWidth": 330, "radius": 20, "buttonRadius": 14, "gap": 10, "columns": 2, "fontSize": 16, "lineHeight": 1.8}, "decoration": {"symbol": "☁", "title": "Clear shortcuts", "subtitle": "맑은 날의 작은 버튼", "background": "dots"}, "icons": {"default": {"type": "native"}, "rules": []}, "handle": {"icon": {"type": "native"}, "label": "QR", "showLabel": true, "size": 22}, "wallpaper": {"image": "", "size": "cover", "position": "center", "repeat": "no-repeat", "overlay": 0.2, "messageOpacity": 0.94}, "source": {"panelHtml": "", "handleHtml": "", "panelCss": "", "chatCss": ":scope#bg1, :scope#bg_custom {\nbackground-color: var(--cqs-canvas);\nbackground-image:\nlinear-gradient(180deg, color-mix(in srgb, var(--cqs-headerA) 92%, transparent) 0%, transparent 46%),\nradial-gradient(38% 16% at 18% 22%, color-mix(in srgb, var(--cqs-surface) 90%, transparent), transparent 70%),\nradial-gradient(30% 13% at 78% 14%, color-mix(in srgb, var(--cqs-surface) 85%, transparent), transparent 70%),\nradial-gradient(44% 18% at 62% 88%, color-mix(in srgb, var(--cqs-headerB) 90%, transparent), transparent 70%);\n}\n:scope #chat {\nbackground: color-mix(in srgb, var(--cqs-surface) 58%, transparent);\nbackdrop-filter: blur(10px) saturate(1.1);\nborder-inline: 1px solid color-mix(in srgb, var(--cqs-surface) 75%, var(--cqs-border));\n}\n:scope[data-cqs-mode=\"flat\"] #chat .mes {\nbackground: linear-gradient(90deg, color-mix(in srgb, var(--cqs-surface) 88%, transparent), color-mix(in srgb, var(--cqs-surface) 55%, transparent));\nborder: 0;\nborder-left: 3px solid color-mix(in srgb, var(--cqs-accent) 55%, var(--cqs-border));\nborder-radius: 4px 16px 16px 4px;\nmargin: 8px 12px;\n}\n:scope[data-cqs-mode=\"flat\"] #chat .mes[is_user=\"true\"] {\nbackground: linear-gradient(270deg, color-mix(in srgb, var(--cqs-user) 95%, transparent), color-mix(in srgb, var(--cqs-user) 45%, transparent));\nborder-left-color: var(--cqs-border);\n}\n:scope #chat .mes .ch_name .name_text { letter-spacing: .04em; font-weight: 700; }\n:scope #chat .mes .avatar img { border-radius: 50%; box-shadow: 0 0 0 2px var(--cqs-surface), 0 4px 12px -6px var(--cqs-accent); }\n:scope #chat .mes_text q { text-decoration: underline dotted color-mix(in srgb, var(--cqs-accent) 45%, transparent); text-underline-offset: 4px; }\n:scope #chat .mes_text blockquote { border-left: 3px solid var(--cqs-accent); background: color-mix(in srgb, var(--cqs-accentSoft) 60%, transparent); border-radius: 0 12px 12px 0; }\n:scope #send_form {\nborder: 1px solid color-mix(in srgb, var(--cqs-accent) 22%, var(--cqs-border));\nborder-radius: 18px;\nbackground: color-mix(in srgb, var(--cqs-surface) 82%, transparent);\nbackdrop-filter: blur(12px);\nbox-shadow: 0 10px 30px -22px var(--cqs-accent), inset 0 1px 0 var(--cqs-surface);\n}\n:scope #send_form:focus-within { border-color: color-mix(in srgb, var(--cqs-accent) 55%, transparent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--cqs-accent) 14%, transparent), 0 10px 30px -22px var(--cqs-accent); }\n:scope#options .options-content { border-radius: 16px; backdrop-filter: blur(12px); }", "menuCss": ":scope#top-bar {\nbackground: color-mix(in srgb, var(--cqs-surface) 80%, transparent);\nbackdrop-filter: blur(14px) saturate(1.15);\nborder-bottom: 0;\nbox-shadow: 0 10px 24px -20px var(--cqs-accent);\n}\n:scope#top-bar::after {\ncontent: \"\"; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; pointer-events: none;\nbackground: linear-gradient(90deg, transparent, color-mix(in srgb, var(--cqs-accent) 55%, transparent) 30%, color-mix(in srgb, var(--cqs-headerB) 90%, var(--cqs-accent)) 70%, transparent);\n}\n:scope .drawer-icon { color: color-mix(in srgb, var(--cqs-accent) 40%, var(--cqs-muted)); }\n:scope .drawer-icon:hover, :scope .drawer-icon.openIcon { color: var(--cqs-accent); }\n:scope .drawer-content { background: color-mix(in srgb, var(--cqs-surface) 90%, transparent); backdrop-filter: blur(14px); border: 1px solid var(--cqs-border); border-radius: 18px; }"}}, {"format": "custom-studio-theme", "version": 1, "id": "mint-green", "name": "민트 그린", "author": "Custom Studio", "colors": {"canvas": "#f2f8f4", "surface": "#ffffff", "user": "#e3f2e8", "text": "#213c2c", "muted": "#53705e", "accent": "#23704a", "accentSoft": "#d9eee1", "border": "#cbe2d3", "quote": "#296d49", "code": "#e6f1ea", "headerA": "#d8efe0", "headerB": "#e9f4e2", "button": "#f8fcf9", "buttonHover": "#e4f2e9"}, "layout": {"panelWidth": 330, "radius": 20, "buttonRadius": 14, "gap": 10, "columns": 2, "fontSize": 16, "lineHeight": 1.8}, "decoration": {"symbol": "✿", "title": "Fresh shortcuts", "subtitle": "산뜻하게 정리한 바로가기", "background": "dots"}, "icons": {"default": {"type": "native"}, "rules": []}, "handle": {"icon": {"type": "native"}, "label": "QR", "showLabel": true, "size": 22}, "wallpaper": {"image": "", "size": "cover", "position": "center", "repeat": "no-repeat", "overlay": 0.2, "messageOpacity": 0.94}, "source": {"panelHtml": "", "handleHtml": "", "panelCss": "", "chatCss": ":scope#bg1, :scope#bg_custom {\nbackground-color: var(--cqs-canvas);\nbackground-image:\nlinear-gradient(color-mix(in srgb, var(--cqs-border) 55%, transparent) 1px, transparent 1px),\nlinear-gradient(90deg, color-mix(in srgb, var(--cqs-border) 55%, transparent) 1px, transparent 1px),\nradial-gradient(70% 50% at 50% 0%, color-mix(in srgb, var(--cqs-headerA) 90%, transparent), transparent 75%);\nbackground-size: 28px 28px, 28px 28px, auto;\n}\n:scope #chat {\nbackground-color: color-mix(in srgb, var(--cqs-surface) 92%, transparent);\nbackground-image: linear-gradient(90deg, transparent 46px, color-mix(in srgb, var(--cqs-accent) 22%, transparent) 46px 47px, transparent 47px);\nborder-inline: 1px solid var(--cqs-border);\nbox-shadow: 0 0 0 6px color-mix(in srgb, var(--cqs-surface) 40%, transparent);\n}\n:scope[data-cqs-mode=\"flat\"] #chat .mes { border-bottom: 1px dashed var(--cqs-border); }\n:scope[data-cqs-mode=\"flat\"] #chat .mes[is_user=\"true\"] {\nbackground: color-mix(in srgb, var(--cqs-user) 75%, transparent);\nborder-radius: 14px;\nborder-bottom-color: transparent;\nmargin: 6px 10px;\n}\n:scope #chat .mes:not([is_user=\"true\"]) .ch_name .name_text::before { content: \"\\273F  \"; color: color-mix(in srgb, var(--cqs-accent) 60%, var(--cqs-surface)); }\n:scope #chat .mes .ch_name .name_text { font-weight: 800; }\n:scope #chat .mes .avatar img { border-radius: 14px; border: 2px solid var(--cqs-surface); box-shadow: 0 0 0 1px var(--cqs-border); }\n:scope #chat .mes_text q { background: linear-gradient(transparent 58%, color-mix(in srgb, var(--cqs-accentSoft) 95%, transparent) 58%); }\n:scope #chat .mes_text blockquote { border-left: 3px dashed var(--cqs-accent); border-radius: 0; }\n:scope #send_form {\nborder: 1px solid var(--cqs-border);\nborder-radius: 14px;\nbackground: var(--cqs-surface);\nbox-shadow: inset 0 2px 0 color-mix(in srgb, var(--cqs-accentSoft) 80%, transparent), 0 8px 22px -18px var(--cqs-accent);\n}\n:scope #send_form:focus-within { border-color: color-mix(in srgb, var(--cqs-accent) 50%, var(--cqs-border)); }\n:scope#options .options-content { border-radius: 14px; border: 1px dashed var(--cqs-border); }", "menuCss": ":scope#top-bar {\nbackground: linear-gradient(180deg, color-mix(in srgb, var(--cqs-headerA) 60%, var(--cqs-surface)), var(--cqs-surface));\nborder-bottom: 1px solid var(--cqs-border);\nbox-shadow: 0 6px 18px -16px var(--cqs-accent);\n}\n:scope#top-bar::after {\ncontent: \"\"; position: absolute; left: 8px; right: 8px; bottom: 4px; height: 0; pointer-events: none;\nborder-bottom: 1.5px dashed color-mix(in srgb, var(--cqs-accent) 30%, transparent);\n}\n:scope .drawer-icon { color: color-mix(in srgb, var(--cqs-accent) 45%, var(--cqs-muted)); }\n:scope .drawer-icon:hover, :scope .drawer-icon.openIcon { color: var(--cqs-accent); }\n:scope .drawer-content { border: 1px solid var(--cqs-border); border-radius: 16px; box-shadow: 0 18px 36px -28px var(--cqs-accent); }"}}, {"format": "custom-studio-theme", "version": 1, "id": "chic-modern", "name": "시크 모던", "author": "Custom Studio", "colors": {"canvas": "#17181c", "surface": "#1f2025", "user": "#26272d", "text": "#ecebe7", "muted": "#a6a39c", "accent": "#d6c19c", "accentSoft": "#2e2a23", "border": "#34353b", "quote": "#e2d2b4", "code": "#222328", "headerA": "#25262c", "headerB": "#1d1e23", "button": "#1e1f24", "buttonHover": "#2a2b31"}, "layout": {"panelWidth": 330, "radius": 14, "buttonRadius": 9, "gap": 8, "columns": 2, "fontSize": 16, "lineHeight": 1.8}, "decoration": {"symbol": "◆", "title": "Studio", "subtitle": "정돈된 바로가기", "background": "plain"}, "icons": {"default": {"type": "native"}, "rules": []}, "handle": {"icon": {"type": "text", "value": "◆"}, "label": "QR", "showLabel": true, "size": 18}, "wallpaper": {"image": "", "size": "cover", "position": "center", "repeat": "no-repeat", "overlay": 0.2, "messageOpacity": 0.94}, "source": {"panelHtml": "<header class=\"cm-head\">\n  <div class=\"cm-row\"><span class=\"cm-mark\" aria-hidden=\"true\"></span><span class=\"cm-eb\" data-cqs-slot=\"eyebrow\"></span><span data-cqs-slot=\"close\"></span></div>\n  <div class=\"cm-title\" data-cqs-slot=\"heading\"></div>\n  <div class=\"cm-sub\" data-cqs-slot=\"subtitle\"></div>\n</header>\n<div class=\"cm-tools\"><span class=\"cm-find\" data-cqs-slot=\"search\"></span><span data-cqs-slot=\"refresh\"></span><span data-cqs-slot=\"settings\"></span></div>\n<div class=\"cm-body\" data-cqs-slot=\"qr\"></div>\n<footer class=\"cm-foot\" data-cqs-slot=\"status\"></footer>", "handleHtml": "", "panelCss": ":scope { --cm-line: color-mix(in srgb, var(--cqs-accent) 34%, var(--cqs-border)); }\n#cqs-panel { font-family: system-ui,-apple-system,'Pretendard','Noto Sans KR',sans-serif; border-color: var(--cqs-border); background: linear-gradient(180deg, var(--cqs-headerA), var(--cqs-canvas) 140px); box-shadow: 0 30px 70px -30px rgba(0,0,0,.8); }\n#cqs-panel .cm-head { padding: 18px 18px 12px; border-bottom: 1px solid var(--cqs-border); }\n#cqs-panel .cm-row { display: flex; align-items: center; gap: 9px; }\n#cqs-panel .cm-mark { width: 9px; height: 9px; transform: rotate(45deg); background: var(--cqs-accent); }\n#cqs-panel .cm-eb { flex: 1; min-width: 0; }\n#cqs-panel .cqs-eyebrow { font-size: 9.5px; font-weight: 700; letter-spacing: .3em; color: var(--cqs-muted); }\n#cqs-panel .cqs-close { width: 30px; height: 30px; font-size: 19px; color: var(--cqs-muted); background: transparent; box-shadow: inset 0 0 0 1px var(--cqs-border); }\n#cqs-panel .cqs-close:hover { color: var(--cqs-accent); box-shadow: inset 0 0 0 1px var(--cm-line); }\n#cqs-panel .cm-title h2 { margin: 14px 0 4px; font-size: 21px; font-weight: 700; letter-spacing: -.02em; color: var(--cqs-text); }\n#cqs-panel .cm-sub p { margin: 0; font-size: 12px; color: var(--cqs-muted); }\n#cqs-panel .cm-tools { display: flex; gap: 6px; padding: 12px 14px 4px; }\n#cqs-panel .cm-find { flex: 1; min-width: 0; display: flex; }\n#cqs-panel .cm-tools input { width: 100%; min-width: 0; padding: 9px 12px; border-radius: 8px; font: 13px system-ui,-apple-system,'Pretendard','Noto Sans KR',sans-serif; color: var(--cqs-text); background: var(--cqs-surface); border: 1px solid var(--cqs-border); }\n#cqs-panel .cm-tools input:focus { outline: none; border-color: var(--cm-line); }\n#cqs-panel .cm-tools .cqs-button { min-height: 36px; padding: 7px 11px; border-radius: 8px; font-size: 12px; color: var(--cqs-muted); background: var(--cqs-surface); }\n#cqs-panel .cm-tools .cqs-button:hover { color: var(--cqs-accent); border-color: var(--cm-line); }\n#cqs-panel .cqs-set-title { font-size: 10px; letter-spacing: .24em; color: var(--cqs-muted); }\n#cqs-panel .cqs-set-title::after { content: \"\"; flex: 1; height: 1px; background: var(--cqs-border); order: 3; }\n#cqs-panel .cqs-count { order: 2; color: var(--cqs-onAccent); background: var(--cqs-accent); }\n#cqs-panel .cqs-qr { min-height: 56px; padding: 10px 12px; flex-direction: row; justify-content: flex-start; gap: 10px; text-align: left; border-color: var(--cqs-border); transition: border-color .18s, background .18s; }\n#cqs-panel .cqs-qr:hover:not(:disabled) { transform: none; border-color: var(--cm-line); }\n#cqs-panel .cqs-qr-icon { flex: none; width: 30px; height: 30px; border-radius: 7px; display: grid; place-items: center; font-size: 13px; background: var(--cqs-accentSoft); }\n#cqs-panel .cqs-qr-label { font-size: 13px; font-weight: 600; text-align: left; }\n#cqs-panel .cm-foot { border-top: 1px solid var(--cqs-border); background: var(--cqs-surface); }\n#cqs-panel .cm-foot .cqs-status { border: 0; padding: 12px 16px; background: none; }\n:scope > .cqs-handle { top: 42vh; top: 42dvh; border-radius: 10px 0 0 10px; color: var(--cqs-accent); background: var(--cqs-surface); border-color: var(--cm-line); }\n:scope[data-side=\"left\"] > .cqs-handle { border-radius: 0 10px 10px 0; }", "chatCss": ":scope#bg1, :scope#bg_custom {\nbackground-color: var(--cqs-canvas);\nbackground-image:\nradial-gradient(90% 60% at 50% 0%, color-mix(in srgb, var(--cqs-headerA) 85%, transparent), transparent 70%),\nrepeating-linear-gradient(135deg, color-mix(in srgb, var(--cqs-text) 2.5%, transparent) 0 1px, transparent 1px 7px);\n}\n:scope #chat {\nbackground: color-mix(in srgb, var(--cqs-canvas) 90%, transparent);\nborder-inline: 1px solid var(--cqs-border);\n}\n:scope[data-cqs-mode=\"flat\"] #chat .mes { border-bottom: 1px solid color-mix(in srgb, var(--cqs-border) 70%, transparent); padding-block: 16px; }\n:scope[data-cqs-mode=\"flat\"] #chat .mes[is_user=\"true\"] {\nbackground: linear-gradient(90deg, color-mix(in srgb, var(--cqs-accent) 7%, transparent), transparent 55%);\nbox-shadow: inset 2px 0 0 var(--cqs-accent);\n}\n:scope #chat .mes .ch_name .name_text { letter-spacing: .08em; font-weight: 600; }\n:scope #chat .mes .timestamp { letter-spacing: .06em; text-transform: uppercase; font-size: .72em; }\n:scope #chat .mes .avatar img { border-radius: 10px; box-shadow: 0 0 0 1px var(--cqs-border), 0 0 0 3px var(--cqs-canvas), 0 0 0 4px color-mix(in srgb, var(--cqs-accent) 30%, transparent); }\n:scope #chat .mes_text em { font-style: italic; }\n:scope #chat .mes_text q { border-bottom: 1px solid color-mix(in srgb, var(--cqs-accent) 35%, transparent); }\n:scope #chat .mes_text blockquote { border-left: 1px solid var(--cqs-accent); background: transparent; padding-left: 14px; }\n:scope #send_form {\nborder: 1px solid var(--cqs-border);\nborder-radius: 12px;\nbackground: var(--cqs-surface);\nbox-shadow: 0 14px 30px -24px #000;\n}\n:scope #send_form:focus-within { border-color: color-mix(in srgb, var(--cqs-accent) 45%, var(--cqs-border)); box-shadow: 0 1px 0 0 var(--cqs-accent), 0 14px 30px -24px #000; }\n:scope#options .options-content { border-radius: 10px; }", "menuCss": ":scope#top-bar {\nbackground: linear-gradient(180deg, var(--cqs-headerA), var(--cqs-canvas));\nborder-bottom: 1px solid var(--cqs-border);\nbox-shadow: 0 10px 26px -20px #000;\n}\n:scope#top-bar::after {\ncontent: \"\"; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; pointer-events: none;\nbackground: linear-gradient(90deg, transparent, color-mix(in srgb, var(--cqs-accent) 70%, transparent), transparent);\n}\n:scope .drawer-icon { color: var(--cqs-muted); }\n:scope .drawer-icon:hover { color: var(--cqs-text); }\n:scope .drawer-icon.openIcon { color: var(--cqs-accent); }\n:scope .drawer-content { border: 1px solid var(--cqs-border); border-radius: 12px; box-shadow: 0 24px 50px -30px #000; }"}}];
 window.quickReplyApi={listSets:()=>fixtureSets.map(s=>s.name),getSetByName:name=>fixtureSets.find(s=>s.name===name)};
 window.demoSets=fixtureSets;
 window.toastr={error:text=>console.warn(text)};
@@ -195,7 +363,7 @@ document.querySelector('#demo-character').addEventListener('change',e=>{fixtureC
 document.querySelector('#demo-chat').addEventListener('click',()=>{fixtureContext.chatId+='-next';window.demoEmit('chat');document.querySelector('#demo-result').textContent='같은 캐릭터의 다른 대화방으로 전환했습니다.';});
 
 
-const sampleTheme = {"format": "custom-studio-theme", "version": 1, "id": "chic-modern", "name": "시크 모던", "author": "Custom Studio", "colors": {"canvas": "#17181c", "surface": "#1f2025", "user": "#26272d", "text": "#ecebe7", "muted": "#a6a39c", "accent": "#d6c19c", "accentSoft": "#2e2a23", "border": "#34353b", "quote": "#e2d2b4", "code": "#222328", "headerA": "#25262c", "headerB": "#1d1e23", "button": "#1e1f24", "buttonHover": "#2a2b31"}, "layout": {"panelWidth": 330, "radius": 14, "buttonRadius": 9, "gap": 8, "columns": 2, "fontSize": 16, "lineHeight": 1.8}, "decoration": {"symbol": "◆", "title": "Studio", "subtitle": "정돈된 바로가기", "background": "plain"}, "icons": {"default": {"type": "native"}, "rules": []}, "handle": {"icon": {"type": "text", "value": "◆"}, "label": "QR", "showLabel": true, "size": 18}, "wallpaper": {"image": "", "size": "cover", "position": "center", "repeat": "no-repeat", "overlay": 0.2, "messageOpacity": 0.94}, "source": {"panelHtml": "<header class=\"cm-head\">\n  <div class=\"cm-row\"><span class=\"cm-mark\" aria-hidden=\"true\"></span><span class=\"cm-eb\" data-cqs-slot=\"eyebrow\"></span><span data-cqs-slot=\"close\"></span></div>\n  <div class=\"cm-title\" data-cqs-slot=\"heading\"></div>\n  <div class=\"cm-sub\" data-cqs-slot=\"subtitle\"></div>\n</header>\n<div class=\"cm-tools\"><span class=\"cm-find\" data-cqs-slot=\"search\"></span><span data-cqs-slot=\"refresh\"></span><span data-cqs-slot=\"settings\"></span></div>\n<div class=\"cm-body\" data-cqs-slot=\"qr\"></div>\n<footer class=\"cm-foot\" data-cqs-slot=\"status\"></footer>", "handleHtml": "", "panelCss": ":scope { --cm-line: color-mix(in srgb, var(--cqs-accent) 34%, var(--cqs-border)); }\n#cqs-panel { font-family: system-ui,-apple-system,'Pretendard','Noto Sans KR',sans-serif; border-color: var(--cqs-border); background: linear-gradient(180deg, var(--cqs-headerA), var(--cqs-canvas) 140px); box-shadow: 0 30px 70px -30px rgba(0,0,0,.8); }\n#cqs-panel .cm-head { padding: 18px 18px 12px; border-bottom: 1px solid var(--cqs-border); }\n#cqs-panel .cm-row { display: flex; align-items: center; gap: 9px; }\n#cqs-panel .cm-mark { width: 9px; height: 9px; transform: rotate(45deg); background: var(--cqs-accent); }\n#cqs-panel .cm-eb { flex: 1; min-width: 0; }\n#cqs-panel .cqs-eyebrow { font-size: 9.5px; font-weight: 700; letter-spacing: .3em; color: var(--cqs-muted); }\n#cqs-panel .cqs-close { width: 30px; height: 30px; font-size: 19px; color: var(--cqs-muted); background: transparent; box-shadow: inset 0 0 0 1px var(--cqs-border); }\n#cqs-panel .cqs-close:hover { color: var(--cqs-accent); box-shadow: inset 0 0 0 1px var(--cm-line); }\n#cqs-panel .cm-title h2 { margin: 14px 0 4px; font-size: 21px; font-weight: 700; letter-spacing: -.02em; color: var(--cqs-text); }\n#cqs-panel .cm-sub p { margin: 0; font-size: 12px; color: var(--cqs-muted); }\n#cqs-panel .cm-tools { display: flex; gap: 6px; padding: 12px 14px 4px; }\n#cqs-panel .cm-find { flex: 1; min-width: 0; display: flex; }\n#cqs-panel .cm-tools input { width: 100%; min-width: 0; padding: 9px 12px; border-radius: 8px; font: 13px system-ui,-apple-system,'Pretendard','Noto Sans KR',sans-serif; color: var(--cqs-text); background: var(--cqs-surface); border: 1px solid var(--cqs-border); }\n#cqs-panel .cm-tools input:focus { outline: none; border-color: var(--cm-line); }\n#cqs-panel .cm-tools .cqs-button { min-height: 36px; padding: 7px 11px; border-radius: 8px; font-size: 12px; color: var(--cqs-muted); background: var(--cqs-surface); }\n#cqs-panel .cm-tools .cqs-button:hover { color: var(--cqs-accent); border-color: var(--cm-line); }\n#cqs-panel .cqs-set-title { font-size: 10px; letter-spacing: .24em; color: var(--cqs-muted); }\n#cqs-panel .cqs-set-title::after { content: \"\"; flex: 1; height: 1px; background: var(--cqs-border); order: 3; }\n#cqs-panel .cqs-count { order: 2; color: var(--cqs-onAccent); background: var(--cqs-accent); }\n#cqs-panel .cqs-qr { min-height: 56px; padding: 10px 12px; flex-direction: row; justify-content: flex-start; gap: 10px; text-align: left; border-color: var(--cqs-border); transition: border-color .18s, background .18s; }\n#cqs-panel .cqs-qr:hover:not(:disabled) { transform: none; border-color: var(--cm-line); }\n#cqs-panel .cqs-qr-icon { flex: none; width: 30px; height: 30px; border-radius: 7px; display: grid; place-items: center; font-size: 13px; background: var(--cqs-accentSoft); }\n#cqs-panel .cqs-qr-label { font-size: 13px; font-weight: 600; text-align: left; }\n#cqs-panel .cm-foot { border-top: 1px solid var(--cqs-border); background: var(--cqs-surface); }\n#cqs-panel .cm-foot .cqs-status { border: 0; padding: 12px 16px; background: none; }\n:scope > .cqs-handle { top: 42vh; top: 42dvh; border-radius: 10px 0 0 10px; color: var(--cqs-accent); background: var(--cqs-surface); border-color: var(--cm-line); }\n:scope[data-side=\"left\"] > .cqs-handle { border-radius: 0 10px 10px 0; }", "chatCss": ":scope #send_form#send_form { border-radius: 12px; border: 1px solid var(--cqs-border); }\n:scope #send_form:focus-within { border-color: color-mix(in srgb, var(--cqs-accent) 45%, transparent); }\n:scope #chat .mes .avatar img { box-shadow: 0 0 0 1px var(--cqs-border); }", "menuCss": ":scope#top-bar { background: var(--cqs-canvas); border-bottom: 1px solid var(--cqs-border); }\n:scope .drawer-icon.openIcon, :scope .drawer-icon:hover { color: var(--cqs-accent); }"}};
+const sampleTheme = {"format": "custom-studio-theme", "version": 1, "id": "chic-modern", "name": "시크 모던", "author": "Custom Studio", "colors": {"canvas": "#17181c", "surface": "#1f2025", "user": "#26272d", "text": "#ecebe7", "muted": "#a6a39c", "accent": "#d6c19c", "accentSoft": "#2e2a23", "border": "#34353b", "quote": "#e2d2b4", "code": "#222328", "headerA": "#25262c", "headerB": "#1d1e23", "button": "#1e1f24", "buttonHover": "#2a2b31"}, "layout": {"panelWidth": 330, "radius": 14, "buttonRadius": 9, "gap": 8, "columns": 2, "fontSize": 16, "lineHeight": 1.8}, "decoration": {"symbol": "◆", "title": "Studio", "subtitle": "정돈된 바로가기", "background": "plain"}, "icons": {"default": {"type": "native"}, "rules": []}, "handle": {"icon": {"type": "text", "value": "◆"}, "label": "QR", "showLabel": true, "size": 18}, "wallpaper": {"image": "", "size": "cover", "position": "center", "repeat": "no-repeat", "overlay": 0.2, "messageOpacity": 0.94}, "source": {"panelHtml": "<header class=\"cm-head\">\n  <div class=\"cm-row\"><span class=\"cm-mark\" aria-hidden=\"true\"></span><span class=\"cm-eb\" data-cqs-slot=\"eyebrow\"></span><span data-cqs-slot=\"close\"></span></div>\n  <div class=\"cm-title\" data-cqs-slot=\"heading\"></div>\n  <div class=\"cm-sub\" data-cqs-slot=\"subtitle\"></div>\n</header>\n<div class=\"cm-tools\"><span class=\"cm-find\" data-cqs-slot=\"search\"></span><span data-cqs-slot=\"refresh\"></span><span data-cqs-slot=\"settings\"></span></div>\n<div class=\"cm-body\" data-cqs-slot=\"qr\"></div>\n<footer class=\"cm-foot\" data-cqs-slot=\"status\"></footer>", "handleHtml": "", "panelCss": ":scope { --cm-line: color-mix(in srgb, var(--cqs-accent) 34%, var(--cqs-border)); }\n#cqs-panel { font-family: system-ui,-apple-system,'Pretendard','Noto Sans KR',sans-serif; border-color: var(--cqs-border); background: linear-gradient(180deg, var(--cqs-headerA), var(--cqs-canvas) 140px); box-shadow: 0 30px 70px -30px rgba(0,0,0,.8); }\n#cqs-panel .cm-head { padding: 18px 18px 12px; border-bottom: 1px solid var(--cqs-border); }\n#cqs-panel .cm-row { display: flex; align-items: center; gap: 9px; }\n#cqs-panel .cm-mark { width: 9px; height: 9px; transform: rotate(45deg); background: var(--cqs-accent); }\n#cqs-panel .cm-eb { flex: 1; min-width: 0; }\n#cqs-panel .cqs-eyebrow { font-size: 9.5px; font-weight: 700; letter-spacing: .3em; color: var(--cqs-muted); }\n#cqs-panel .cqs-close { width: 30px; height: 30px; font-size: 19px; color: var(--cqs-muted); background: transparent; box-shadow: inset 0 0 0 1px var(--cqs-border); }\n#cqs-panel .cqs-close:hover { color: var(--cqs-accent); box-shadow: inset 0 0 0 1px var(--cm-line); }\n#cqs-panel .cm-title h2 { margin: 14px 0 4px; font-size: 21px; font-weight: 700; letter-spacing: -.02em; color: var(--cqs-text); }\n#cqs-panel .cm-sub p { margin: 0; font-size: 12px; color: var(--cqs-muted); }\n#cqs-panel .cm-tools { display: flex; gap: 6px; padding: 12px 14px 4px; }\n#cqs-panel .cm-find { flex: 1; min-width: 0; display: flex; }\n#cqs-panel .cm-tools input { width: 100%; min-width: 0; padding: 9px 12px; border-radius: 8px; font: 13px system-ui,-apple-system,'Pretendard','Noto Sans KR',sans-serif; color: var(--cqs-text); background: var(--cqs-surface); border: 1px solid var(--cqs-border); }\n#cqs-panel .cm-tools input:focus { outline: none; border-color: var(--cm-line); }\n#cqs-panel .cm-tools .cqs-button { min-height: 36px; padding: 7px 11px; border-radius: 8px; font-size: 12px; color: var(--cqs-muted); background: var(--cqs-surface); }\n#cqs-panel .cm-tools .cqs-button:hover { color: var(--cqs-accent); border-color: var(--cm-line); }\n#cqs-panel .cqs-set-title { font-size: 10px; letter-spacing: .24em; color: var(--cqs-muted); }\n#cqs-panel .cqs-set-title::after { content: \"\"; flex: 1; height: 1px; background: var(--cqs-border); order: 3; }\n#cqs-panel .cqs-count { order: 2; color: var(--cqs-onAccent); background: var(--cqs-accent); }\n#cqs-panel .cqs-qr { min-height: 56px; padding: 10px 12px; flex-direction: row; justify-content: flex-start; gap: 10px; text-align: left; border-color: var(--cqs-border); transition: border-color .18s, background .18s; }\n#cqs-panel .cqs-qr:hover:not(:disabled) { transform: none; border-color: var(--cm-line); }\n#cqs-panel .cqs-qr-icon { flex: none; width: 30px; height: 30px; border-radius: 7px; display: grid; place-items: center; font-size: 13px; background: var(--cqs-accentSoft); }\n#cqs-panel .cqs-qr-label { font-size: 13px; font-weight: 600; text-align: left; }\n#cqs-panel .cm-foot { border-top: 1px solid var(--cqs-border); background: var(--cqs-surface); }\n#cqs-panel .cm-foot .cqs-status { border: 0; padding: 12px 16px; background: none; }\n:scope > .cqs-handle { top: 42vh; top: 42dvh; border-radius: 10px 0 0 10px; color: var(--cqs-accent); background: var(--cqs-surface); border-color: var(--cm-line); }\n:scope[data-side=\"left\"] > .cqs-handle { border-radius: 0 10px 10px 0; }", "chatCss": ":scope#bg1, :scope#bg_custom {\nbackground-color: var(--cqs-canvas);\nbackground-image:\nradial-gradient(90% 60% at 50% 0%, color-mix(in srgb, var(--cqs-headerA) 85%, transparent), transparent 70%),\nrepeating-linear-gradient(135deg, color-mix(in srgb, var(--cqs-text) 2.5%, transparent) 0 1px, transparent 1px 7px);\n}\n:scope #chat {\nbackground: color-mix(in srgb, var(--cqs-canvas) 90%, transparent);\nborder-inline: 1px solid var(--cqs-border);\n}\n:scope[data-cqs-mode=\"flat\"] #chat .mes { border-bottom: 1px solid color-mix(in srgb, var(--cqs-border) 70%, transparent); padding-block: 16px; }\n:scope[data-cqs-mode=\"flat\"] #chat .mes[is_user=\"true\"] {\nbackground: linear-gradient(90deg, color-mix(in srgb, var(--cqs-accent) 7%, transparent), transparent 55%);\nbox-shadow: inset 2px 0 0 var(--cqs-accent);\n}\n:scope #chat .mes .ch_name .name_text { letter-spacing: .08em; font-weight: 600; }\n:scope #chat .mes .timestamp { letter-spacing: .06em; text-transform: uppercase; font-size: .72em; }\n:scope #chat .mes .avatar img { border-radius: 10px; box-shadow: 0 0 0 1px var(--cqs-border), 0 0 0 3px var(--cqs-canvas), 0 0 0 4px color-mix(in srgb, var(--cqs-accent) 30%, transparent); }\n:scope #chat .mes_text em { font-style: italic; }\n:scope #chat .mes_text q { border-bottom: 1px solid color-mix(in srgb, var(--cqs-accent) 35%, transparent); }\n:scope #chat .mes_text blockquote { border-left: 1px solid var(--cqs-accent); background: transparent; padding-left: 14px; }\n:scope #send_form {\nborder: 1px solid var(--cqs-border);\nborder-radius: 12px;\nbackground: var(--cqs-surface);\nbox-shadow: 0 14px 30px -24px #000;\n}\n:scope #send_form:focus-within { border-color: color-mix(in srgb, var(--cqs-accent) 45%, var(--cqs-border)); box-shadow: 0 1px 0 0 var(--cqs-accent), 0 14px 30px -24px #000; }\n:scope#options .options-content { border-radius: 10px; }", "menuCss": ":scope#top-bar {\nbackground: linear-gradient(180deg, var(--cqs-headerA), var(--cqs-canvas));\nborder-bottom: 1px solid var(--cqs-border);\nbox-shadow: 0 10px 26px -20px #000;\n}\n:scope#top-bar::after {\ncontent: \"\"; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; pointer-events: none;\nbackground: linear-gradient(90deg, transparent, color-mix(in srgb, var(--cqs-accent) 70%, transparent), transparent);\n}\n:scope .drawer-icon { color: var(--cqs-muted); }\n:scope .drawer-icon:hover { color: var(--cqs-text); }\n:scope .drawer-icon.openIcon { color: var(--cqs-accent); }\n:scope .drawer-content { border: 1px solid var(--cqs-border); border-radius: 12px; box-shadow: 0 24px 50px -30px #000; }"}};
 
 const exampleButton = document.querySelector('#demo-theme');
 function updateExampleButton() {
@@ -239,6 +407,9 @@ const DEFAULT_THEME = {
     qrStyles: [],
     wallpaper: { image: '', size: 'cover', position: 'center', repeat: 'no-repeat', overlay: 0.2, messageOpacity: 0.94 }
 };
+// 내장 「모던 큐티」에만 붙는 채팅·상단 메뉴 디자인. DEFAULT_THEME 자체는 가져온 테마의 기본값이라 비워 둔다.
+const CUTIE_SOURCE = Object.freeze({ chatCss: ":scope#bg1, :scope#bg_custom {\nbackground-color: var(--cqs-canvas);\nbackground-image:\nradial-gradient(55% 42% at 10% 6%, color-mix(in srgb, var(--cqs-headerA) 95%, transparent), transparent 70%),\nradial-gradient(50% 46% at 94% 96%, color-mix(in srgb, var(--cqs-headerB) 95%, transparent), transparent 72%),\nradial-gradient(color-mix(in srgb, var(--cqs-border) 85%, transparent) 1px, transparent 1.3px);\nbackground-size: auto, auto, 22px 22px;\n}\n:scope #chat {\nbackground: color-mix(in srgb, var(--cqs-canvas) 72%, transparent);\nborder-inline: 1px solid color-mix(in srgb, var(--cqs-border) 80%, transparent);\n}\n:scope[data-cqs-mode=\"flat\"] #chat .mes {\nbackground: var(--cqs-surface);\nborder: 1px solid var(--cqs-border);\nborder-radius: 22px;\nmargin: 10px 12px;\nbox-shadow: 0 12px 26px -22px var(--cqs-accent);\n}\n:scope[data-cqs-mode=\"flat\"] #chat .mes[is_user=\"true\"] {\nbackground: linear-gradient(135deg, color-mix(in srgb, var(--cqs-user) 55%, var(--cqs-surface)), var(--cqs-user));\n}\n:scope #chat .mes .ch_name .name_text { font-weight: 800; letter-spacing: .02em; }\n:scope #chat .mes:not([is_user=\"true\"]) .ch_name .name_text::after { content: \" \\2661\"; color: color-mix(in srgb, var(--cqs-accent) 55%, var(--cqs-surface)); font-size: .82em; }\n:scope #chat .mes .avatar img { border: 2px solid var(--cqs-surface); box-shadow: 0 0 0 2px var(--cqs-border); }\n:scope #chat .mes_text q { background: linear-gradient(transparent 60%, var(--cqs-accentSoft) 60%); border-radius: 2px; }\n:scope #chat .mes_text blockquote { border-left: 3px solid var(--cqs-accent); border-radius: 0 14px 14px 0; }\n:scope #send_form {\nborder: 1.5px solid var(--cqs-border);\nborder-radius: 24px;\nbackground: color-mix(in srgb, var(--cqs-surface) 96%, transparent);\nbox-shadow: 0 12px 28px -20px var(--cqs-accent);\n}\n:scope #send_form:focus-within { border-color: color-mix(in srgb, var(--cqs-accent) 50%, var(--cqs-border)); box-shadow: 0 0 0 4px var(--cqs-accentSoft), 0 12px 28px -20px var(--cqs-accent); }\n:scope #send_form #send_but:hover { transform: scale(1.12); }\n:scope#options .options-content { border-radius: 18px; box-shadow: 0 18px 40px -26px var(--cqs-accent); }",
+    menuCss: ":scope#top-bar {\nbackground: linear-gradient(180deg, var(--cqs-surface), color-mix(in srgb, var(--cqs-headerA) 55%, var(--cqs-surface)));\nborder-bottom: 1px solid var(--cqs-border);\nbox-shadow: 0 8px 20px -16px var(--cqs-accent);\n}\n:scope#top-bar::after {\ncontent: \"\"; position: absolute; left: 12px; right: 12px; bottom: 0; height: 2px; pointer-events: none;\nbackground: repeating-linear-gradient(90deg, color-mix(in srgb, var(--cqs-accent) 35%, transparent) 0 6px, transparent 6px 12px);\n}\n:scope .drawer-icon { color: color-mix(in srgb, var(--cqs-accent) 45%, var(--cqs-muted)); }\n:scope .drawer-icon:hover { color: var(--cqs-accent); }\n:scope .drawer-icon.openIcon { color: var(--cqs-accent); text-shadow: 0 0 12px color-mix(in srgb, var(--cqs-accent) 35%, transparent); }\n:scope .drawer-content { border: 1px solid var(--cqs-border); border-radius: 20px; box-shadow: 0 22px 44px -30px var(--cqs-accent); }" });
 const plain = value => value && typeof value === 'object' && !Array.isArray(value);
 const keys = (obj, allowed, where) => {
     if (!plain(obj)) throw new Error(`${where}: 객체 형식이어야 합니다.`);
@@ -494,7 +665,7 @@ function validateQrStyles(input = []) {
         };
     });
 }
-return { DEFAULT_THEME, validateTheme, themeVariables, isDarkColor, readableOn, displayLabel, characterKey, MAX_THEME_BYTES, MAX_WALLPAPER_BYTES, MAX_ICON_BYTES, validateImage, validateIcon, resolveIcon, resolveHandleIcon, qrTarget, sameQrTarget, QR_SHAPES };
+return { DEFAULT_THEME, CUTIE_SOURCE, validateTheme, themeVariables, isDarkColor, readableOn, displayLabel, characterKey, MAX_THEME_BYTES, MAX_WALLPAPER_BYTES, MAX_ICON_BYTES, validateImage, validateIcon, resolveIcon, resolveHandleIcon, qrTarget, sameQrTarget, QR_SHAPES };
 })();
 modules['assets-ui'] = (() => {
 const { MAX_ICON_BYTES, MAX_WALLPAPER_BYTES, validateImage, qrTarget, sameQrTarget } = modules['theme'];
@@ -752,7 +923,33 @@ function cleanHtml(input, allowed, required, label) {
     return result;
 }
 
-function cssFor(input, scope, label) {
+/** Split a declaration block on top-level semicolons (ignores ; inside quotes and parentheses). */
+function splitDeclarations(text) {
+    const parts = []; let depth = 0, quote = '', start = 0;
+    for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        if (quote) { if (c === '\\') i++; else if (c === quote) quote = ''; continue; }
+        if (c === '"' || c === "'") quote = c;
+        else if (c === '(') depth++;
+        else if (c === ')') depth = Math.max(0, depth - 1);
+        else if (c === ';' && depth === 0) { parts.push(text.slice(start, i)); start = i + 1; }
+    }
+    parts.push(text.slice(start));
+    return parts.map(part => part.trim()).filter(Boolean);
+}
+/** Chat and menu CSS must beat the user's own SillyTavern theme CSS, which often uses !important. */
+function forceImportant(rules) {
+    for (const rule of rules) {
+        if (rule.constructor.name === 'CSSKeyframesRule') continue;
+        if (rule.style && rule.style.length) {
+            rule.style.cssText = splitDeclarations(rule.style.cssText)
+                .map(declaration => /!\s*important$/i.test(declaration) ? declaration : `${declaration} !important`).join('; ');
+        }
+        if (rule.cssRules) forceImportant(rule.cssRules);
+    }
+}
+const FORCE_LAYER = 'cqs-force';
+function cssFor(input, scope, label, force = false) {
     if (!input.replace(/\/\*[\s\S]*?\*\//g, '').trim()) return '';
     const sheet = new CSSStyleSheet();
     sheet.replaceSync(input);
@@ -765,9 +962,12 @@ function cssFor(input, scope, label) {
         }
     }
     checkRules(sheet.cssRules);
+    if (force) forceImportant(sheet.cssRules);
     // CSSOM serializes complete rules so malformed input cannot close the enclosing scope.
-    sheet.replaceSync(`@scope (${scope}) { ${[...sheet.cssRules].map(rule => rule.cssText).join('\n')} }`);
-    if (sheet.cssRules[0]?.constructor.name !== 'CSSScopeRule') throw new Error('이 브라우저는 CSS @scope를 지원하지 않습니다.');
+    const body = `@scope (${scope}) { ${[...sheet.cssRules].map(rule => rule.cssText).join('\n')} }`;
+    sheet.replaceSync(force ? `@layer ${FORCE_LAYER} { ${body} }` : body);
+    const scoped = force ? sheet.cssRules[0]?.cssRules?.[0] : sheet.cssRules[0];
+    if (scoped?.constructor.name !== 'CSSScopeRule') throw new Error('이 브라우저는 CSS @scope를 지원하지 않습니다.');
     return sheet.cssRules[0].cssText;
 }
 
@@ -777,8 +977,8 @@ function compileSource(theme) {
         panel: cleanHtml(source.panelHtml, panelSlots, ['close', 'qr'], '패널 HTML'),
         handle: cleanHtml(source.handleHtml, handleSlots, [], '손잡이 HTML'),
         panelCss: cssFor(source.panelCss, '#cqs-root', '패널 CSS'),
-        chatCss: cssFor(source.chatCss, '#sheld, #bg1, #bg_custom, #options', '채팅 CSS'),
-        menuCss: cssFor(source.menuCss, '#top-bar, #top-settings-holder', '상단 메뉴 CSS'),
+        chatCss: cssFor(source.chatCss, '#sheld, #bg1, #bg_custom, #options', '채팅 CSS', true),
+        menuCss: cssFor(source.menuCss, '#top-bar, #top-settings-holder', '상단 메뉴 CSS', true),
         qr: qrStyles.map((rule, index) => ({
             html: cleanHtml(rule.html, qrSlots, ['label'], 'QR HTML'),
             css: cssFor(rule.css, `#cqs-root .cqs-qr[data-cqs-design="${index}"]`, 'QR CSS')
@@ -791,7 +991,6 @@ function fillSlots(template, slots) {
     for (const node of fragment.querySelectorAll('[data-cqs-slot]')) node.append(...(slots[node.dataset.cqsSlot] || []));
     return fragment;
 }
-
 return { compileSource, fillSlots };
 })();
 modules['source-ui'] = (() => {
@@ -880,7 +1079,7 @@ function createSourceEditor({ patch, info }) {
 return { createSourceEditor };
 })();
 modules['index'] = (() => {
-const { DEFAULT_THEME, validateTheme, themeVariables, characterKey, resolveIcon, resolveHandleIcon, displayLabel, MAX_THEME_BYTES, qrTarget, sameQrTarget } = modules['theme'];
+const { DEFAULT_THEME, CUTIE_SOURCE, validateTheme, themeVariables, characterKey, resolveIcon, resolveHandleIcon, displayLabel, MAX_THEME_BYTES, qrTarget, sameQrTarget } = modules['theme'];
 const { createAssetsEditor } = modules['assets-ui'];
 const { compileSource, fillSlots } = modules['source'];
 const { createSourceEditor } = modules['source-ui'];
@@ -913,7 +1112,8 @@ function settings() {
     return all[KEY];
 }
 function save() { ctx().saveSettingsDebounced(); }
-function themes() { return { 'modern-cutie': DEFAULT_THEME, ...bundled, ...settings().themes }; }
+const CUTIE = { ...DEFAULT_THEME, source: { ...DEFAULT_THEME.source, ...CUTIE_SOURCE } };
+function themes() { return { 'modern-cutie': CUTIE, ...bundled, ...settings().themes }; }
 function isBuiltIn(id) { return id === 'modern-cutie' || (Object.hasOwn(bundled, id) && !Object.hasOwn(settings().themes, id)); }
 function themeOptions() {
     return Object.entries(themes()).map(([id, theme]) => [id, isBuiltIn(id) ? `${theme.name} · 내장` : theme.name]);
@@ -943,12 +1143,15 @@ function themeFor(profile) {
 }
 function profileFor(key) {
     const stored = settings().profiles[key];
-    return {
+    const profile = {
         enabled: false, theme: 'modern-cutie', side: 'right', showHidden: false, open: false,
         stripPrefix: false, panelEnabled: true, chatEnabled: true, menuEnabled: true,
-        sourceEnabled: false, chatStyle: stored ? 'cards' : 'native', closeAfterRun: 'mobile', ...stored,
+        sourceEnabled: undefined, chatStyle: stored ? 'cards' : 'native', closeAfterRun: 'mobile', ...stored,
         sets: Array.isArray(stored?.sets) ? [...new Set(stored.sets.filter(name => typeof name === 'string'))] : []
     };
+    // 내장 테마는 확장과 함께 배포된 믿을 수 있는 소스라 따로 고르지 않았으면 디자인까지 켠다.
+    if (typeof stored?.sourceEnabled !== 'boolean') profile.sourceEnabled = isBuiltIn(profile.theme);
+    return profile;
 }
 function activeCharacter() {
     const context = ctx();
@@ -976,7 +1179,7 @@ function syncChatMode() {
     else shell.dataset.cqsMode = classes.contains('bubblechat') ? 'bubbles' : classes.contains('documentstyle') ? 'document' : 'flat';
 }
 function clearTheme() {
-    document.body.classList.remove('cqs-themed', 'cqs-chat');
+    document.body.classList.remove('cqs-themed', 'cqs-chat', 'cqs-menu');
     syncChatMode();
     delete document.body.dataset.cqsBackground;
     delete document.body.dataset.cqsWallpaper;
@@ -991,6 +1194,7 @@ function applyTheme(theme, profile) {
     themeStyle.textContent = `body.cqs-themed { ${variables.cssText} }`;
     document.body.classList.add('cqs-themed');
     document.body.classList.toggle('cqs-chat', profile.chatEnabled);
+    document.body.classList.toggle('cqs-menu', profile.menuEnabled);
     syncChatMode();
     document.body.dataset.cqsBackground = theme.decoration.background;
     document.body.dataset.cqsWallpaper = String(Boolean(theme.wallpaper.image));
@@ -1194,11 +1398,11 @@ function showSettings() {
     const enabled = check('이 캐릭터에 테마 사용', profile.enabled);
     const usePanel = check('QR 사이드패널 표시', profile.panelEnabled);
     const useChat = check('채팅 화면 꾸미기', profile.chatEnabled);
-    const useMenu = check('상단 메뉴 CSS 적용', profile.menuEnabled);
+    const useMenu = check('상단 메뉴·서랍 꾸미기', profile.menuEnabled);
     const useSource = check('이 캐릭터에서 테마의 HTML/CSS 적용', profile.sourceEnabled);
     const chatStyle = select([['native', '실리태번 채팅 형식 유지'], ['cards', '카드 모양 (메시지마다 상자)']], profile.chatStyle);
     const themeSelect = select(themeOptions(), profile.theme);
-    themeSelect.addEventListener('change', () => { useSource.input.checked = themeSelect.value === profile.theme && profile.sourceEnabled; });
+    themeSelect.addEventListener('change', () => { useSource.input.checked = themeSelect.value === profile.theme ? profile.sourceEnabled : isBuiltIn(themeSelect.value); });
     const side = select([['right','오른쪽'],['left','왼쪽']],profile.side);
     const hidden = check('숨김 QR도 패널에 표시',profile.showHidden);
     const strip = check('버튼 이름 앞 이모지·기호 숨기기 (패널 표시만, 원본 QR은 그대로)',Boolean(profile.stripPrefix));
@@ -1394,6 +1598,9 @@ function mount() {
     panelParts = { eyebrow: top.firstChild, close: top.lastChild, heading, subtitle, search, refresh, settings: openSettings, qr: content, status };
     panelDefaults = { header, top, toolbar };
     root.append(handle, panel); document.body.append(root);
+    // 테마 레이어를 문서 맨 앞에서 선언해 두면, 이 레이어의 !important 규칙이 실리태번 사용자 CSS·다른 확장의 !important보다 앞선다.
+    const layerOrder = el('style'); layerOrder.id = 'cqs-layer-order'; layerOrder.textContent = '@layer cqs-force;';
+    document.head.prepend(layerOrder);
     themeStyle = el('style'); themeStyle.id = 'cqs-theme-vars';
     sourceStyle = el('style'); sourceStyle.id = 'cqs-source';
     document.head.append(themeStyle, sourceStyle);

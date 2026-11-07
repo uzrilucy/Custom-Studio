@@ -1,4 +1,4 @@
-import { DEFAULT_THEME, validateTheme, themeVariables, characterKey, resolveIcon, resolveHandleIcon, displayLabel, MAX_THEME_BYTES, qrTarget, sameQrTarget } from './theme.js';
+import { DEFAULT_THEME, CUTIE_SOURCE, validateTheme, themeVariables, characterKey, resolveIcon, resolveHandleIcon, displayLabel, MAX_THEME_BYTES, qrTarget, sameQrTarget } from './theme.js';
 import { createAssetsEditor } from './assets-ui.js';
 import { compileSource, fillSlots } from './source.js';
 import { createSourceEditor } from './source-ui.js';
@@ -31,7 +31,8 @@ function settings() {
     return all[KEY];
 }
 function save() { ctx().saveSettingsDebounced(); }
-function themes() { return { 'modern-cutie': DEFAULT_THEME, ...bundled, ...settings().themes }; }
+const CUTIE = { ...DEFAULT_THEME, source: { ...DEFAULT_THEME.source, ...CUTIE_SOURCE } };
+function themes() { return { 'modern-cutie': CUTIE, ...bundled, ...settings().themes }; }
 function isBuiltIn(id) { return id === 'modern-cutie' || (Object.hasOwn(bundled, id) && !Object.hasOwn(settings().themes, id)); }
 function themeOptions() {
     return Object.entries(themes()).map(([id, theme]) => [id, isBuiltIn(id) ? `${theme.name} · 내장` : theme.name]);
@@ -61,12 +62,15 @@ function themeFor(profile) {
 }
 function profileFor(key) {
     const stored = settings().profiles[key];
-    return {
+    const profile = {
         enabled: false, theme: 'modern-cutie', side: 'right', showHidden: false, open: false,
         stripPrefix: false, panelEnabled: true, chatEnabled: true, menuEnabled: true,
-        sourceEnabled: false, chatStyle: stored ? 'cards' : 'native', closeAfterRun: 'mobile', ...stored,
+        sourceEnabled: undefined, chatStyle: stored ? 'cards' : 'native', closeAfterRun: 'mobile', ...stored,
         sets: Array.isArray(stored?.sets) ? [...new Set(stored.sets.filter(name => typeof name === 'string'))] : []
     };
+    // 내장 테마는 확장과 함께 배포된 믿을 수 있는 소스라 따로 고르지 않았으면 디자인까지 켠다.
+    if (typeof stored?.sourceEnabled !== 'boolean') profile.sourceEnabled = isBuiltIn(profile.theme);
+    return profile;
 }
 function activeCharacter() {
     const context = ctx();
@@ -94,7 +98,7 @@ function syncChatMode() {
     else shell.dataset.cqsMode = classes.contains('bubblechat') ? 'bubbles' : classes.contains('documentstyle') ? 'document' : 'flat';
 }
 function clearTheme() {
-    document.body.classList.remove('cqs-themed', 'cqs-chat');
+    document.body.classList.remove('cqs-themed', 'cqs-chat', 'cqs-menu');
     syncChatMode();
     delete document.body.dataset.cqsBackground;
     delete document.body.dataset.cqsWallpaper;
@@ -109,6 +113,7 @@ function applyTheme(theme, profile) {
     themeStyle.textContent = `body.cqs-themed { ${variables.cssText} }`;
     document.body.classList.add('cqs-themed');
     document.body.classList.toggle('cqs-chat', profile.chatEnabled);
+    document.body.classList.toggle('cqs-menu', profile.menuEnabled);
     syncChatMode();
     document.body.dataset.cqsBackground = theme.decoration.background;
     document.body.dataset.cqsWallpaper = String(Boolean(theme.wallpaper.image));
@@ -312,11 +317,11 @@ function showSettings() {
     const enabled = check('이 캐릭터에 테마 사용', profile.enabled);
     const usePanel = check('QR 사이드패널 표시', profile.panelEnabled);
     const useChat = check('채팅 화면 꾸미기', profile.chatEnabled);
-    const useMenu = check('상단 메뉴 CSS 적용', profile.menuEnabled);
+    const useMenu = check('상단 메뉴·서랍 꾸미기', profile.menuEnabled);
     const useSource = check('이 캐릭터에서 테마의 HTML/CSS 적용', profile.sourceEnabled);
     const chatStyle = select([['native', '실리태번 채팅 형식 유지'], ['cards', '카드 모양 (메시지마다 상자)']], profile.chatStyle);
     const themeSelect = select(themeOptions(), profile.theme);
-    themeSelect.addEventListener('change', () => { useSource.input.checked = themeSelect.value === profile.theme && profile.sourceEnabled; });
+    themeSelect.addEventListener('change', () => { useSource.input.checked = themeSelect.value === profile.theme ? profile.sourceEnabled : isBuiltIn(themeSelect.value); });
     const side = select([['right','오른쪽'],['left','왼쪽']],profile.side);
     const hidden = check('숨김 QR도 패널에 표시',profile.showHidden);
     const strip = check('버튼 이름 앞 이모지·기호 숨기기 (패널 표시만, 원본 QR은 그대로)',Boolean(profile.stripPrefix));
@@ -512,6 +517,9 @@ function mount() {
     panelParts = { eyebrow: top.firstChild, close: top.lastChild, heading, subtitle, search, refresh, settings: openSettings, qr: content, status };
     panelDefaults = { header, top, toolbar };
     root.append(handle, panel); document.body.append(root);
+    // 테마 레이어를 문서 맨 앞에서 선언해 두면, 이 레이어의 !important 규칙이 실리태번 사용자 CSS·다른 확장의 !important보다 앞선다.
+    const layerOrder = el('style'); layerOrder.id = 'cqs-layer-order'; layerOrder.textContent = '@layer cqs-force;';
+    document.head.prepend(layerOrder);
     themeStyle = el('style'); themeStyle.id = 'cqs-theme-vars';
     sourceStyle = el('style'); sourceStyle.id = 'cqs-source';
     document.head.append(themeStyle, sourceStyle);

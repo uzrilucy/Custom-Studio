@@ -50,7 +50,33 @@ function cleanHtml(input, allowed, required, label) {
     return result;
 }
 
-function cssFor(input, scope, label) {
+/** Split a declaration block on top-level semicolons (ignores ; inside quotes and parentheses). */
+function splitDeclarations(text) {
+    const parts = []; let depth = 0, quote = '', start = 0;
+    for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        if (quote) { if (c === '\\') i++; else if (c === quote) quote = ''; continue; }
+        if (c === '"' || c === "'") quote = c;
+        else if (c === '(') depth++;
+        else if (c === ')') depth = Math.max(0, depth - 1);
+        else if (c === ';' && depth === 0) { parts.push(text.slice(start, i)); start = i + 1; }
+    }
+    parts.push(text.slice(start));
+    return parts.map(part => part.trim()).filter(Boolean);
+}
+/** Chat and menu CSS must beat the user's own SillyTavern theme CSS, which often uses !important. */
+function forceImportant(rules) {
+    for (const rule of rules) {
+        if (rule.constructor.name === 'CSSKeyframesRule') continue;
+        if (rule.style && rule.style.length) {
+            rule.style.cssText = splitDeclarations(rule.style.cssText)
+                .map(declaration => /!\s*important$/i.test(declaration) ? declaration : `${declaration} !important`).join('; ');
+        }
+        if (rule.cssRules) forceImportant(rule.cssRules);
+    }
+}
+export const FORCE_LAYER = 'cqs-force';
+function cssFor(input, scope, label, force = false) {
     if (!input.replace(/\/\*[\s\S]*?\*\//g, '').trim()) return '';
     const sheet = new CSSStyleSheet();
     sheet.replaceSync(input);
@@ -63,9 +89,12 @@ function cssFor(input, scope, label) {
         }
     }
     checkRules(sheet.cssRules);
+    if (force) forceImportant(sheet.cssRules);
     // CSSOM serializes complete rules so malformed input cannot close the enclosing scope.
-    sheet.replaceSync(`@scope (${scope}) { ${[...sheet.cssRules].map(rule => rule.cssText).join('\n')} }`);
-    if (sheet.cssRules[0]?.constructor.name !== 'CSSScopeRule') throw new Error('이 브라우저는 CSS @scope를 지원하지 않습니다.');
+    const body = `@scope (${scope}) { ${[...sheet.cssRules].map(rule => rule.cssText).join('\n')} }`;
+    sheet.replaceSync(force ? `@layer ${FORCE_LAYER} { ${body} }` : body);
+    const scoped = force ? sheet.cssRules[0]?.cssRules?.[0] : sheet.cssRules[0];
+    if (scoped?.constructor.name !== 'CSSScopeRule') throw new Error('이 브라우저는 CSS @scope를 지원하지 않습니다.');
     return sheet.cssRules[0].cssText;
 }
 
@@ -75,8 +104,8 @@ export function compileSource(theme) {
         panel: cleanHtml(source.panelHtml, panelSlots, ['close', 'qr'], '패널 HTML'),
         handle: cleanHtml(source.handleHtml, handleSlots, [], '손잡이 HTML'),
         panelCss: cssFor(source.panelCss, '#cqs-root', '패널 CSS'),
-        chatCss: cssFor(source.chatCss, '#sheld, #bg1, #bg_custom, #options', '채팅 CSS'),
-        menuCss: cssFor(source.menuCss, '#top-bar, #top-settings-holder', '상단 메뉴 CSS'),
+        chatCss: cssFor(source.chatCss, '#sheld, #bg1, #bg_custom, #options', '채팅 CSS', true),
+        menuCss: cssFor(source.menuCss, '#top-bar, #top-settings-holder', '상단 메뉴 CSS', true),
         qr: qrStyles.map((rule, index) => ({
             html: cleanHtml(rule.html, qrSlots, ['label'], 'QR HTML'),
             css: cssFor(rule.css, `#cqs-root .cqs-qr[data-cqs-design="${index}"]`, 'QR CSS')

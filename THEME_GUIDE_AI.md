@@ -132,11 +132,11 @@ Each field is wrapped in `@scope (ROOT)`, so it can only affect its root.
 
 ## 4. Mandatory gotchas
 
-1. **Specificity.**
-   - Extension defaults contain IDs, e.g. `body.cqs-chat #send_form` and `body.cqs-chat[data-cqs-background="dots"] #chat`.
-   - Beat them with doubled IDs or an extra scope: `:scope #send_form#send_form`, `:scope #chat#chat`, `#cqs-panel .cqs-qr`, `:scope > .cqs-handle`.
-   - Input-bar icons need `:scope #send_form #rightSendForm > div`.
-   - Inline styles set by SillyTavern (background image on `#bg1`/`#bg_custom`) need `!important`.
+1. **Priority.**
+   - chatCss and menuCss are compiled with `!important` on every declaration, inside the priority layer `cqs-force`. They beat the user's SillyTavern custom CSS, other theme extensions and inline styles. Do not add `!important` yourself (harmless if present).
+   - The extension's default chat/menu styling has specificity 0, so plain selectors win: `:scope .mes`, `:scope #send_form`, `:scope#top-bar`.
+   - Because everything there is forced, never set `display`, `height`, `max-height`, `opacity`, `transform`, `position` or `overflow` on SillyTavern elements that open, close or animate (`.mes`, `.drawer-content`, `#left-nav-panel`, `#right-nav-panel`, `.swipe_*`, `#mes_stop`). Exception: hiding `#qr--bar`.
+   - panelCss and qrStyles css are NOT forced. Beat the panel defaults with one extra scope: `#cqs-panel .cqs-qr`, `:scope > .cqs-handle`.
 2. **Shared custom properties go on `:scope` in panelCss** (= `#cqs-root`) so both panel and handle inherit them. An undefined `var()` voids the whole declaration.
 3. **Per-button values via fallback.**
    - Panel CSS reads `var(--q, var(--cqs-accent))`; each qrStyles css sets `:scope { --q: #hex; }`.
@@ -144,7 +144,9 @@ Each field is wrapped in `@scope (ROOT)`, so it can only affect its root.
 4. **Fixed positioning on mobile.**
    - SillyTavern mobile has `body{position:fixed}` and `html{transform}`, so the containing block height is 0.
    - Never use `%` or `top`+`bottom` for the panel or handle. Use `dvh`, e.g. `top: 40dvh`, `height: calc(100dvh - 90px)`.
-5. **Native QR bar.** To hide it while the theme is active: chatCss `:scope #qr--bar { display: none !important; }`.
+5. **Native QR bar.** To hide it while the theme is active: chatCss `:scope #qr--bar { display: none; }`.
+
+**Already themed without any source:** background (`#bg1`), chat column, messages (text, names, `q`, `em`, timestamps, buttons), input bar, native QR bar, top bar, drawers and their inputs all follow `colors` automatically. Use chatCss/menuCss only for distinctive design on top.
 6. **No layout breakage.**
    - Do not change `display` or `position` of SillyTavern containers (`#sheld`, `#chat`, `#form_sheld`, `#top-bar`) or hide their controls.
    - Restyle color, border, background, radius, shadow and typography instead.
@@ -162,11 +164,11 @@ Each field is wrapped in `@scope (ROOT)`, so it can only affect its root.
 Then tell the user how to apply it:
 1. JSON 가져오기
 2. 테마 저장
-3. 캐릭터 설정에서 테마 선택, 「이 캐릭터에서 테마의 HTML/CSS 적용」 켜기
+3. 캐릭터 설정에서 테마 선택, 「이 캐릭터에서 테마의 HTML/CSS 적용」 켜기 (채팅 · 상단 메뉴 디자인은 「채팅 화면 꾸미기」 · 「상단 메뉴·서랍 꾸미기」도 켜져 있어야 함)
 4. 캐릭터에 적용
 
 ## 6. Minimal working example
 
 ```json
-{"format":"custom-studio-theme","version":1,"id":"dusk-glass","name":"황혼 유리","colors":{"canvas":"#1a1726","surface":"#221e31","user":"#2a2540","text":"#eee9fb","muted":"#a9a1c4","accent":"#f0b8c8","accentSoft":"#3a2a36","border":"#363050","quote":"#f6d3dd","code":"#211d30","headerA":"#2b2444","headerB":"#1f2340","button":"#211d31","buttonHover":"#2c2742"},"layout":{"panelWidth":340,"radius":20,"buttonRadius":12,"gap":8,"columns":2,"fontSize":16,"lineHeight":1.85},"decoration":{"symbol":"✧","title":"Dusk","subtitle":"해 질 녘의 바로가기","background":"plain"},"handle":{"icon":{"type":"text","value":"✧"},"label":"QR","showLabel":true,"size":20},"source":{"panelHtml":"<header class=\"dg-head\"><div class=\"dg-row\"><span data-cqs-slot=\"eyebrow\"></span><span data-cqs-slot=\"close\"></span></div><div data-cqs-slot=\"heading\"></div><div data-cqs-slot=\"subtitle\"></div></header><div class=\"dg-tools\"><span class=\"dg-find\" data-cqs-slot=\"search\"></span><span data-cqs-slot=\"refresh\"></span></div><div data-cqs-slot=\"qr\"></div><footer data-cqs-slot=\"status\"></footer>","handleHtml":"","panelCss":":scope { --dg-line: color-mix(in srgb, var(--cqs-accent) 30%, var(--cqs-border)); }\n#cqs-panel { background: linear-gradient(180deg, var(--cqs-headerA), var(--cqs-canvas) 160px); border-color: var(--dg-line); }\n#cqs-panel .dg-head { padding: 18px 18px 10px; }\n#cqs-panel .dg-row { display: flex; justify-content: space-between; align-items: center; }\n#cqs-panel .dg-tools { display: flex; gap: 6px; padding: 6px 14px; }\n#cqs-panel .dg-find { flex: 1; display: flex; }\n#cqs-panel .dg-tools input { width: 100%; padding: 9px 12px; border-radius: 10px; background: var(--cqs-surface); color: var(--cqs-text); border: 1px solid var(--cqs-border); }\n#cqs-panel .cqs-qr { flex-direction: row; justify-content: flex-start; text-align: left; min-height: 54px; border-color: var(--dg-line); }\n#cqs-panel .cqs-qr:hover:not(:disabled) { box-shadow: 0 8px 20px -12px var(--cqs-accent); }\n:scope > .cqs-handle { top: 42dvh; }","chatCss":":scope #send_form#send_form { border-radius: 16px; border: 1px solid var(--cqs-border); }\n:scope #send_form #rightSendForm #send_but { color: var(--cqs-accent); }","menuCss":":scope#top-bar { background: var(--cqs-canvas); border-bottom: 1px solid var(--cqs-border); }\n:scope .drawer-icon.openIcon { color: var(--cqs-accent); }"}}
+{"format":"custom-studio-theme","version":1,"id":"dusk-glass","name":"황혼 유리","colors":{"canvas":"#1a1726","surface":"#221e31","user":"#2a2540","text":"#eee9fb","muted":"#a9a1c4","accent":"#f0b8c8","accentSoft":"#3a2a36","border":"#363050","quote":"#f6d3dd","code":"#211d30","headerA":"#2b2444","headerB":"#1f2340","button":"#211d31","buttonHover":"#2c2742"},"layout":{"panelWidth":340,"radius":20,"buttonRadius":12,"gap":8,"columns":2,"fontSize":16,"lineHeight":1.85},"decoration":{"symbol":"✧","title":"Dusk","subtitle":"해 질 녘의 바로가기","background":"plain"},"handle":{"icon":{"type":"text","value":"✧"},"label":"QR","showLabel":true,"size":20},"source":{"panelHtml":"<header class=\"dg-head\"><div class=\"dg-row\"><span data-cqs-slot=\"eyebrow\"></span><span data-cqs-slot=\"close\"></span></div><div data-cqs-slot=\"heading\"></div><div data-cqs-slot=\"subtitle\"></div></header><div class=\"dg-tools\"><span class=\"dg-find\" data-cqs-slot=\"search\"></span><span data-cqs-slot=\"refresh\"></span></div><div data-cqs-slot=\"qr\"></div><footer data-cqs-slot=\"status\"></footer>","handleHtml":"","panelCss":":scope { --dg-line: color-mix(in srgb, var(--cqs-accent) 30%, var(--cqs-border)); }\n#cqs-panel { background: linear-gradient(180deg, var(--cqs-headerA), var(--cqs-canvas) 160px); border-color: var(--dg-line); }\n#cqs-panel .dg-head { padding: 18px 18px 10px; }\n#cqs-panel .dg-row { display: flex; justify-content: space-between; align-items: center; }\n#cqs-panel .dg-tools { display: flex; gap: 6px; padding: 6px 14px; }\n#cqs-panel .dg-find { flex: 1; display: flex; }\n#cqs-panel .dg-tools input { width: 100%; padding: 9px 12px; border-radius: 10px; background: var(--cqs-surface); color: var(--cqs-text); border: 1px solid var(--cqs-border); }\n#cqs-panel .cqs-qr { flex-direction: row; justify-content: flex-start; text-align: left; min-height: 54px; border-color: var(--dg-line); }\n#cqs-panel .cqs-qr:hover:not(:disabled) { box-shadow: 0 8px 20px -12px var(--cqs-accent); }\n:scope > .cqs-handle { top: 42dvh; }","chatCss":":scope #send_form { border-radius: 16px; border: 1px solid var(--cqs-border); }\n:scope #send_form #rightSendForm #send_but { color: var(--cqs-accent); }","menuCss":":scope#top-bar { background: var(--cqs-canvas); border-bottom: 1px solid var(--cqs-border); }\n:scope .drawer-icon.openIcon { color: var(--cqs-accent); }"}}
 ```

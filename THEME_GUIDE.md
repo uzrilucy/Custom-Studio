@@ -139,13 +139,19 @@
 - **이름을 바꿔도 유지:** 개별 지정은 QR의 원래 번호(id)에 붙기 때문에 버튼 이름을 바꿔도 남습니다. 세트 이름을 바꾸거나 QR을 지웠다 다시 만들면 다시 지정해야 합니다.
 - **소스 스위치와 별개:** 배경색 · 이미지 · 모양은 「HTML/CSS 적용」을 꺼도 보입니다. 개별 QR HTML/CSS만 켜야 보입니다.
 
+> **1단계 색만으로도 화면 전체가 바뀝니다.** 「채팅 화면 꾸미기」와 「상단 메뉴·서랍 꾸미기」가 켜져 있으면, 소스를 쓰지 않아도 다음이 모두 테마 색을 따릅니다.
+> - 화면 배경, 채팅 칸, 메시지 칸(본문 · 이름 · 대사 · 지문), 입력창과 그 버튼, 기본 QR 막대
+> - 상단 메뉴, 열리는 서랍과 그 안의 입력칸
+>
+> 실리태번 테마의 사용자 CSS가 `!important`로 색을 박아 두었어도 캐릭터 테마가 이깁니다.
+
 ---
 
 ## 3단계 · 소스 편집 (HTML · CSS)
 
 **소스 편집 · 패널 HTML과 영역별 CSS**를 펼치면 다섯 칸이 있습니다. 빈 칸은 기본 디자인을 그대로 씁니다.
 
-캐릭터 설정에서 **「이 캐릭터에서 테마의 HTML/CSS 적용」을 켜야** 소스가 적용됩니다.
+캐릭터 설정에서 **「이 캐릭터에서 테마의 HTML/CSS 적용」을 켜야** 소스가 적용됩니다. 내장 테마는 확장과 함께 배포된 소스라서 처음부터 켜져 있습니다.
 
 ### 3-1. 패널 HTML
 
@@ -234,10 +240,12 @@
 
 #### 꼭 알아야 할 함정 네 가지
 
-1. **기본 규칙보다 한 단계 구체적으로 쓰세요.**
-   - 확장 기본 규칙에는 `#id`가 들어 있어서, `:scope #send_form`처럼 쓰면 밀립니다.
-   - 아이디를 겹치거나(`:scope #send_form#send_form`) 범위를 하나 더 붙이면(`#cqs-panel .cqs-qr`) 됩니다.
-   - 실리태번이 직접 박아 넣는 스타일(예: 배경 이미지)을 바꿀 때는 `!important`를 씁니다.
+1. **채팅 CSS · 상단 메뉴 CSS는 자동으로 최우선 적용됩니다.**
+   - 두 칸의 모든 선언에 `!important`가 저절로 붙고, 우선순위 레이어(`cqs-force`) 안에 들어갑니다.
+   - 실리태번 테마의 사용자 CSS나 다른 꾸미기 확장이 `!important`를 써도 이 두 칸이 이깁니다. 실리태번이 직접 박는 배경 이미지도 따로 `!important` 없이 바뀝니다.
+   - 확장의 기본 꾸밈 규칙은 우선도 0으로 두었습니다. 그래서 `:scope .mes`, `:scope #send_form`처럼 평범하게 써도 기본값을 덮습니다. 이전 판처럼 아이디를 겹쳐 쓴(`#send_form#send_form`) 테마도 그대로 동작합니다.
+   - 대신 실리태번이 스스로 움직이는 속성은 건드리지 마세요. 서랍 · 메시지의 `display` · `height` · `opacity` · `transform`이 그렇습니다. 강제 적용이라 열고 닫는 동작이 막힐 수 있습니다.
+   - 패널 CSS와 개별 QR CSS는 확장 자신의 화면이라 평소대로 적용됩니다. 패널에서는 범위를 하나 더 붙여(`#cqs-panel .cqs-qr`) 기본 규칙을 이기세요.
 2. **공용 변수는 패널 CSS의 `:scope`에 두세요.** `#cqs-panel`에만 정의하면 손잡이에서는 비어 있습니다. 그 변수를 쓴 선언은 통째로 무시됩니다.
 3. **버튼마다 달라지는 값은 대체값으로 읽으세요.** 패널 CSS에서 `color: var(--q, var(--cqs-accent))`처럼 쓰고, 개별 QR CSS에서 `:scope { --q: #ff9cc0; }`로 넘깁니다. 패널 CSS에서 `--q`를 직접 정하면 개별 값이 밀립니다.
 4. **고정 위치 요소는 화면 단위로 쓰세요.** 실리태번 모바일은 기준 높이가 0이 되는 구조라서, `top: 40%`나 `top`+`bottom` 조합은 휴대폰에서 접힙니다. `top: 40dvh`, `height: calc(100dvh - 90px)`처럼 씁니다.
@@ -249,11 +257,15 @@
 :scope #qr--bar { display: none !important; }
 
 /* 채팅 CSS — 화면 전체 배경을 그라데이션으로 */
-:scope#bg1, :scope#bg_custom { background: linear-gradient(180deg, #1b1636, #0f0b20) !important; }
-:scope #chat#chat { background: color-mix(in srgb, var(--cqs-canvas) 50%, transparent); }
+:scope#bg1, :scope#bg_custom { background: linear-gradient(180deg, #1b1636, #0f0b20); }
+:scope #chat { background: color-mix(in srgb, var(--cqs-canvas) 50%, transparent); }
+
+/* 채팅 CSS — 기본(평면) 모드에서 메시지를 카드로 */
+:scope[data-cqs-mode="flat"] #chat .mes { background: var(--cqs-surface); border: 1px solid var(--cqs-border); border-radius: 20px; margin: 10px 12px; }
+:scope #chat .mes_text q { background: linear-gradient(transparent 60%, var(--cqs-accentSoft) 60%); }
 
 /* 채팅 CSS — 입력창 */
-:scope #send_form#send_form { border-radius: 16px; border: 1px solid var(--cqs-border); }
+:scope #send_form { border-radius: 16px; border: 1px solid var(--cqs-border); }
 :scope #send_form #rightSendForm #send_but { color: var(--cqs-accent); }
 
 /* 패널 CSS — 버튼을 가로형(아이콘 왼쪽)으로 */

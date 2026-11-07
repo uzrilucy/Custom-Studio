@@ -1,49 +1,213 @@
-/* Chat colors follow the active character. Native mode leaves the host's geometry intact. */
-body.cqs-chat #chat {
-    background-color: var(--cqs-canvas);
-    color: var(--cqs-text);
-    scrollbar-color: var(--cqs-border) transparent;
+/* ───────────────────────────────────────────────────────────────
+   채팅·상단 메뉴 꾸미기
+   실리태번 테마의 사용자 CSS나 다른 확장 테마는 !important를 자주 쓴다.
+   index.js가 문서 맨 앞에 선언한 @layer cqs-force 안의 !important는
+   레이어 밖의 어떤 !important보다도 우선하므로, 캐릭터 테마가 끝까지 이긴다.
+   모든 선택자를 :where()로 감싸 명시도를 0으로 두었다.
+   그래서 테마 소스(chatCss·menuCss, 같은 레이어에 자동 !important)는 :scope .mes처럼 써도 이 기본값을 덮는다.
+   ─────────────────────────────────────────────────────────────── */
+@layer cqs-force {
+/* 1) 실리태번 기본 UI가 읽는 SmartTheme 변수를 테마 색으로 바꾼다. */
+:where(body.cqs-menu), :where(body.cqs-chat) :where(#sheld, #options, #bg1, #bg_custom) {
+    --SmartThemeBodyColor: var(--cqs-text) !important;
+    --SmartThemeEmColor: var(--cqs-muted) !important;
+    --SmartThemeQuoteColor: var(--cqs-quote) !important;
+    --SmartThemeUnderlineColor: var(--cqs-accent) !important;
+    --SmartThemeBorderColor: var(--cqs-border) !important;
+    --SmartThemeShadowColor: transparent !important;
+    --SmartThemeBlurTintColor: color-mix(in srgb, var(--cqs-canvas) 90%, transparent) !important;
+    --SmartThemeChatTintColor: color-mix(in srgb, var(--cqs-canvas) 82%, transparent) !important;
+    --SmartThemeBotMesBlurTintColor: var(--cqs-message-surface) !important;
+    --SmartThemeUserMesBlurTintColor: var(--cqs-message-user) !important;
+    --cqs-ink-soft: color-mix(in srgb, var(--cqs-text) 62%, var(--cqs-canvas));
+    color-scheme: var(--cqs-scheme) !important;
 }
-body.cqs-chat[data-cqs-background="dots"] #chat {
-    background-image: radial-gradient(var(--cqs-border) .8px,transparent .8px);
-    background-size: 18px 18px;
+
+/* 2) 배경: 화면 전체 배경과 채팅 칸 */
+:where(body.cqs-chat) :where(#bg1, #bg_custom) {
+    background-color: var(--cqs-canvas) !important;
+    background-image:
+        radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, var(--cqs-headerA) 70%, transparent), transparent 62%),
+        radial-gradient(80% 60% at 100% 100%, color-mix(in srgb, var(--cqs-headerB) 55%, transparent), transparent 70%),
+        linear-gradient(180deg, var(--cqs-canvas), var(--cqs-canvas)) !important;
+    background-size: cover !important;
+    filter: none !important;
+    opacity: 1 !important;
 }
-body.cqs-chat[data-cqs-background="gradient"] #chat {
-    background-image: linear-gradient(150deg,var(--cqs-canvas),var(--cqs-headerB));
+:where(body.cqs-chat[data-cqs-wallpaper="true"]) :where(#bg1, #bg_custom) {
+    background-image: linear-gradient(var(--cqs-wallpaper-overlay), var(--cqs-wallpaper-overlay)), var(--cqs-wallpaper) !important;
+    background-size: auto, var(--cqs-wallpaper-size) !important;
+    background-position: center, var(--cqs-wallpaper-position) !important;
+    background-repeat: no-repeat, var(--cqs-wallpaper-repeat) !important;
 }
-body.cqs-chat[data-cqs-wallpaper="true"] #chat {
-    background-image: linear-gradient(var(--cqs-wallpaper-overlay),var(--cqs-wallpaper-overlay)),var(--cqs-wallpaper);
-    background-size: auto,var(--cqs-wallpaper-size);
-    background-position: center,var(--cqs-wallpaper-position);
-    background-repeat: no-repeat,var(--cqs-wallpaper-repeat);
+:where(body.cqs-chat #chat) {
+    background-color: color-mix(in srgb, var(--cqs-canvas) 86%, transparent) !important;
+    color: var(--cqs-text) !important;
+    scrollbar-color: var(--cqs-border) transparent !important;
+    text-shadow: none !important;
 }
-body.cqs-chat[data-cqs-chat-style="cards"] #chat .mes {
-    background: var(--cqs-message-surface);
-    color: var(--cqs-text);
-    border: 1px solid var(--cqs-border);
-    border-radius: var(--cqs-radius);
-    margin: var(--cqs-gap) 10px;
-    padding: 18px;
-    width: calc(100% - 20px);
-    box-sizing: border-box;
-    box-shadow: 0 4px 16px color-mix(in srgb,var(--cqs-accent) 5%,transparent);
-    text-shadow: none;
+:where(body.cqs-chat[data-cqs-background="dots"] #chat) {
+    background-image: radial-gradient(color-mix(in srgb, var(--cqs-border) 90%, transparent) .8px, transparent .8px) !important;
+    background-size: 18px 18px !important;
 }
-body.cqs-chat[data-cqs-chat-style="cards"] #chat .mes[is_user="true"] {background:var(--cqs-message-user);}
-body.cqs-chat[data-cqs-chat-style="cards"] #chat .mes.selected {background:var(--SmartThemeQuoteColor);color:var(--cqs-text);outline:2px solid var(--cqs-accent);outline-offset:-2px;}
-body.cqs-chat #chat .mes .mes_text {color:var(--cqs-text);font-size:var(--cqs-fontSize);line-height:var(--cqs-lineHeight);text-shadow:none;}
-body.cqs-chat #chat .mes .ch_name {color:var(--cqs-accent);text-shadow:none;}
-body.cqs-chat #chat .mes .mes_text em {color:var(--cqs-muted);}
-body.cqs-chat #chat .mes .mes_text q {color:var(--cqs-quote);}
-body.cqs-chat #chat .mes .mes_text blockquote {color:var(--cqs-quote);border-color:var(--cqs-border);}
-body.cqs-chat #chat .mes .mes_text a {color:var(--cqs-accent);}
-body.cqs-chat #chat .mes .mes_text code {background:var(--cqs-code);color:var(--cqs-text);}
-body.cqs-chat[data-cqs-chat-style="cards"] #chat .mes .avatar img {border:2px solid var(--cqs-border);border-radius:var(--cqs-buttonRadius);box-sizing:border-box;}
-body.cqs-chat #send_form {background:var(--cqs-surface);border-color:var(--cqs-border);color:var(--cqs-text);text-shadow:none;}
-body.cqs-chat[data-cqs-chat-style="cards"] #send_form {border:1px solid var(--cqs-border);border-radius:var(--cqs-radius);}
-body.cqs-chat #send_textarea {background:transparent;color:var(--cqs-text);font-size:var(--cqs-fontSize);}
-body.cqs-chat #send_textarea::placeholder {color:var(--cqs-muted);}
-body.cqs-chat #send_form :is(.fa-solid,.fa-regular,.fa-fw) {color:var(--cqs-accent);text-shadow:none;}
+:where(body.cqs-chat[data-cqs-background="gradient"] #chat) {
+    background-image: linear-gradient(150deg, color-mix(in srgb, var(--cqs-canvas) 70%, transparent), color-mix(in srgb, var(--cqs-headerB) 70%, transparent)) !important;
+}
+:where(body.cqs-chat[data-cqs-background="plain"] #chat) { background-image: none !important; }
+:where(body.cqs-chat[data-cqs-wallpaper="true"] #chat) {
+    background-color: transparent !important;
+    background-image: none !important;
+}
+
+/* 3) 메시지 칸 */
+:where(body.cqs-chat #chat .mes) {
+    color: var(--cqs-text) !important;
+    border-color: var(--cqs-border) !important;
+    text-shadow: none !important;
+}
+/* 실리 형식 유지 · 기본(평면) 모드: 사용자 CSS가 씌운 카드 배경을 걷어내고 테마 배경 위에 글을 둔다. */
+:where(body.cqs-chat[data-cqs-chat-style="native"]:not(.bubblechat, .documentstyle) #chat .mes) {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+:where(body.cqs-chat[data-cqs-chat-style="native"]:not(.bubblechat, .documentstyle) #chat .mes:not(:last-child)) {
+    border-bottom: 1px solid color-mix(in srgb, var(--cqs-border) 55%, transparent) !important;
+}
+/* 말풍선 모드 */
+:where(body.cqs-chat[data-cqs-chat-style="native"].bubblechat #chat .mes) {
+    background: var(--cqs-message-surface) !important;
+    border: 1px solid var(--cqs-border) !important;
+    box-shadow: 0 6px 18px -14px var(--cqs-shadow) !important;
+}
+:where(body.cqs-chat[data-cqs-chat-style="native"].bubblechat #chat .mes[is_user="true"]) { background: var(--cqs-message-user) !important; }
+/* 문서 모드 */
+:where(body.cqs-chat[data-cqs-chat-style="native"].documentstyle #chat .mes) {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+/* 카드 모드 */
+:where(body.cqs-chat[data-cqs-chat-style="cards"] #chat .mes) {
+    background: var(--cqs-message-surface) !important;
+    border: 1px solid var(--cqs-border) !important;
+    border-radius: var(--cqs-radius) !important;
+    margin: var(--cqs-gap) 10px !important;
+    padding: 18px !important;
+    width: calc(100% - 20px) !important;
+    box-sizing: border-box !important;
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--cqs-accent) 5%, transparent) !important;
+}
+:where(body.cqs-chat[data-cqs-chat-style="cards"] #chat .mes[is_user="true"]) { background: var(--cqs-message-user) !important; }
+:where(body.cqs-chat[data-cqs-chat-style="cards"] #chat .mes .avatar img) {
+    border: 2px solid var(--cqs-border) !important;
+    border-radius: var(--cqs-buttonRadius) !important;
+    box-sizing: border-box !important;
+}
+:where(body.cqs-chat #chat .mes.selected) { outline: 2px solid var(--cqs-accent) !important; outline-offset: -2px !important; }
+@media (max-width: 600px) {
+    :where(body.cqs-chat[data-cqs-chat-style="cards"] #chat .mes) { padding: 12px !important; margin: 8px 6px !important; width: calc(100% - 12px) !important; }
+}
+
+/* 메시지 안쪽: 본문·강조·인용. 봇 정규식 HTML(.mes_text 안의 div 등)은 건드리지 않도록 마크다운 단계의 요소만 고른다. */
+:where(body.cqs-chat #chat .mes .mes_text) {
+    color: var(--cqs-text) !important;
+    text-shadow: none !important;
+}
+:where(body.cqs-chat #chat .mes_text > p),
+:where(body.cqs-chat #chat .mes_text > :is(ul, ol) > li) { color: var(--cqs-text) !important; }
+:where(body.cqs-chat #chat :is(.mes_text, .mes_text > p, .mes_text > :is(ul, ol) > li) > :is(em, i)),
+:where(body.cqs-chat #chat .mes_text > p > :is(q, strong, b) > :is(em, i)) {
+    color: var(--cqs-muted) !important;
+    background: none !important;
+    border: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+}
+:where(body.cqs-chat #chat :is(.mes_text, .mes_text > p, .mes_text > :is(ul, ol) > li) > q),
+:where(body.cqs-chat #chat .mes_text > p > :is(em, i, strong, b) > q) {
+    color: var(--cqs-quote) !important;
+    background: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+}
+:where(body.cqs-chat #chat :is(.mes_text, .mes_text > p) > :is(strong, b)) { color: var(--cqs-text) !important; background: none !important; }
+:where(body.cqs-chat #chat .mes_text blockquote) { color: var(--cqs-quote) !important; border-color: var(--cqs-accent) !important; background: color-mix(in srgb, var(--cqs-accentSoft) 45%, transparent) !important; }
+:where(body.cqs-chat #chat .mes_text a) { color: var(--cqs-accent) !important; }
+:where(body.cqs-chat #chat .mes_text :is(code, pre)) { background: var(--cqs-code) !important; color: var(--cqs-text) !important; border-color: var(--cqs-border) !important; }
+:where(body.cqs-chat #chat .mes_text hr) { border-color: var(--cqs-border) !important; }
+
+/* 이름·시간·버튼 */
+:where(body.cqs-chat #chat .mes .ch_name :is(.name_text, .name_text *)) { color: var(--cqs-accent) !important; text-shadow: none !important; }
+:where(body.cqs-chat #chat .mes :is(.timestamp, .mesIDDisplay, .mes_timer, .tokenCounterDisplay, .mes_reasoning_header_title)) { color: var(--cqs-muted) !important; text-shadow: none !important; }
+:where(body.cqs-chat #chat .mes :is(.mes_button, .extraMesButtonsHint, .mes_edit_buttons .menu_button)) { color: var(--cqs-muted) !important; text-shadow: none !important; }
+:where(body.cqs-chat #chat .mes :is(.mes_button, .extraMesButtonsHint):hover) { color: var(--cqs-accent) !important; }
+:where(body.cqs-chat #chat :is(.swipe_left, .swipe_right, .swipes-counter)) { color: var(--cqs-muted) !important; text-shadow: none !important; }
+:where(body.cqs-chat #chat :is(.swipe_left, .swipe_right):hover) { color: var(--cqs-accent) !important; }
+:where(body.cqs-chat #chat .mes .mes_edit_textarea, body.cqs-chat #chat .mes textarea) {
+    background: var(--cqs-surface) !important; color: var(--cqs-text) !important; border-color: var(--cqs-border) !important;
+}
+
+/* 4) 입력창 */
+:where(body.cqs-chat #send_form) {
+    background: color-mix(in srgb, var(--cqs-surface) 94%, transparent) !important;
+    border-color: var(--cqs-border) !important;
+    color: var(--cqs-text) !important;
+    text-shadow: none !important;
+    box-shadow: 0 -6px 22px -18px var(--cqs-shadow) !important;
+}
+:where(body.cqs-chat[data-cqs-chat-style="cards"] #send_form) {
+    border: 1px solid var(--cqs-border) !important;
+    border-radius: var(--cqs-radius) !important;
+}
+:where(body.cqs-chat #send_form #send_textarea) { background: transparent !important; color: var(--cqs-text) !important; text-shadow: none !important; }
+:where(body.cqs-chat #send_form #send_textarea)::placeholder { color: var(--cqs-muted) !important; opacity: 1 !important; }
+:where(body.cqs-chat #send_form :is(#leftSendForm, #rightSendForm) > div) { color: var(--cqs-muted) !important; text-shadow: none !important; }
+:where(body.cqs-chat #send_form :is(#leftSendForm, #rightSendForm) > div:hover) { color: var(--cqs-accent) !important; }
+:where(body.cqs-chat #send_form #send_but) { color: var(--cqs-accent) !important; }
+:where(body.cqs-chat #send_form #mes_stop) { color: var(--cqs-danger) !important; }
+:where(body.cqs-chat #qr--bar) { background: transparent !important; border-color: var(--cqs-border) !important; }
+:where(body.cqs-chat #qr--bar .qr--button) {
+    background: var(--cqs-button) !important; color: var(--cqs-text) !important;
+    border: 1px solid var(--cqs-border) !important; border-radius: var(--cqs-buttonRadius) !important; text-shadow: none !important;
+}
+:where(body.cqs-chat #qr--bar .qr--button:hover) { background: var(--cqs-buttonHover) !important; color: var(--cqs-accent) !important; }
+:where(body.cqs-chat #options .options-content) {
+    background: var(--cqs-canvas) !important; color: var(--cqs-text) !important; border-color: var(--cqs-border) !important;
+}
+:where(body.cqs-chat #options .options-content a) { color: var(--cqs-text) !important; }
+:where(body.cqs-chat #options .options-content a:hover) { background: var(--cqs-buttonHover) !important; }
+
+/* 5) 상단 메뉴와 서랍 */
+:where(body.cqs-menu #top-bar) {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--cqs-headerA) 42%, var(--cqs-canvas)), var(--cqs-canvas)) !important;
+    border-bottom: 1px solid var(--cqs-border) !important;
+    box-shadow: 0 8px 22px -18px var(--cqs-shadow) !important;
+}
+:where(body.cqs-menu #top-settings-holder) { background: transparent !important; }
+:where(body.cqs-menu #top-settings-holder .drawer-icon) { color: var(--cqs-ink-soft) !important; text-shadow: none !important; opacity: 1 !important; }
+:where(body.cqs-menu #top-settings-holder .drawer-icon:hover) { color: var(--cqs-text) !important; }
+:where(body.cqs-menu #top-settings-holder .drawer-icon.openIcon) { color: var(--cqs-accent) !important; }
+:where(body.cqs-menu #top-settings-holder .drawer-content, body.cqs-menu #left-nav-panel, body.cqs-menu #right-nav-panel) {
+    background-color: color-mix(in srgb, var(--cqs-canvas) 96%, transparent) !important;
+    color: var(--cqs-text) !important;
+    border-color: var(--cqs-border) !important;
+    text-shadow: none !important;
+}
+:where(body.cqs-menu) :where(.drawer-content, #left-nav-panel, #right-nav-panel) :where(.text_pole, textarea, select, input:not([type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="file"])) {
+    background-color: color-mix(in srgb, var(--cqs-surface) 92%, transparent) !important;
+    color: var(--cqs-text) !important;
+    border-color: var(--cqs-border) !important;
+}
+:where(body.cqs-menu) :where(.drawer-content, #left-nav-panel, #right-nav-panel) :where(.text_pole, textarea, input)::placeholder { color: var(--cqs-muted) !important; }
+:where(body.cqs-menu) :where(.drawer-content, #left-nav-panel, #right-nav-panel) :where(.menu_button) {
+    background-color: var(--cqs-button) !important; color: var(--cqs-text) !important; border-color: var(--cqs-border) !important;
+}
+:where(body.cqs-menu) :where(.drawer-content, #left-nav-panel, #right-nav-panel) :where(.menu_button:hover) { background-color: var(--cqs-buttonHover) !important; }
+} /* @layer cqs-force */
+
+/* 글자 크기와 줄 간격은 실리 사용자 설정이 우선해도 되므로 일반 우선순위로 둔다. */
+body.cqs-chat #chat .mes .mes_text {font-size:var(--cqs-fontSize);line-height:var(--cqs-lineHeight);}
 #cqs-root, .cqs-dialog {
     --cqs-canvas:#fff5f9;--cqs-surface:#fff;--cqs-user:#f5edff;--cqs-text:#51394f;
     --cqs-muted:#80677d;--cqs-accent:#aa467b;--cqs-accentSoft:#f9e1ed;--cqs-border:#ebd3e2;
@@ -106,11 +270,12 @@ body.cqs-themed .cqs-dialog { --cqs-canvas:inherit;--cqs-surface:inherit;--cqs-u
 .cqs-colors {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
 .cqs-colors input {width:100%;height:36px;border:1px solid var(--cqs-border);padding:3px;background:var(--cqs-surface);border-radius:8px;}
 .cqs-actions {display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
-.cqs-settings-entry {margin:10px 0;}
+.cqs-settings-entry {display:block;width:100%;margin:10px 0;box-sizing:border-box;}
+/* 실리 .menu_button은 width:min-content라 한글이 한 글자씩 세로로 쌓인다. */
+.cqs-settings-entry .menu_button {width:100% !important;max-width:100%;min-width:0;box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 6px;padding:8px 12px;white-space:normal;word-break:keep-all;overflow-wrap:anywhere;writing-mode:horizontal-tb;line-height:1.45;text-align:center;}
 @media(max-width:600px) {
     #cqs-panel {top:56px;bottom:auto;height:calc(100vh - 68px);height:calc(100dvh - 68px - env(safe-area-inset-bottom));max-height:none;right:10px;}
     #cqs-root[data-side="left"] #cqs-panel {left:10px;}
-    body.cqs-chat[data-cqs-chat-style="cards"] #chat .mes {padding:12px;margin:8px 6px;width:calc(100% - 12px);}
     .cqs-dialog {padding:18px;}.cqs-colors {grid-template-columns:repeat(3,minmax(0,1fr));}
 }
 @media(prefers-reduced-motion:reduce) {:where(#cqs-root) .cqs-qr {transition:none;}:where(#cqs-root) .cqs-qr:where(:hover:not(:disabled)){transform:none;}}
@@ -134,16 +299,7 @@ body.cqs-themed .cqs-dialog { --cqs-canvas:inherit;--cqs-surface:inherit;--cqs-u
 .cqs-handle-icon img {display:block;width:var(--cqs-handle-icon-size,24px);height:var(--cqs-handle-icon-size,24px);object-fit:contain;background:transparent;border:0;border-radius:0;box-shadow:none;}
 .cqs-handle-label {overflow-wrap:anywhere;min-width:0;}
 .cqs-handle-preview {display:inline-flex;align-items:center;gap:7px;min-height:44px;max-width:100%;padding:12px;border:1px solid var(--cqs-border);border-radius:14px;background:linear-gradient(140deg,var(--cqs-headerA),var(--cqs-headerB));color:var(--cqs-accent);overflow-wrap:anywhere;}
-/* v0.2.2: SillyTavern's own chat controls (swipe arrows, message buttons, timestamps, em/quote)
-   read SmartTheme variables. Remap them inside the themed chat only, so dark or light themes stay
-   legible without touching the global theme. */
-body.cqs-chat #chat {
-    --SmartThemeBotMesBlurTintColor:var(--cqs-message-surface);--SmartThemeUserMesBlurTintColor:var(--cqs-message-user);
-    --SmartThemeBodyColor:var(--cqs-text);--SmartThemeEmColor:var(--cqs-muted);
-    --SmartThemeQuoteColor:var(--cqs-quote);--SmartThemeBorderColor:var(--cqs-border);
-    --SmartThemeUnderlineColor:var(--cqs-accent);color-scheme:var(--cqs-scheme);
-}
-body.cqs-chat #send_form {--SmartThemeBodyColor:var(--cqs-text);color-scheme:var(--cqs-scheme);}
+
 
 :where(#cqs-root) .cqs-qr {background-color:var(--cqs-qr-bg,var(--cqs-button));background-image:var(--cqs-qr-image,none);background-size:cover;background-position:center;}
 :where(#cqs-root) .cqs-qr:where(:hover:not(:disabled)) {background-color:var(--cqs-qr-bg,var(--cqs-buttonHover));background-image:var(--cqs-qr-image,none);}
