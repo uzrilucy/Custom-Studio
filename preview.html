@@ -1,0 +1,1443 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"><title>커스텀 스튜디오 v0.3.0 · 테마 미리보기</title><style>
+*{box-sizing:border-box}body{margin:0;background:#eeeaf0;color:#574a60;font:15px/1.7 system-ui,sans-serif}.demo-top{position:relative;z-index:10;display:flex;align-items:center;gap:14px;padding:14px 24px;background:#fff;border-bottom:1px solid #e9ddec;flex-wrap:wrap}.demo-top strong{letter-spacing:-.4px}.demo-badge{font-size:10px;letter-spacing:1px;background:#f2eafb;color:#806092;border-radius:20px;padding:3px 9px}.demo-top select,.demo-top button{font:inherit;color:#654d6d;background:#fff;border:1px solid #d7c7df;border-radius:9px;padding:5px 10px}.demo-shell{max-width:740px;margin:26px auto 20px;margin-right:390px;box-shadow:0 12px 50px #68466412;border-radius:24px;overflow:hidden;background:#fff}.demo-chat-title{padding:20px 26px;border-bottom:1px solid #f0e3ef;display:flex;justify-content:space-between;align-items:center}.demo-chat-title small{color:#a278a1;font-size:11px}#chat{height:510px;overflow:auto;padding:12px 0;background:#f0eef3}.mes{display:flex;gap:14px;padding:20px;margin:10px;background:#fff;border-radius:12px}.avatar{width:43px;height:43px;flex-shrink:0;background:linear-gradient(130deg,#e2bade,#c4c1ed);border-radius:15px;display:grid;place-items:center;color:#744976;font-size:21px}.ch_name{font-size:13px;font-weight:750;margin-bottom:7px}.mes_text{font-size:15px;line-height:1.85}.mes_text p{margin:0 0 10px}.mes_text p:last-child{margin-bottom:0}#send_form{margin:14px;padding:14px;display:flex;align-items:center;gap:10px;border:1px solid #eee}#send_textarea{width:100%;height:42px;resize:none;border:0;font:inherit;outline:none}.demo-send{color:#9d4e80}.demo-footer{padding:0 24px 20px;font-size:11px;color:#8a7289}#extensions_settings2{max-width:740px;margin:0 auto;margin-right:390px}.menu_button{border:1px solid #dfccdf;background:#fff;color:#815576;padding:12px 18px;border-radius:12px;cursor:pointer}#demo-result{margin:12px 24px;color:#8a5f85;font-size:12px}.demo-caption{max-width:740px;margin:20px auto;margin-right:390px;font-size:12px;color:#8b7487} @media(min-width:1300px){.demo-shell,#extensions_settings2,.demo-caption{margin-left:auto;margin-right:auto;transform:translateX(-130px)}}@media(max-width:900px){.demo-shell,#extensions_settings2,.demo-caption{margin:18px 12px}.demo-top{padding:12px;gap:8px;font-size:12px}#chat{height:480px}.demo-caption{padding:0 8px}}
+.demo-preview-options{display:flex;gap:8px;align-items:center}.demo-top .drawer-icon{padding:4px}.demo-shell .demo-footer{padding-top:8px}body.cqs-chat[data-cqs-chat-style="native"] .demo-shell .mes{background:var(--cqs-message-surface)}body.cqs-chat[data-cqs-chat-style="native"] .demo-shell .mes[is_user="true"]{background:var(--cqs-message-user)}</style><style>
+/* Chat colors follow the active character. Native mode leaves the host's geometry intact. */
+body.cqs-chat #chat {
+    background-color: var(--cqs-canvas);
+    color: var(--cqs-text);
+    scrollbar-color: var(--cqs-border) transparent;
+}
+body.cqs-chat[data-cqs-background="dots"] #chat {
+    background-image: radial-gradient(var(--cqs-border) .8px,transparent .8px);
+    background-size: 18px 18px;
+}
+body.cqs-chat[data-cqs-background="gradient"] #chat {
+    background-image: linear-gradient(150deg,var(--cqs-canvas),var(--cqs-headerB));
+}
+body.cqs-chat[data-cqs-wallpaper="true"] #chat {
+    background-image: linear-gradient(var(--cqs-wallpaper-overlay),var(--cqs-wallpaper-overlay)),var(--cqs-wallpaper);
+    background-size: auto,var(--cqs-wallpaper-size);
+    background-position: center,var(--cqs-wallpaper-position);
+    background-repeat: no-repeat,var(--cqs-wallpaper-repeat);
+}
+body.cqs-chat[data-cqs-chat-style="cards"] #chat .mes {
+    background: var(--cqs-message-surface);
+    color: var(--cqs-text);
+    border: 1px solid var(--cqs-border);
+    border-radius: var(--cqs-radius);
+    margin: var(--cqs-gap) 10px;
+    padding: 18px;
+    width: calc(100% - 20px);
+    box-sizing: border-box;
+    box-shadow: 0 4px 16px color-mix(in srgb,var(--cqs-accent) 5%,transparent);
+    text-shadow: none;
+}
+body.cqs-chat[data-cqs-chat-style="cards"] #chat .mes[is_user="true"] {background:var(--cqs-message-user);}
+body.cqs-chat[data-cqs-chat-style="cards"] #chat .mes.selected {background:var(--SmartThemeQuoteColor);color:var(--cqs-text);outline:2px solid var(--cqs-accent);outline-offset:-2px;}
+body.cqs-chat #chat .mes .mes_text {color:var(--cqs-text);font-size:var(--cqs-fontSize);line-height:var(--cqs-lineHeight);text-shadow:none;}
+body.cqs-chat #chat .mes .ch_name {color:var(--cqs-accent);text-shadow:none;}
+body.cqs-chat #chat .mes .mes_text em {color:var(--cqs-muted);}
+body.cqs-chat #chat .mes .mes_text q {color:var(--cqs-quote);}
+body.cqs-chat #chat .mes .mes_text blockquote {color:var(--cqs-quote);border-color:var(--cqs-border);}
+body.cqs-chat #chat .mes .mes_text a {color:var(--cqs-accent);}
+body.cqs-chat #chat .mes .mes_text code {background:var(--cqs-code);color:var(--cqs-text);}
+body.cqs-chat[data-cqs-chat-style="cards"] #chat .mes .avatar img {border:2px solid var(--cqs-border);border-radius:var(--cqs-buttonRadius);box-sizing:border-box;}
+body.cqs-chat #send_form {background:var(--cqs-surface);border-color:var(--cqs-border);color:var(--cqs-text);text-shadow:none;}
+body.cqs-chat[data-cqs-chat-style="cards"] #send_form {border:1px solid var(--cqs-border);border-radius:var(--cqs-radius);}
+body.cqs-chat #send_textarea {background:transparent;color:var(--cqs-text);font-size:var(--cqs-fontSize);}
+body.cqs-chat #send_textarea::placeholder {color:var(--cqs-muted);}
+body.cqs-chat #send_form :is(.fa-solid,.fa-regular,.fa-fw) {color:var(--cqs-accent);text-shadow:none;}
+#cqs-root, .cqs-dialog {
+    --cqs-canvas:#fff5f9;--cqs-surface:#fff;--cqs-user:#f5edff;--cqs-text:#51394f;
+    --cqs-muted:#80677d;--cqs-accent:#aa467b;--cqs-accentSoft:#f9e1ed;--cqs-border:#ebd3e2;
+    --cqs-headerA:#fbe1ed;--cqs-headerB:#ebe4ff;--cqs-button:#fffafd;--cqs-buttonHover:#f5e5fa;
+    --cqs-panelWidth:326px;--cqs-radius:22px;--cqs-buttonRadius:15px;--cqs-gap:10px;--cqs-columns:2;
+    --cqs-scheme:light;--cqs-onAccent:#ffffff;--cqs-shadow:rgba(81,57,79,.14);--cqs-danger:#a1265a;
+    color:var(--cqs-text);font:14px/1.5 system-ui,-apple-system,'Noto Sans KR',sans-serif;text-shadow:none;
+    color-scheme:var(--cqs-scheme);
+}
+/* The active body's variables must inherit into the panel instead of its fallbacks. */
+body.cqs-themed #cqs-root { --cqs-canvas:inherit;--cqs-surface:inherit;--cqs-user:inherit;--cqs-text:inherit;--cqs-muted:inherit;--cqs-accent:inherit;--cqs-accentSoft:inherit;--cqs-border:inherit;--cqs-headerA:inherit;--cqs-headerB:inherit;--cqs-button:inherit;--cqs-buttonHover:inherit;--cqs-panelWidth:inherit;--cqs-radius:inherit;--cqs-buttonRadius:inherit;--cqs-gap:inherit;--cqs-columns:inherit;--cqs-scheme:inherit;--cqs-onAccent:inherit;--cqs-shadow:inherit;--cqs-danger:inherit;}
+/* v0.2.2: the settings dialog follows the active character theme too. */
+body.cqs-themed .cqs-dialog { --cqs-canvas:inherit;--cqs-surface:inherit;--cqs-user:inherit;--cqs-text:inherit;--cqs-muted:inherit;--cqs-accent:inherit;--cqs-accentSoft:inherit;--cqs-border:inherit;--cqs-headerA:inherit;--cqs-headerB:inherit;--cqs-button:inherit;--cqs-buttonHover:inherit;--cqs-scheme:inherit;--cqs-onAccent:inherit;--cqs-shadow:inherit;--cqs-danger:inherit;}
+#cqs-root *, .cqs-dialog * {box-sizing:border-box;}
+#cqs-root [hidden],#cqs-root[hidden],.cqs-dialog [hidden] {display:none !important;}
+#cqs-root button,.cqs-dialog button {cursor:pointer;font:inherit;text-shadow:none;}
+#cqs-root button:disabled {opacity:.5;cursor:wait;}
+#cqs-root button:focus-visible,.cqs-dialog :focus-visible {outline:3px solid var(--cqs-accent);outline-offset:3px;}
+:where(#cqs-root) .cqs-handle {position:fixed;right:0;top:44%;z-index:3001;border:1px solid var(--cqs-border);border-right:0;border-radius:16px 0 0 16px;padding:15px 12px;background:linear-gradient(140deg,var(--cqs-headerA),var(--cqs-headerB));color:var(--cqs-accent);box-shadow:0 3px 12px var(--cqs-shadow);font-weight:750;}
+#cqs-panel {position:fixed;right:14px;top:70px;bottom:max(20px,env(safe-area-inset-bottom));width:min(var(--cqs-panelWidth),calc(100vw - 28px));max-height:calc(100dvh - 90px);z-index:3002;display:flex;flex-direction:column;background:var(--cqs-canvas);border:1px solid var(--cqs-border);border-radius:var(--cqs-radius);box-shadow:0 18px 56px var(--cqs-shadow);overflow:hidden;}
+:where(#cqs-root[data-side="left"]) .cqs-handle {right:auto;left:0;border-right:1px solid var(--cqs-border);border-left:0;border-radius:0 16px 16px 0;}
+#cqs-root[data-side="left"] #cqs-panel {right:auto;left:14px;}
+.cqs-header {padding:20px 20px 22px;background:linear-gradient(125deg,var(--cqs-headerA),var(--cqs-headerB));}
+.cqs-row {display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.cqs-eyebrow {font-size:10px;font-weight:800;letter-spacing:2px;color:var(--cqs-accent);}
+#cqs-root h2 {font-size:23px;letter-spacing:-.8px;line-height:1.2;margin:17px 0 9px;color:var(--cqs-text);}
+.cqs-header p {font-size:12px;color:var(--cqs-muted);margin:0;}
+#cqs-root .cqs-close {background:color-mix(in srgb,var(--cqs-surface) 60%,transparent);border:0;border-radius:50%;width:32px;height:32px;font-size:23px;color:var(--cqs-accent);padding:0;}
+.cqs-toolbar {display:flex;gap:6px;padding:16px 14px 8px;}
+.cqs-toolbar input {min-width:0;flex:1;width:0;border:1px solid var(--cqs-border);border-radius:12px;background:var(--cqs-surface);color:var(--cqs-text);padding:10px;font:inherit;}
+.cqs-toolbar input::placeholder {color:var(--cqs-muted);}
+.cqs-button {border:1px solid var(--cqs-border);border-radius:10px;background:var(--cqs-surface);color:var(--cqs-accent);padding:9px 12px;min-height:40px;font-weight:600;}
+.cqs-content {overflow:auto;overscroll-behavior:contain;padding:2px 14px 18px;flex:1;scrollbar-width:thin;scrollbar-color:var(--cqs-border) transparent;}
+.cqs-set {margin:18px 0 0;}
+.cqs-set-title {display:flex;align-items:center;gap:8px;font-size:12px;font-weight:750;color:var(--cqs-muted);margin:0 2px 12px;overflow-wrap:anywhere;}
+.cqs-count {background:var(--cqs-accentSoft);border-radius:20px;padding:1px 7px;font-size:10px;color:var(--cqs-accent);}
+.cqs-grid {display:grid;grid-template-columns:repeat(var(--cqs-columns),minmax(0,1fr));gap:var(--cqs-gap);}
+:where(#cqs-root) .cqs-qr {background:var(--cqs-button);border:1px solid var(--cqs-border);border-radius:var(--cqs-buttonRadius);padding:16px 10px;min-height:86px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;color:var(--cqs-text);transition:background .15s,transform .15s;}
+:where(#cqs-root) .cqs-qr:where(:hover:not(:disabled)) {background:var(--cqs-buttonHover);transform:translateY(-2px);}
+.cqs-qr-icon {color:var(--cqs-accent);font-size:20px;line-height:1;}
+.cqs-qr-label {font-size:12px;font-weight:650;word-break:break-word;line-height:1.5;text-align:center;}
+.cqs-empty {font-size:13px;line-height:1.7;color:var(--cqs-muted);padding:12px 2px;grid-column:1/-1;}
+.cqs-status {border-top:1px solid var(--cqs-border);color:var(--cqs-muted);font-size:10px;padding:13px 16px;margin:0;background:var(--cqs-surface);}
+.cqs-status[data-error="true"] {color:var(--cqs-danger);}
+.cqs-dialog {width:min(640px,calc(100vw - 24px));max-height:calc(100dvh - 36px);margin:auto;padding:24px;background:var(--cqs-canvas);border:1px solid var(--cqs-border);border-radius:22px;box-shadow:0 20px 70px var(--cqs-shadow);overflow:auto;}
+.cqs-dialog::backdrop {background:#33203966;backdrop-filter:blur(3px);}
+.cqs-dialog-head {display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.cqs-dialog h2 {font-size:22px;margin:0;color:var(--cqs-text);}
+.cqs-dialog h3 {font-size:15px;margin:16px 0 10px;color:var(--cqs-text);}
+.cqs-note {font-size:12px;line-height:1.7;color:var(--cqs-muted);white-space:pre-wrap;}
+.cqs-check {display:flex;align-items:center;gap:10px;min-height:40px;cursor:pointer;font-size:14px;overflow-wrap:anywhere;}
+.cqs-check input {accent-color:var(--cqs-accent);width:18px;height:18px;flex-shrink:0;}
+.cqs-field {display:flex;flex-direction:column;gap:7px;margin:14px 0;color:var(--cqs-text);font-size:13px;}
+.cqs-field select {padding:10px;border:1px solid var(--cqs-border);border-radius:10px;background:var(--cqs-surface);color:var(--cqs-text);font:inherit;}
+.cqs-set-picker {max-height:200px;overflow:auto;border:1px solid var(--cqs-border);border-radius:12px;padding:8px 14px;margin:10px 0 18px;background:var(--cqs-surface);}
+.cqs-primary {background:var(--cqs-accent);color:var(--cqs-onAccent);border-color:var(--cqs-accent);}
+.cqs-editor {border-top:1px solid var(--cqs-border);padding-top:18px;margin-top:18px;}
+.cqs-editor summary {cursor:pointer;font-weight:700;}
+.cqs-json {box-sizing:border-box;width:100%;font:12px/1.6 ui-monospace,monospace;border:1px solid var(--cqs-border);border-radius:12px;padding:12px;background:var(--cqs-surface);color:var(--cqs-text);resize:vertical;}
+.cqs-colors {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
+.cqs-colors input {width:100%;height:36px;border:1px solid var(--cqs-border);padding:3px;background:var(--cqs-surface);border-radius:8px;}
+.cqs-actions {display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+.cqs-settings-entry {margin:10px 0;}
+@media(max-width:600px) {
+    #cqs-panel {top:56px;bottom:max(12px,env(safe-area-inset-bottom));max-height:calc(100dvh - 68px);right:10px;}
+    #cqs-root[data-side="left"] #cqs-panel {left:10px;}
+    body.cqs-chat[data-cqs-chat-style="cards"] #chat .mes {padding:12px;margin:8px 6px;width:calc(100% - 12px);}
+    .cqs-dialog {padding:18px;}.cqs-colors {grid-template-columns:repeat(3,minmax(0,1fr));}
+}
+@media(prefers-reduced-motion:reduce) {:where(#cqs-root) .cqs-qr {transition:none;}:where(#cqs-root) .cqs-qr:where(:hover:not(:disabled)){transform:none;}}
+#cqs-root .cqs-qr-image {width:32px;height:32px;object-fit:contain;display:block;background:transparent;border:0;border-radius:0;box-shadow:none;}
+.cqs-assets {border-top:1px solid var(--cqs-border);padding-top:10px;margin-top:16px;}
+.cqs-assets > p {font-size:12px;color:var(--cqs-muted);line-height:1.7;}
+.cqs-asset-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+.cqs-asset-grid .cqs-field {min-width:0;}
+.cqs-asset-grid :is(input[type="text"],select) {min-width:0;width:100%;padding:9px;color:var(--cqs-text);background:var(--cqs-surface);border:1px solid var(--cqs-border);border-radius:9px;}
+.cqs-assets input[type="range"] {width:100%;accent-color:var(--cqs-accent);}
+.cqs-wallpaper-preview {display:block;max-width:100%;width:100%;height:150px;object-fit:contain;margin-top:12px;border:1px solid var(--cqs-border);border-radius:12px;background:var(--cqs-surface);}
+.cqs-icon-preview {min-height:46px;display:flex;align-items:center;gap:8px;color:var(--cqs-accent);overflow-wrap:anywhere;}
+.cqs-icon-preview img {max-width:48px;max-height:48px;object-fit:contain;background:transparent;}
+.cqs-rule-list {max-height:180px;overflow:auto;}
+.cqs-rule {display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;padding:8px 0;border-bottom:1px solid var(--cqs-border);}
+.cqs-rule span {min-width:0;overflow-wrap:anywhere;}.cqs-rule button {flex-shrink:0;}
+@media(max-width:420px){.cqs-asset-grid {grid-template-columns:1fr;}}
+/* v0.2.1: independent folded-panel handle artwork. */
+:where(#cqs-root) .cqs-handle {display:flex;align-items:center;justify-content:center;gap:7px;min-width:44px;min-height:44px;max-width:min(240px,70vw);}
+.cqs-handle-icon {display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-size:var(--cqs-handle-icon-size,24px);line-height:1;}
+.cqs-handle-icon img {display:block;width:var(--cqs-handle-icon-size,24px);height:var(--cqs-handle-icon-size,24px);object-fit:contain;background:transparent;border:0;border-radius:0;box-shadow:none;}
+.cqs-handle-label {overflow-wrap:anywhere;min-width:0;}
+.cqs-handle-preview {display:inline-flex;align-items:center;gap:7px;min-height:44px;max-width:100%;padding:12px;border:1px solid var(--cqs-border);border-radius:14px;background:linear-gradient(140deg,var(--cqs-headerA),var(--cqs-headerB));color:var(--cqs-accent);overflow-wrap:anywhere;}
+/* v0.2.2: SillyTavern's own chat controls (swipe arrows, message buttons, timestamps, em/quote)
+   read SmartTheme variables. Remap them inside the themed chat only, so dark or light themes stay
+   legible without touching the global theme. */
+body.cqs-chat #chat {
+    --SmartThemeBotMesBlurTintColor:var(--cqs-message-surface);--SmartThemeUserMesBlurTintColor:var(--cqs-message-user);
+    --SmartThemeBodyColor:var(--cqs-text);--SmartThemeEmColor:var(--cqs-muted);
+    --SmartThemeQuoteColor:var(--cqs-quote);--SmartThemeBorderColor:var(--cqs-border);
+    --SmartThemeUnderlineColor:var(--cqs-accent);color-scheme:var(--cqs-scheme);
+}
+body.cqs-chat #send_form {--SmartThemeBodyColor:var(--cqs-text);color-scheme:var(--cqs-scheme);}
+
+:where(#cqs-root) .cqs-qr {background-color:var(--cqs-qr-bg,var(--cqs-button));background-image:var(--cqs-qr-image,none);background-size:cover;background-position:center;}
+:where(#cqs-root) .cqs-qr:where(:hover:not(:disabled)) {background-color:var(--cqs-qr-bg,var(--cqs-buttonHover));background-image:var(--cqs-qr-image,none);}
+:where(#cqs-root) .cqs-qr:where([data-cqs-shape="square"]) {border-radius:0;}
+:where(#cqs-root) .cqs-qr:where([data-cqs-shape="round"]) {border-radius:24px;}
+:where(#cqs-root) .cqs-qr:where([data-cqs-shape="pill"]) {border-radius:999px;}
+:where(#cqs-root) .cqs-qr:where([data-cqs-shape="circle"]) {border-radius:50%;aspect-ratio:1;align-self:center;justify-self:center;width:min(100%,112px);min-height:0;}
+#cqs-panel [data-cqs-slot="qr"] {min-height:0;flex:1;display:flex;flex-direction:column;}
+#cqs-panel .cqs-toolbar [data-cqs-slot="search"] {min-width:0;flex:1;display:flex;}
+#cqs-panel .cqs-toolbar [data-cqs-slot="search"] input {width:100%;}
+.cqs-qr-editor {margin-top:18px;padding-top:8px;border-top:1px solid var(--cqs-border);}
+.cqs-qr-editor > p {color:var(--cqs-muted);font-size:12px;}
+.cqs-source-editor .cqs-json {tab-size:2;}
+
+.cqs-dialog {overscroll-behavior:contain;scroll-padding:70px 0 110px;}
+.cqs-dialog-head {position:sticky;top:-24px;z-index:2;background:var(--cqs-canvas);padding:8px 0 10px;border-bottom:1px solid var(--cqs-border);}
+.cqs-dialog-footer {position:sticky;bottom:-24px;z-index:2;background:var(--cqs-canvas);padding:8px 0 10px;border-top:1px solid var(--cqs-border);margin-top:18px;}
+.cqs-dialog-footer .cqs-note {margin:0 0 6px;max-height:4em;overflow:auto;}
+.cqs-dialog-footer .cqs-note:empty {display:none;}
+.cqs-dialog-footer .cqs-actions {margin:0;justify-content:flex-end;}
+@media(max-width:600px) {
+    .cqs-dialog-head {top:-18px;}
+    .cqs-dialog-footer {bottom:-18px;}
+}
+</style><body><div id="top-bar" class="demo-top"><strong>✦ 커스텀 스튜디오</strong><span class="demo-badge">INTERACTIVE PREVIEW</span><select id="demo-character" aria-label="미리보기 캐릭터"><option value="0">유리 · 테마 사용</option><option value="1">루나 · 기본 화면</option></select><button id="demo-chat">다른 대화방</button><button id="demo-theme">시크 모던 테마 켜기</button></div><main id="sheld" class="demo-shell"><div class="demo-chat-title"><strong id="demo-name">유리</strong><small>OUR LITTLE STORY</small></div><div id="chat"><article class="mes" is_user="false"><div class="avatar">✿</div><div><div class="ch_name">유리 <small>· 23:25</small></div><div class="mes_text"><p><em>창가에 놓인 작은 찻잔 위로 따뜻한 김이 피어올랐다.</em></p><p>“오늘은 어떤 이야기를 해볼까?”</p><p>유리가 책갈피를 접어두고 고개를 들었다. 아무렇지 않은 척했지만, 손끝은 이미 맞은편 자리를 가리키고 있었다.</p></div></div></article><article class="mes" is_user="true"><div class="avatar">♡</div><div><div class="ch_name">나 <small>· 23:26</small></div><div class="mes_text"><p>조금 느리게 흘러가는 하루면 좋겠어.<br>우리, 여기서 잠깐만 쉬어가자.</p></div></div></article><article class="mes" is_user="false"><div class="avatar">✿</div><div><div class="ch_name">유리 <small>· 23:26</small></div><div class="mes_text"><p>“……그런 건 먼저 말 안 해도 돼.”</p><p><em>말끝은 퉁명스러웠지만, 새로 따라준 차에는 꿀이 한 스푼 더 들어 있었다.</em></p></div></div></article></div><form id="send_form" onsubmit="return false"><textarea id="send_textarea" placeholder="우리의 다음 이야기를 적어주세요…"></textarea><span id="send_but" class="demo-send">➤</span></form><div class="demo-footer">MODERN CUTIE · milk pink / soft lavender</div></main><div id="extensions_settings2"></div><p id="demo-result" role="status"></p><p class="demo-caption">동작 미리보기입니다. 샘플 QR은 메시지를 보내지 않습니다. 시크 모던 예제로 전환하거나 확장 설정에서 HTML/CSS와 개별 QR을 편집해 보세요. 실제 실리태번 화면 배치는 사용 중인 설정에 따라 달라집니다.</p><script type="module">
+const callbacks = new Map();
+const demoStorage = { get(){try{return JSON.parse(localStorage.getItem('custom-studio-demo-v1') || 'null');}catch{return null;}}, set(value){try{localStorage.setItem('custom-studio-demo-v1',JSON.stringify(value));}catch{}} };
+const fixtureContext = {
+ extensionSettings: demoStorage.get() || {customStudio:{schema:1,themes:{},profiles:{'character:yuri.png':{enabled:true,theme:'modern-cutie',sets:['이야기 도구','하루의 기록'],side:'right',showHidden:false,open:true}}}},
+ characters:[{name:'유리',avatar:'yuri.png'},{name:'루나',avatar:'luna.png'}],characterId:0,groupId:null,chatId:'yuri-1',
+ saveSettingsDebounced(){demoStorage.set(this.extensionSettings);},
+ event_types:{APP_READY:'ready',CHAT_CHANGED:'chat',CHARACTER_EDITED:'edited',GENERATION_STARTED:'start',GENERATION_ENDED:'end',GENERATION_STOPPED:'stop'},
+ eventSource:{on(type,fn){if(!callbacks.has(type))callbacks.set(type,[]);callbacks.get(type).push(fn);if(type==='ready')queueMicrotask(fn);},removeListener(){}}
+};
+window.demoContext=fixtureContext;
+window.demoEmit=type=>(callbacks.get(type)||[]).forEach(fn=>fn());
+window.SillyTavern={getContext:()=>fixtureContext};
+window.demoExecuted=[];
+const names=[['이야기 도구',['이야기 이어가기','상태창 보기','장면 전환','인물 관계','소지품 확인','세계관 노트']],['하루의 기록',['오늘의 일기','지난 이야기','작은 선물','숨긴 버튼']]];
+const fixtureSets=names.map(([name,labels])=>({name,qrList:labels.map((label,id)=>({id,label,title:label+' · 샘플 QR',isHidden:label==='숨긴 버튼',execute:async()=>{window.demoExecuted.push({set:name,id}); document.querySelector('#demo-result').textContent='미리보기: '+label+' 선택됨 (실제 QR은 실행하지 않음)';}}))}));
+globalThis.__CQS_BUNDLED_THEMES__=[{"format": "custom-studio-theme", "version": 1, "id": "sky-blue", "name": "스카이 블루", "author": "Custom Studio", "colors": {"canvas": "#f2f7fc", "surface": "#ffffff", "user": "#e5f0fa", "text": "#22374b", "muted": "#566d83", "accent": "#2468a8", "accentSoft": "#dceaf7", "border": "#cddff0", "quote": "#2b6299", "code": "#e8f0f8", "headerA": "#d9eafa", "headerB": "#e7eefd", "button": "#f8fbfe", "buttonHover": "#e6f0fa"}, "layout": {"panelWidth": 330, "radius": 20, "buttonRadius": 14, "gap": 10, "columns": 2, "fontSize": 16, "lineHeight": 1.8}, "decoration": {"symbol": "☁", "title": "Clear shortcuts", "subtitle": "맑은 날의 작은 버튼", "background": "dots"}, "icons": {"default": {"type": "native"}, "rules": []}, "handle": {"icon": {"type": "native"}, "label": "QR", "showLabel": true, "size": 22}, "wallpaper": {"image": "", "size": "cover", "position": "center", "repeat": "no-repeat", "overlay": 0.2, "messageOpacity": 0.94}}, {"format": "custom-studio-theme", "version": 1, "id": "mint-green", "name": "민트 그린", "author": "Custom Studio", "colors": {"canvas": "#f2f8f4", "surface": "#ffffff", "user": "#e3f2e8", "text": "#213c2c", "muted": "#53705e", "accent": "#23704a", "accentSoft": "#d9eee1", "border": "#cbe2d3", "quote": "#296d49", "code": "#e6f1ea", "headerA": "#d8efe0", "headerB": "#e9f4e2", "button": "#f8fcf9", "buttonHover": "#e4f2e9"}, "layout": {"panelWidth": 330, "radius": 20, "buttonRadius": 14, "gap": 10, "columns": 2, "fontSize": 16, "lineHeight": 1.8}, "decoration": {"symbol": "✿", "title": "Fresh shortcuts", "subtitle": "산뜻하게 정리한 바로가기", "background": "dots"}, "icons": {"default": {"type": "native"}, "rules": []}, "handle": {"icon": {"type": "native"}, "label": "QR", "showLabel": true, "size": 22}, "wallpaper": {"image": "", "size": "cover", "position": "center", "repeat": "no-repeat", "overlay": 0.2, "messageOpacity": 0.94}}, {"format": "custom-studio-theme", "version": 1, "id": "chic-modern", "name": "시크 모던", "author": "Custom Studio", "colors": {"canvas": "#17181c", "surface": "#1f2025", "user": "#26272d", "text": "#ecebe7", "muted": "#a6a39c", "accent": "#d6c19c", "accentSoft": "#2e2a23", "border": "#34353b", "quote": "#e2d2b4", "code": "#222328", "headerA": "#25262c", "headerB": "#1d1e23", "button": "#1e1f24", "buttonHover": "#2a2b31"}, "layout": {"panelWidth": 330, "radius": 14, "buttonRadius": 9, "gap": 8, "columns": 2, "fontSize": 16, "lineHeight": 1.8}, "decoration": {"symbol": "◆", "title": "Studio", "subtitle": "정돈된 바로가기", "background": "plain"}, "icons": {"default": {"type": "native"}, "rules": []}, "handle": {"icon": {"type": "text", "value": "◆"}, "label": "QR", "showLabel": true, "size": 18}, "wallpaper": {"image": "", "size": "cover", "position": "center", "repeat": "no-repeat", "overlay": 0.2, "messageOpacity": 0.94}, "source": {"panelHtml": "<header class=\"cm-head\">\n  <div class=\"cm-row\"><span class=\"cm-mark\" aria-hidden=\"true\"></span><span class=\"cm-eb\" data-cqs-slot=\"eyebrow\"></span><span data-cqs-slot=\"close\"></span></div>\n  <div class=\"cm-title\" data-cqs-slot=\"heading\"></div>\n  <div class=\"cm-sub\" data-cqs-slot=\"subtitle\"></div>\n</header>\n<div class=\"cm-tools\"><span class=\"cm-find\" data-cqs-slot=\"search\"></span><span data-cqs-slot=\"refresh\"></span><span data-cqs-slot=\"settings\"></span></div>\n<div class=\"cm-body\" data-cqs-slot=\"qr\"></div>\n<footer class=\"cm-foot\" data-cqs-slot=\"status\"></footer>", "handleHtml": "", "panelCss": ":scope { --cm-line: color-mix(in srgb, var(--cqs-accent) 34%, var(--cqs-border)); }\n#cqs-panel { font-family: system-ui,-apple-system,'Pretendard','Noto Sans KR',sans-serif; border-color: var(--cqs-border); background: linear-gradient(180deg, var(--cqs-headerA), var(--cqs-canvas) 140px); box-shadow: 0 30px 70px -30px rgba(0,0,0,.8); }\n#cqs-panel .cm-head { padding: 18px 18px 12px; border-bottom: 1px solid var(--cqs-border); }\n#cqs-panel .cm-row { display: flex; align-items: center; gap: 9px; }\n#cqs-panel .cm-mark { width: 9px; height: 9px; transform: rotate(45deg); background: var(--cqs-accent); }\n#cqs-panel .cm-eb { flex: 1; min-width: 0; }\n#cqs-panel .cqs-eyebrow { font-size: 9.5px; font-weight: 700; letter-spacing: .3em; color: var(--cqs-muted); }\n#cqs-panel .cqs-close { width: 30px; height: 30px; font-size: 19px; color: var(--cqs-muted); background: transparent; box-shadow: inset 0 0 0 1px var(--cqs-border); }\n#cqs-panel .cqs-close:hover { color: var(--cqs-accent); box-shadow: inset 0 0 0 1px var(--cm-line); }\n#cqs-panel .cm-title h2 { margin: 14px 0 4px; font-size: 21px; font-weight: 700; letter-spacing: -.02em; color: var(--cqs-text); }\n#cqs-panel .cm-sub p { margin: 0; font-size: 12px; color: var(--cqs-muted); }\n#cqs-panel .cm-tools { display: flex; gap: 6px; padding: 12px 14px 4px; }\n#cqs-panel .cm-find { flex: 1; min-width: 0; display: flex; }\n#cqs-panel .cm-tools input { width: 100%; min-width: 0; padding: 9px 12px; border-radius: 8px; font: 13px system-ui,-apple-system,'Pretendard','Noto Sans KR',sans-serif; color: var(--cqs-text); background: var(--cqs-surface); border: 1px solid var(--cqs-border); }\n#cqs-panel .cm-tools input:focus { outline: none; border-color: var(--cm-line); }\n#cqs-panel .cm-tools .cqs-button { min-height: 36px; padding: 7px 11px; border-radius: 8px; font-size: 12px; color: var(--cqs-muted); background: var(--cqs-surface); }\n#cqs-panel .cm-tools .cqs-button:hover { color: var(--cqs-accent); border-color: var(--cm-line); }\n#cqs-panel .cqs-set-title { font-size: 10px; letter-spacing: .24em; color: var(--cqs-muted); }\n#cqs-panel .cqs-set-title::after { content: \"\"; flex: 1; height: 1px; background: var(--cqs-border); order: 3; }\n#cqs-panel .cqs-count { order: 2; color: var(--cqs-onAccent); background: var(--cqs-accent); }\n#cqs-panel .cqs-qr { min-height: 56px; padding: 10px 12px; flex-direction: row; justify-content: flex-start; gap: 10px; text-align: left; border-color: var(--cqs-border); transition: border-color .18s, background .18s; }\n#cqs-panel .cqs-qr:hover:not(:disabled) { transform: none; border-color: var(--cm-line); }\n#cqs-panel .cqs-qr-icon { flex: none; width: 30px; height: 30px; border-radius: 7px; display: grid; place-items: center; font-size: 13px; background: var(--cqs-accentSoft); }\n#cqs-panel .cqs-qr-label { font-size: 13px; font-weight: 600; text-align: left; }\n#cqs-panel .cm-foot { border-top: 1px solid var(--cqs-border); background: var(--cqs-surface); }\n#cqs-panel .cm-foot .cqs-status { border: 0; padding: 12px 16px; background: none; }\n:scope > .cqs-handle { top: 42vh; top: 42dvh; border-radius: 10px 0 0 10px; color: var(--cqs-accent); background: var(--cqs-surface); border-color: var(--cm-line); }\n:scope[data-side=\"left\"] > .cqs-handle { border-radius: 0 10px 10px 0; }", "chatCss": ":scope #send_form#send_form { border-radius: 12px; border: 1px solid var(--cqs-border); }\n:scope #send_form:focus-within { border-color: color-mix(in srgb, var(--cqs-accent) 45%, transparent); }\n:scope #chat .mes .avatar img { box-shadow: 0 0 0 1px var(--cqs-border); }", "menuCss": ":scope#top-bar { background: var(--cqs-canvas); border-bottom: 1px solid var(--cqs-border); }\n:scope .drawer-icon.openIcon, :scope .drawer-icon:hover { color: var(--cqs-accent); }"}}];
+window.quickReplyApi={listSets:()=>fixtureSets.map(s=>s.name),getSetByName:name=>fixtureSets.find(s=>s.name===name)};
+window.demoSets=fixtureSets;
+window.toastr={error:text=>console.warn(text)};
+document.querySelector('#demo-character').addEventListener('change',e=>{fixtureContext.characterId=Number(e.target.value);fixtureContext.chatId=fixtureContext.characterId+'-1';document.querySelector('#demo-name').textContent=fixtureContext.characters[fixtureContext.characterId].name;window.demoEmit('chat');});
+document.querySelector('#demo-chat').addEventListener('click',()=>{fixtureContext.chatId+='-next';window.demoEmit('chat');document.querySelector('#demo-result').textContent='같은 캐릭터의 다른 대화방으로 전환했습니다.';});
+
+
+const sampleTheme = {"format": "custom-studio-theme", "version": 1, "id": "chic-modern", "name": "시크 모던", "author": "Custom Studio", "colors": {"canvas": "#17181c", "surface": "#1f2025", "user": "#26272d", "text": "#ecebe7", "muted": "#a6a39c", "accent": "#d6c19c", "accentSoft": "#2e2a23", "border": "#34353b", "quote": "#e2d2b4", "code": "#222328", "headerA": "#25262c", "headerB": "#1d1e23", "button": "#1e1f24", "buttonHover": "#2a2b31"}, "layout": {"panelWidth": 330, "radius": 14, "buttonRadius": 9, "gap": 8, "columns": 2, "fontSize": 16, "lineHeight": 1.8}, "decoration": {"symbol": "◆", "title": "Studio", "subtitle": "정돈된 바로가기", "background": "plain"}, "icons": {"default": {"type": "native"}, "rules": []}, "handle": {"icon": {"type": "text", "value": "◆"}, "label": "QR", "showLabel": true, "size": 18}, "wallpaper": {"image": "", "size": "cover", "position": "center", "repeat": "no-repeat", "overlay": 0.2, "messageOpacity": 0.94}, "source": {"panelHtml": "<header class=\"cm-head\">\n  <div class=\"cm-row\"><span class=\"cm-mark\" aria-hidden=\"true\"></span><span class=\"cm-eb\" data-cqs-slot=\"eyebrow\"></span><span data-cqs-slot=\"close\"></span></div>\n  <div class=\"cm-title\" data-cqs-slot=\"heading\"></div>\n  <div class=\"cm-sub\" data-cqs-slot=\"subtitle\"></div>\n</header>\n<div class=\"cm-tools\"><span class=\"cm-find\" data-cqs-slot=\"search\"></span><span data-cqs-slot=\"refresh\"></span><span data-cqs-slot=\"settings\"></span></div>\n<div class=\"cm-body\" data-cqs-slot=\"qr\"></div>\n<footer class=\"cm-foot\" data-cqs-slot=\"status\"></footer>", "handleHtml": "", "panelCss": ":scope { --cm-line: color-mix(in srgb, var(--cqs-accent) 34%, var(--cqs-border)); }\n#cqs-panel { font-family: system-ui,-apple-system,'Pretendard','Noto Sans KR',sans-serif; border-color: var(--cqs-border); background: linear-gradient(180deg, var(--cqs-headerA), var(--cqs-canvas) 140px); box-shadow: 0 30px 70px -30px rgba(0,0,0,.8); }\n#cqs-panel .cm-head { padding: 18px 18px 12px; border-bottom: 1px solid var(--cqs-border); }\n#cqs-panel .cm-row { display: flex; align-items: center; gap: 9px; }\n#cqs-panel .cm-mark { width: 9px; height: 9px; transform: rotate(45deg); background: var(--cqs-accent); }\n#cqs-panel .cm-eb { flex: 1; min-width: 0; }\n#cqs-panel .cqs-eyebrow { font-size: 9.5px; font-weight: 700; letter-spacing: .3em; color: var(--cqs-muted); }\n#cqs-panel .cqs-close { width: 30px; height: 30px; font-size: 19px; color: var(--cqs-muted); background: transparent; box-shadow: inset 0 0 0 1px var(--cqs-border); }\n#cqs-panel .cqs-close:hover { color: var(--cqs-accent); box-shadow: inset 0 0 0 1px var(--cm-line); }\n#cqs-panel .cm-title h2 { margin: 14px 0 4px; font-size: 21px; font-weight: 700; letter-spacing: -.02em; color: var(--cqs-text); }\n#cqs-panel .cm-sub p { margin: 0; font-size: 12px; color: var(--cqs-muted); }\n#cqs-panel .cm-tools { display: flex; gap: 6px; padding: 12px 14px 4px; }\n#cqs-panel .cm-find { flex: 1; min-width: 0; display: flex; }\n#cqs-panel .cm-tools input { width: 100%; min-width: 0; padding: 9px 12px; border-radius: 8px; font: 13px system-ui,-apple-system,'Pretendard','Noto Sans KR',sans-serif; color: var(--cqs-text); background: var(--cqs-surface); border: 1px solid var(--cqs-border); }\n#cqs-panel .cm-tools input:focus { outline: none; border-color: var(--cm-line); }\n#cqs-panel .cm-tools .cqs-button { min-height: 36px; padding: 7px 11px; border-radius: 8px; font-size: 12px; color: var(--cqs-muted); background: var(--cqs-surface); }\n#cqs-panel .cm-tools .cqs-button:hover { color: var(--cqs-accent); border-color: var(--cm-line); }\n#cqs-panel .cqs-set-title { font-size: 10px; letter-spacing: .24em; color: var(--cqs-muted); }\n#cqs-panel .cqs-set-title::after { content: \"\"; flex: 1; height: 1px; background: var(--cqs-border); order: 3; }\n#cqs-panel .cqs-count { order: 2; color: var(--cqs-onAccent); background: var(--cqs-accent); }\n#cqs-panel .cqs-qr { min-height: 56px; padding: 10px 12px; flex-direction: row; justify-content: flex-start; gap: 10px; text-align: left; border-color: var(--cqs-border); transition: border-color .18s, background .18s; }\n#cqs-panel .cqs-qr:hover:not(:disabled) { transform: none; border-color: var(--cm-line); }\n#cqs-panel .cqs-qr-icon { flex: none; width: 30px; height: 30px; border-radius: 7px; display: grid; place-items: center; font-size: 13px; background: var(--cqs-accentSoft); }\n#cqs-panel .cqs-qr-label { font-size: 13px; font-weight: 600; text-align: left; }\n#cqs-panel .cm-foot { border-top: 1px solid var(--cqs-border); background: var(--cqs-surface); }\n#cqs-panel .cm-foot .cqs-status { border: 0; padding: 12px 16px; background: none; }\n:scope > .cqs-handle { top: 42vh; top: 42dvh; border-radius: 10px 0 0 10px; color: var(--cqs-accent); background: var(--cqs-surface); border-color: var(--cm-line); }\n:scope[data-side=\"left\"] > .cqs-handle { border-radius: 0 10px 10px 0; }", "chatCss": ":scope #send_form#send_form { border-radius: 12px; border: 1px solid var(--cqs-border); }\n:scope #send_form:focus-within { border-color: color-mix(in srgb, var(--cqs-accent) 45%, transparent); }\n:scope #chat .mes .avatar img { box-shadow: 0 0 0 1px var(--cqs-border); }", "menuCss": ":scope#top-bar { background: var(--cqs-canvas); border-bottom: 1px solid var(--cqs-border); }\n:scope .drawer-icon.openIcon, :scope .drawer-icon:hover { color: var(--cqs-accent); }"}};
+
+const exampleButton = document.querySelector('#demo-theme');
+function updateExampleButton() {
+    const profile = fixtureContext.extensionSettings.customStudio.profiles['character:yuri.png'];
+    exampleButton.textContent = profile?.theme === sampleTheme.id ? '모던 큐티 테마로 돌아가기' : '시크 모던 테마 켜기';
+}
+exampleButton.addEventListener('click', () => {
+    const studio = fixtureContext.extensionSettings.customStudio;
+    const profile = studio.profiles['character:yuri.png'];
+    const showSample = profile.theme !== sampleTheme.id;
+    studio.themes[sampleTheme.id] = sampleTheme;
+    Object.assign(profile, { theme: showSample ? sampleTheme.id : 'modern-cutie', sourceEnabled: showSample,
+        enabled: true, open: true, panelEnabled: true, chatEnabled: true, menuEnabled: true, chatStyle: 'cards' });
+    fixtureContext.characterId = 0;
+    fixtureContext.groupId = null;
+    fixtureContext.chatId = 'yuri-demo';
+    document.querySelector('#demo-character').value = '0';
+    document.querySelector('#demo-name').textContent = '유리';
+    fixtureContext.saveSettingsDebounced();
+    updateExampleButton();
+    window.demoEmit('chat');
+});
+updateExampleButton();
+
+const modules = {};
+modules['theme'] = (() => {
+const DEFAULT_THEME = {
+    format: 'custom-studio-theme', version: 1, id: 'modern-cutie', name: '모던 큐티',
+    author: 'Custom Studio',
+    colors: {
+        canvas: '#fff5f9', surface: '#ffffff', user: '#f5edff', text: '#51394f',
+        muted: '#80677d', accent: '#aa467b', accentSoft: '#f9e1ed',
+        border: '#ebd3e2', quote: '#906594', code: '#f1e9f4',
+        headerA: '#fbe1ed', headerB: '#ebe4ff', button: '#fffafd', buttonHover: '#f5e5fa'
+    },
+    layout: { panelWidth: 326, radius: 22, buttonRadius: 15, gap: 10, columns: 2, fontSize: 16, lineHeight: 1.8 },
+    decoration: { symbol: '✦', title: 'Little shortcuts', subtitle: '작은 버튼, 나만의 이야기', background: 'dots' },
+    icons: { default: { type: 'text', value: '♡' }, rules: [] },
+    handle: { icon: { type: 'native' }, label: 'QR', showLabel: true, size: 24 },
+    source: { panelHtml: '', handleHtml: '', panelCss: '', chatCss: '', menuCss: '' },
+    qrStyles: [],
+    wallpaper: { image: '', size: 'cover', position: 'center', repeat: 'no-repeat', overlay: 0.2, messageOpacity: 0.94 }
+};
+const plain = value => value && typeof value === 'object' && !Array.isArray(value);
+const keys = (obj, allowed, where) => {
+    if (!plain(obj)) throw new Error(`${where}: 객체 형식이어야 합니다.`);
+    for (const key of Object.keys(obj)) if (!allowed.includes(key)) throw new Error(`${where}: 알 수 없는 항목 ${key}`);
+};
+function validateTheme(input) {
+    keys(input, ['format','version','id','name','author','colors','layout','decoration','icons','wallpaper','handle','source','qrStyles'], '테마');
+    // 이전 형식 이름으로 만든 파일도 그대로 읽는다.
+    if (!['custom-studio-theme', 'cute-qr-theme'].includes(input.format) || input.version !== 1) throw new Error('custom-studio-theme 버전 1 테마 파일이 필요합니다.');
+    if (typeof input.id !== 'string' || !/^[a-z0-9][a-z0-9-]{0,63}$/.test(input.id)) throw new Error('id는 영문 소문자·숫자·하이픈으로 1~64자입니다.');
+    const theme = structuredClone(DEFAULT_THEME);
+    theme.id = input.id;
+    for (const key of ['name','author']) {
+        if (input[key] !== undefined) {
+            if (typeof input[key] !== 'string' || !input[key].trim() || input[key].length > 80) throw new Error(`${key}: 1~80자로 입력하세요.`);
+            theme[key] = input[key];
+        }
+    }
+    if (!input.name) throw new Error('name을 입력하세요.');
+    if (input.colors !== undefined) {
+        keys(input.colors, Object.keys(theme.colors), 'colors');
+        for (const [key,value] of Object.entries(input.colors)) {
+            if (typeof value !== 'string' || !/^#[0-9a-fA-F]{6}$/.test(value)) throw new Error(`${key}: #RRGGBB 색상을 사용하세요.`);
+            theme.colors[key] = value;
+        }
+    }
+    const ranges = {panelWidth:[260,460],radius:[0,36],buttonRadius:[0,30],gap:[4,24],columns:[1,3],fontSize:[12,24],lineHeight:[1.2,2.4]};
+    if (input.layout !== undefined) {
+        keys(input.layout, Object.keys(ranges), 'layout');
+        for (const [key,value] of Object.entries(input.layout)) {
+            const [min,max] = ranges[key];
+            if (typeof value !== 'number' || !Number.isFinite(value) || value < min || value > max || (key !== 'lineHeight' && !Number.isInteger(value))) throw new Error(`${key}: ${min}~${max} 범위${key === 'lineHeight' ? '' : '의 정수'}를 입력하세요.`);
+            theme.layout[key] = value;
+        }
+    }
+    if (input.decoration !== undefined) {
+        keys(input.decoration, ['symbol','title','subtitle','background'], 'decoration');
+        for (const [key,value] of Object.entries(input.decoration)) {
+            if (typeof value !== 'string' || value.length > (key === 'symbol' ? 8 : 100)) throw new Error(`${key}: 텍스트가 너무 깁니다.`);
+            theme.decoration[key] = value;
+        }
+        if (!['dots','plain','gradient'].includes(theme.decoration.background)) throw new Error('background는 dots, plain, gradient 중 하나입니다.');
+    }
+    theme.icons = validateIcons(input.icons ?? {default:{type:'native'},rules:[]});
+    theme.wallpaper = validateWallpaper(input.wallpaper);
+    theme.handle = validateHandle(input.handle);
+    theme.source = validateSource(input.source);
+    theme.qrStyles = validateQrStyles(input.qrStyles);
+    if (new TextEncoder().encode(JSON.stringify(theme)).length > MAX_THEME_BYTES) throw new Error('테마 전체 크기는 6 MB 이하로 만들어 주세요.');
+    return theme;
+}
+function themeVariables(theme) {
+    const result = {};
+    for (const [key,value] of Object.entries(theme.colors)) result[`--cqs-${key}`] = value;
+    for (const [key,value] of Object.entries(theme.layout)) result[`--cqs-${key}`] = String(value) + (['columns','lineHeight'].includes(key) ? '' : 'px');
+    const wp = theme.wallpaper;
+    result['--cqs-wallpaper'] = wp.image ? `url("${wp.image}")` : 'none';
+    result['--cqs-wallpaper-size'] = wp.size;
+    result['--cqs-wallpaper-position'] = wp.position;
+    result['--cqs-wallpaper-repeat'] = wp.repeat;
+    result['--cqs-wallpaper-overlay'] = rgba(theme.colors.canvas, wp.overlay);
+    result['--cqs-message-surface'] = rgba(theme.colors.surface, wp.image ? wp.messageOpacity : 1);
+    result['--cqs-message-user'] = rgba(theme.colors.user, wp.image ? wp.messageOpacity : 1);
+    // v0.2.2: derived tokens so dark themes stay readable without new theme keys.
+    const dark = isDarkColor(theme.colors.canvas);
+    result['--cqs-scheme'] = dark ? 'dark' : 'light';
+    result['--cqs-onAccent'] = readableOn(theme.colors.accent);
+    result['--cqs-shadow'] = dark ? 'rgba(0,0,0,0.45)' : rgba(theme.colors.text, 0.14);
+    result['--cqs-danger'] = dark ? '#ff8fa3' : '#a1265a';
+    return result;
+}
+function luminance(hex) {
+    const [r,g,b] = [1,3,5].map(i => {
+        const c = parseInt(hex.slice(i,i+2),16)/255;
+        return c <= 0.03928 ? c/12.92 : ((c+0.055)/1.055) ** 2.4;
+    });
+    return 0.2126*r + 0.7152*g + 0.0722*b;
+}
+const contrast = (a,b) => (Math.max(a,b)+0.05)/(Math.min(a,b)+0.05);
+function isDarkColor(hex) { return luminance(hex) < 0.18; }
+/** Text colour for a filled accent button: whichever of white / deep ink reads better. */
+function readableOn(hex) {
+    const l = luminance(hex);
+    return contrast(l, 1) >= contrast(l, luminance('#141021')) ? '#ffffff' : '#141021';
+}
+/** Panel display only: drop leading emoji/symbols ("⚔ 오늘의 퀘스트" -> "오늘의 퀘스트"). The QR itself is untouched. */
+function displayLabel(label, strip) {
+    if (!strip || typeof label !== 'string') return label;
+    const cleaned = label.replace(/^[\p{Extended_Pictographic}\p{So}\u{FE0F}\u{200D}\u{20E3}\s]+/u, '');
+    return cleaned || label;
+}
+function characterKey(context) {
+    if (context.groupId != null && context.groupId !== '') return null;
+    if (context.characterId == null) return null;
+    const avatar = context.characters?.[context.characterId]?.avatar;
+    return typeof avatar === 'string' && avatar ? `character:${avatar}` : null;
+}
+
+const MAX_THEME_BYTES = 6 * 1024 * 1024;
+const MAX_WALLPAPER_BYTES = 2 * 1024 * 1024;
+const MAX_ICON_BYTES = 256 * 1024;
+function rgba(hex, alpha) {
+    return `rgba(${[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)).join(',')},${alpha})`;
+}
+function validateImage(value, maxBytes) {
+    if (typeof value !== 'string' || value.length > Math.ceil(maxBytes/3)*4 + 64) throw new Error('이미지 용량 제한을 초과했습니다.');
+    const match = /^data:image\/(png|jpeg|gif|webp);base64,([A-Za-z0-9+/]+={0,2})$/.exec(value);
+    if (!match || match[2].length % 4 !== 0) throw new Error('PNG, JPG, GIF, WebP 이미지 파일을 사용하세요.');
+    const bytes = match[2].length*3/4 - (match[2].endsWith('==')?2:match[2].endsWith('=')?1:0);
+    if(bytes>maxBytes) throw new Error('이미지 용량 제한을 초과했습니다.');
+    const head = atob(match[2].slice(0,Math.min(32,match[2].length)));
+    const valid = {
+        png: head.startsWith('\x89PNG\r\n\x1a\n'),
+        jpeg: head.startsWith('\xff\xd8\xff'),
+        gif: head.startsWith('GIF87a') || head.startsWith('GIF89a'),
+        webp: head.startsWith('RIFF') && head.slice(8,12)==='WEBP'
+    };
+    if (!valid[match[1]]) throw new Error('이미지 확장자와 실제 형식이 일치하지 않습니다.');
+    return value;
+}
+function validateIcon(icon) {
+    keys(icon,['type','value'],'아이콘');
+    if (!['native','none','text','fa','image'].includes(icon.type)) throw new Error('아이콘 type은 native, none, text, fa, image 중 하나입니다.');
+    if (['native','none'].includes(icon.type)) return {type:icon.type};
+    if (typeof icon.value !== 'string' || !icon.value.trim()) throw new Error('아이콘 값을 입력하세요.');
+    if(icon.type==='text' && icon.value.length>24) throw new Error('아이콘 문자는 24자 이하입니다.');
+    if(icon.type==='fa' && (!/^(?:fa-[a-z0-9-]+)(?: fa-[a-z0-9-]+)*$/.test(icon.value) || icon.value.length>120)) throw new Error('Font Awesome 클래스 예: fa-solid fa-heart');
+    if(icon.type==='image') validateImage(icon.value,MAX_ICON_BYTES);
+    return {type:icon.type,value:icon.value};
+}
+function validateIcons(icons) {
+    keys(icons,['default','rules'],'icons');
+    const result={default:validateIcon(icons.default ?? {type:'native'}),rules:[]};
+    if (icons.rules!==undefined && (!Array.isArray(icons.rules) || icons.rules.length>200)) throw new Error('아이콘 규칙은 최대 200개입니다.');
+    const seen = new Set();
+    for (const rule of icons.rules || []) {
+        keys(rule,['set','id','label','icon'],'아이콘 규칙');
+        const set=rule.set ?? null;
+        if (set!==null && (typeof set!=='string' || !set || set.length>300)) throw new Error('set은 세트 이름 또는 null입니다.');
+        if (rule.id!==undefined && (set===null || !Number.isInteger(rule.id) || rule.id<0)) throw new Error('id 규칙에는 정확한 세트 이름과 0 이상의 정수가 필요합니다.');
+        if (rule.label!==undefined && (typeof rule.label!=='string' || rule.label.length>300)) throw new Error('label은 버튼 이름입니다.');
+        if (rule.id!==undefined && rule.label!==undefined) throw new Error('id와 label은 한 규칙에 동시에 넣지 마세요.');
+        if(set===null && rule.label===undefined) throw new Error('공통 아이콘은 icons.default에 지정하세요.');
+        const clean={set,icon:validateIcon(rule.icon)};
+        if(rule.id!==undefined) clean.id=rule.id;
+        if(rule.label!==undefined) clean.label=rule.label;
+        const key=JSON.stringify([set,rule.id??null,rule.label??null]);
+        if(seen.has(key)) throw new Error('같은 대상을 지정한 아이콘 규칙이 중복되었습니다.');
+        seen.add(key);result.rules.push(clean);
+    }
+    return result;
+}
+function validateWallpaper(input) {
+    const result=structuredClone(DEFAULT_THEME.wallpaper);
+    if (input===undefined) return result;
+    keys(input,['image','size','position','repeat','overlay','messageOpacity'],'wallpaper');
+    if(input.image!==undefined) result.image=input.image===''?'':validateImage(input.image,MAX_WALLPAPER_BYTES);
+    for (const [key,allowed] of Object.entries({size:['cover','contain','auto'],position:['center','top','bottom','left','right'],repeat:['no-repeat','repeat']})) {
+        if(input[key]!==undefined) {
+            if(!allowed.includes(input[key])) throw new Error(`${key}: ${allowed.join(', ')} 중 선택하세요.`);
+            result[key]=input[key];
+        }
+    }
+    for(const key of ['overlay','messageOpacity']) if(input[key]!==undefined) {
+        if(typeof input[key]!=='number' || !Number.isFinite(input[key]) || input[key]<0 || input[key]>1) throw new Error(`${key}: 0~1 사이 숫자입니다.`);
+        result[key]=input[key];
+    }
+    return result;
+}
+function resolveIcon(theme,setName,qr) {
+    let selected=theme.icons.default, score=-1;
+    for(const rule of theme.icons.rules) {
+        if(rule.set!==null && rule.set!==setName) continue;
+        if(rule.id!==undefined && rule.id!==qr.id) continue;
+        if(rule.label!==undefined && rule.label!==qr.label) continue;
+        const priority=rule.id!==undefined?50:rule.label!==undefined?(rule.set!==null?40:30):(rule.set!==null?20:10);
+        if(priority>score) {score=priority;selected=rule.icon;}
+    }
+    if(selected.type!=='native') return selected;
+    if(typeof qr.icon==='string' && /^(?:fa-[a-z0-9-]+)(?: fa-[a-z0-9-]+)*$/.test(qr.icon)) return {type:'fa',value:qr.icon};
+    return {type:'text',value:theme.decoration.symbol};
+}
+
+function validateHandle(input) {
+    const result=structuredClone(DEFAULT_THEME.handle);
+    if(input===undefined)return result;
+    keys(input,['icon','label','showLabel','size'],'handle');
+    if(input.icon!==undefined)result.icon=validateIcon(input.icon);
+    if(input.label!==undefined){
+        if(typeof input.label!=='string' || input.label.length>16)throw new Error('손잡이 문구는 16자 이하입니다.');
+        result.label=input.label;
+    }
+    if(input.showLabel!==undefined){
+        if(typeof input.showLabel!=='boolean')throw new Error('손잡이 showLabel은 true/false입니다.');
+        result.showLabel=input.showLabel;
+    }
+    if(input.size!==undefined){
+        if(!Number.isInteger(input.size)||input.size<16||input.size>48)throw new Error('손잡이 아이콘 크기는 16~48px 정수입니다.');
+        result.size=input.size;
+    }
+    if(result.icon.type==='none' && (!result.showLabel || !result.label.trim()))throw new Error('손잡이에 아이콘 또는 문구 하나는 표시해 주세요.');
+    return result;
+}
+function resolveHandleIcon(theme) {
+    return theme.handle.icon.type==='native'?{type:'text',value:theme.decoration.symbol.trim()||'✦'}:theme.handle.icon;
+}
+
+function sourceText(value, label, max = 48000) {
+    if (typeof value !== 'string' || value.length > max) throw new Error(`${label}: 최대 ${max}자까지 입력할 수 있습니다.`);
+    return value;
+}
+
+function validateSource(input = {}) {
+    const result = { ...DEFAULT_THEME.source };
+    keys(input, Object.keys(result), '소스 편집');
+    for (const [key, value] of Object.entries(input)) result[key] = sourceText(value, key);
+    return result;
+}
+
+function qrTarget(set, qr) {
+    return Number.isInteger(qr.id) && qr.id >= 0 ? { set, id: qr.id } : { set, label: qr.label || '' };
+}
+
+function sameQrTarget(a, b) {
+    return a.set === b.set && a.id === b.id && a.label === b.label;
+}
+
+const QR_SHAPES = ['default', 'square', 'round', 'pill', 'circle'];
+
+function validateQrStyles(input = []) {
+    if (!Array.isArray(input) || input.length > 200) throw new Error('개별 QR 디자인은 최대 200개입니다.');
+    const seen = new Set();
+    return input.map(rule => {
+        keys(rule, ['set', 'id', 'label', 'background', 'image', 'shape', 'html', 'css'], '개별 QR 디자인');
+        if (typeof rule.set !== 'string' || !rule.set || rule.set.length > 300) throw new Error('QR 세트 이름을 입력하세요.');
+        const hasId = rule.id !== undefined;
+        if (hasId ? !Number.isInteger(rule.id) || rule.id < 0 || rule.label !== undefined
+            : typeof rule.label !== 'string' || rule.label.length > 300) throw new Error('개별 QR에는 ID 또는 원본 이름 하나가 필요합니다.');
+        const target = hasId ? { set: rule.set, id: rule.id } : { set: rule.set, label: rule.label };
+        const key = JSON.stringify([rule.set, rule.id ?? null, rule.label ?? null]);
+        if (seen.has(key)) throw new Error('같은 QR의 디자인이 중복되었습니다.');
+        seen.add(key);
+        const background = rule.background ?? '';
+        if (typeof background !== 'string' || (background !== '' && !/^#[0-9a-f]{6}$/i.test(background))) throw new Error('QR 배경색은 #RRGGBB로 입력하세요.');
+        const image = rule.image ?? '';
+        if (image !== '') validateImage(image, MAX_ICON_BYTES);
+        const shape = rule.shape ?? 'default';
+        if (!QR_SHAPES.includes(shape)) throw new Error('지원하지 않는 QR 모양입니다.');
+        return {
+            ...target, background: background || '', image, shape,
+            html: sourceText(rule.html ?? '', 'QR HTML', 12000),
+            css: sourceText(rule.css ?? '', 'QR CSS', 12000)
+        };
+    });
+}
+return { DEFAULT_THEME, validateTheme, themeVariables, isDarkColor, readableOn, displayLabel, characterKey, MAX_THEME_BYTES, MAX_WALLPAPER_BYTES, MAX_ICON_BYTES, validateImage, validateIcon, resolveIcon, resolveHandleIcon, qrTarget, sameQrTarget, QR_SHAPES };
+})();
+modules['assets-ui'] = (() => {
+const { MAX_ICON_BYTES, MAX_WALLPAPER_BYTES, validateImage, qrTarget, sameQrTarget } = modules['theme'];
+const make = (tag,text) => {const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n;};
+const btn = (text,fn) => {const b=make('button',text);b.type='button';b.className='cqs-button';b.addEventListener('click',fn);return b;};
+const field = (name,input) => {const l=make('label');l.className='cqs-field';l.append(make('span',name),input);return l;};
+const select = (items) => {const s=make('select');for(const [v,text] of items){const o=make('option',text);o.value=v;s.append(o);}return s;};
+async function readImageFile(file,maxBytes) {
+    if(!file || file.size>maxBytes) throw new Error(`이미지는 ${Math.round(maxBytes/1024)} KB 이하로 선택하세요.`);
+    const bytes=new Uint8Array(await file.arrayBuffer());
+    const head=String.fromCharCode(...bytes.slice(0,16));
+    const mime=head.startsWith('\x89PNG\r\n\x1a\n')?'image/png':head.startsWith('\xff\xd8\xff')?'image/jpeg':/^GIF8[79]a/.test(head)?'image/gif':head.startsWith('RIFF')&&head.slice(8,12)==='WEBP'?'image/webp':null;
+    if(!mime) throw new Error('PNG, JPG, GIF, WebP 이미지 파일을 선택하세요.');
+    const value=await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(new Error('이미지를 읽지 못했습니다.'));r.readAsDataURL(new Blob([bytes],{type:mime}));});
+    validateImage(value,maxBytes);
+    const image=new Image();image.src=value;
+    await image.decode().catch(()=>{throw new Error('손상되었거나 브라우저가 읽을 수 없는 이미지입니다.');});
+    if(image.naturalWidth*image.naturalHeight>25000000) throw new Error('이미지는 2,500만 화소 이하로 선택하세요.');
+    return value;
+}
+function createAssetsEditor({read,write,raw,info,listSets,getSet}) {
+    const node=make('div');node.className='cqs-assets';
+    const report=error=>info(error.message);
+    function edit(fn) {try{const t=read();fn(t);write(t);info('편집에 반영했어요. 테마 저장 후 캐릭터에 적용하세요.');}catch(error){report(error);}}
+    function upload(text,limit,targetCallback) {
+        const wrap=make('span');const input=make('input');input.type='file';input.accept='image/png,image/jpeg,image/gif,image/webp';input.hidden=true;
+        let start,callback;
+        const b=btn(text,()=>{try{start=raw();callback=targetCallback();input.click();}catch(error){report(error);}});
+        input.addEventListener('change',async()=>{
+            if(!input.files?.[0])return;b.disabled=true;
+            try{const value=await readImageFile(input.files[0],limit);if(raw()!==start)throw new Error('업로드 중 테마가 바뀌었습니다. 이미지를 다시 선택해 주세요.');callback(value);}
+            catch(error){report(error);}finally{input.value='';b.disabled=false;}
+        });wrap.append(b,input);return wrap;
+    }
+    node.append(make('h3','접힌 QR 패널 손잡이'));
+    const handleSource=select([['native','테마 장식 문자 사용'],['text','문자 / 이모지'],['fa','Font Awesome'],['image','업로드 이미지'],['none','아이콘 숨기기']]);
+    const handleValue=make('input');handleValue.type='text';handleValue.maxLength=120;handleValue.placeholder='♡ 또는 fa-solid fa-heart';
+    const handleLabel=make('input');handleLabel.type='text';handleLabel.maxLength=16;
+    const handleShow=make('input');handleShow.type='checkbox';
+    const handleSize=make('input');handleSize.type='number';handleSize.min='16';handleSize.max='48';handleSize.step='1';
+    const handlePreview=make('div');handlePreview.className='cqs-handle-preview';handlePreview.setAttribute('aria-label','저장할 손잡이 미리보기');
+    const handleFields=make('div');handleFields.className='cqs-asset-grid';
+    handleFields.append(field('손잡이 아이콘 종류',handleSource),field('문자 또는 아이콘 클래스',handleValue),field('손잡이 문구',handleLabel),field('아이콘 크기 (16~48px)',handleSize),field('문구 표시',handleShow));
+    function handleDraft(t,uploaded) {
+        const type=uploaded?'image':handleSource.value;
+        const icon=uploaded?{type,value:uploaded}:type==='image'?t.handle.icon:['native','none'].includes(type)?{type}:{type,value:handleValue.value};
+        if(type==='image' && icon.type!=='image')throw new Error('손잡이 이미지 업로드 버튼으로 파일을 선택하세요.');
+        return {icon,label:handleLabel.value,showLabel:handleShow.checked,size:Number(handleSize.value)};
+    }
+    const handleUpload=upload('손잡이 이미지 업로드',MAX_ICON_BYTES,()=>{
+        const draft={label:handleLabel.value,showLabel:handleShow.checked,size:Number(handleSize.value)};
+        return data=>edit(t=>{t.handle={...draft,icon:{type:'image',value:data}};});
+    });
+    function handleMode(){handleValue.hidden=!['text','fa'].includes(handleSource.value);handleUpload.hidden=handleSource.value!=='image';}
+    handleSource.addEventListener('change',handleMode);
+    const handleActions=make('div');handleActions.className='cqs-actions';
+    handleActions.append(btn('손잡이 설정 반영',()=>edit(t=>{t.handle=handleDraft(t);})),handleUpload,btn('손잡이 기본값 복원',()=>edit(t=>{t.handle={icon:{type:'native'},label:'QR',showLabel:true,size:24};})));
+    node.append(handleFields,handlePreview,handleActions,make('p','패널 안 QR 버튼과 별개로 지정합니다. 이미지 최대 256 KB. 반영 후 테마 저장 → 캐릭터에 적용을 눌러주세요.'));
+    node.append(make('h3','채팅 배경 이미지'));
+    const wpPreview=make('img');wpPreview.className='cqs-wallpaper-preview';wpPreview.alt='선택한 채팅 배경';wpPreview.hidden=true;
+    const wpActions=make('div');wpActions.className='cqs-actions';
+    wpActions.append(upload('배경 이미지 업로드',MAX_WALLPAPER_BYTES,()=>value=>edit(t=>{t.wallpaper.image=value;})),btn('배경 이미지 제거',()=>edit(t=>{t.wallpaper.image='';})));
+    const size=select([['cover','채우기 (일부 잘림)'],['contain','맞추기 (전체 표시)'],['auto','원본 크기']]);
+    const position=select([['center','가운데'],['top','위'],['bottom','아래'],['left','왼쪽'],['right','오른쪽']]);
+    const repeat=select([['no-repeat','반복 안 함'],['repeat','반복']]);
+    for(const [key,input]of Object.entries({size,position,repeat}))input.addEventListener('change',()=>edit(t=>{t.wallpaper[key]=input.value;}));
+    const wpControls=make('div');wpControls.className='cqs-asset-grid';wpControls.append(field('배경 크기',size),field('배경 위치',position),field('반복',repeat));
+    const sliders={};
+    for(const [key,label]of [['overlay','배경색 덮개 농도'],['messageOpacity','메시지 카드 불투명도']]) {
+        const input=make('input');input.type='range';input.min='0';input.max='100';input.step='1';
+        const output=make('output');sliders[key]={input,output};
+        input.addEventListener('input',()=>{output.textContent=`${input.value}%`;});
+        input.addEventListener('change',()=>edit(t=>{t.wallpaper[key]=Number(input.value)/100;}));
+        const f=field(label,input);f.append(output);wpControls.append(f);
+    }
+    node.append(wpActions,wpPreview,wpControls,make('p','배경은 이 테마를 지정한 캐릭터의 모든 대화방에 적용됩니다. PNG/JPG/GIF/WebP · 최대 2 MB.'));
+    node.append(make('h3','테마별 QR 아이콘'));
+    const setInput=select([['all','모든 세트 · 공통 아이콘']]);
+    const qrInput=select([['all','세트 전체']]);
+    const source=select([['inherit','상위 아이콘 따르기'],['native','원본 QR 아이콘'],['text','문자 / 이모지'],['fa','Font Awesome'],['image','업로드 이미지'],['none','아이콘 숨기기']]);
+    const value=make('input');value.type='text';value.placeholder='♡ 또는 fa-solid fa-heart';value.maxLength=120;
+    const iconPreview=make('div');iconPreview.className='cqs-icon-preview';
+    const ruleList=make('div');ruleList.className='cqs-rule-list';
+    let qrs=[];
+    function target() {
+        const set=setInput.value==='all'?null:JSON.parse(setInput.value);
+        if(set===null || qrInput.value==='all')return {set};
+        const qr=qrs[Number(qrInput.value)];
+        if(!qr)throw new Error('QR 목록이 변경되었습니다. 다시 선택하세요.');
+        return qrTarget(set, qr);
+    }
+    const isSame = sameQrTarget;
+    function setIcon(t,where,icon){
+        if(where.set===null && where.id===undefined && where.label===undefined)t.icons.default=icon||{type:'native'};
+        else {t.icons.rules=t.icons.rules.filter(r=>!isSame(r,where));if(icon)t.icons.rules.push({...where,icon});}
+    }
+    function mode() {value.hidden=!['text','fa'].includes(source.value);imageUploader.hidden=source.value!=='image';}
+    function showIcon(icon){iconPreview.replaceChildren();if(icon?.type==='image'){const img=make('img');img.src=icon.value;img.alt='QR 아이콘';iconPreview.append(img);}else iconPreview.textContent=icon?.type==='text'?icon.value:icon?.type==='fa'?icon.value:icon?.type==='none'?'숨김':icon?.type==='native'?'원본 아이콘':'상위 아이콘 사용';}
+    function loadIcon(){
+        try{const t=read(),where=target();const icon=where.set===null?t.icons.default:t.icons.rules.find(r=>isSame(r,where))?.icon;
+        source.value=icon?.type||'inherit';value.value=['text','fa'].includes(icon?.type)?icon.value:'';showIcon(icon);mode();loadDesign(t, where);}catch(error){report(error);}
+    }
+    function fillQr(previous){
+        qrs=[];qrInput.replaceChildren();const all=make('option','세트 전체');all.value='all';qrInput.append(all);
+        if(setInput.value!=='all')try{qrs=getSet(JSON.parse(setInput.value))?.qrList||[];}catch{}
+        qrs.forEach((qr,i)=>{const o=make('option',`${qr.label||qr.title||'이름 없는 QR'}${Number.isInteger(qr.id)?` · #${qr.id}`:''}`);o.value=String(i);qrInput.append(o);});
+        const index = previous && qrs.findIndex(qr => isSame(previous, qrTarget(previous.set, qr)));
+        if (Number.isInteger(index) && index >= 0) qrInput.value = String(index);
+        qrInput.disabled=setInput.value==='all';loadIcon();
+    }
+    function refreshTargets(){
+        let previous;
+        try { previous = target(); } catch { /* First render has no selected target. */ }
+        const old=setInput.value;setInput.replaceChildren();const all=make('option','모든 세트 · 공통 아이콘');all.value='all';setInput.append(all);
+        try{for(const name of listSets()){const o=make('option',name);o.value=JSON.stringify(name);setInput.append(o);}}catch(error){report(error);}
+        if([...setInput.options].some(o=>o.value===old))setInput.value=old;fillQr(previous?.set && setInput.value === old ? previous : null);
+    }
+    const imageUploader=upload('QR 아이콘 이미지 업로드',MAX_ICON_BYTES,()=>{const where=target();return data=>edit(t=>setIcon(t,where,{type:'image',value:data}));});
+    source.addEventListener('change',mode);setInput.addEventListener('change',()=>fillQr());qrInput.addEventListener('change',loadIcon);
+    const iconFields=make('div');iconFields.className='cqs-asset-grid';iconFields.append(field('QR 세트',setInput),field('적용 대상 QR',qrInput),field('아이콘 종류',source),field('문자 또는 아이콘 클래스',value));
+    const iconActions=make('div');iconActions.className='cqs-actions';
+    iconActions.append(btn('선택 아이콘 반영',()=>{
+        if(source.value==='image'){info('이미지 업로드 버튼으로 파일을 선택하세요.');return;}
+        edit(t=>setIcon(t,target(),source.value==='inherit'?null:['native','none'].includes(source.value)?{type:source.value}:{type:source.value,value:value.value}));
+    }),imageUploader,btn('선택 대상 지정 해제',()=>edit(t=>setIcon(t,target(),null))),btn('QR 대상 새로고침',refreshTargets));
+    node.append(iconFields,iconPreview,iconActions,make('p','개별 QR 지정이 세트·공통 아이콘보다 우선합니다. 원본 QR은 변경하지 않습니다. 이미지 최대 256 KB. 투명 PNG/GIF/WebP를 사용할 수 있어요.'),ruleList);
+    const design = make('div');
+    design.className = 'cqs-qr-editor';
+    design.append(make('h3', '개별 QR 버튼 디자인'), make('p', '위에서 버튼 하나를 선택하세요. 배경과 모양은 바로 지정할 수 있고, HTML/CSS는 캐릭터에서 소스 적용을 켜면 표시됩니다.'));
+    const designFields = make('div');
+    designFields.className = 'cqs-asset-grid';
+    const useBackground = make('input'); useBackground.type = 'checkbox';
+    const background = make('input'); background.type = 'color';
+    useBackground.addEventListener('change', () => { background.disabled = !useBackground.checked; });
+    const shape = select([['default', '테마 기본값'], ['square', '각진 사각형'], ['round', '둥근 사각형'], ['pill', '캡슐'], ['circle', '원형']]);
+    const qrHtml = make('textarea'); const qrCss = make('textarea');
+    for (const input of [qrHtml, qrCss]) {
+        input.className = 'cqs-json'; input.rows = 4; input.spellcheck = false; input.maxLength = 12000;
+    }
+    qrHtml.placeholder = '<span class="my-qr"><span data-cqs-slot="icon"></span><span data-cqs-slot="label"></span></span>';
+    qrCss.placeholder = ':scope { border-radius: 10px 28px; }\n.cqs-qr-label { letter-spacing: .04em; }';
+    const imagePreview = make('img'); imagePreview.className = 'cqs-wallpaper-preview'; imagePreview.alt = 'QR 버튼 배경';
+    let designImage = '';
+    function loadDesign(t, where) {
+        design.hidden = where.id === undefined && where.label === undefined;
+        const rule = t.qrStyles.find(rule => isSame(rule, where));
+        useBackground.checked = Boolean(rule?.background);
+        background.value = rule?.background || t.colors.button;
+        background.disabled = !useBackground.checked;
+        shape.value = rule?.shape || 'default';
+        qrHtml.value = rule?.html || '';
+        qrCss.value = rule?.css || '';
+        designImage = rule?.image || '';
+        imagePreview.hidden = !designImage;
+        if (designImage) imagePreview.src = designImage;
+        else imagePreview.removeAttribute('src');
+    }
+    function designDraft(image = designImage) {
+        return { background: useBackground.checked ? background.value : '', image, shape: shape.value, html: qrHtml.value, css: qrCss.value };
+    }
+    function saveDesign(t, where, draft) {
+        if (where.id === undefined && where.label === undefined) throw new Error('QR 버튼 하나를 선택하세요.');
+        t.qrStyles = t.qrStyles.filter(rule => !isSame(rule, where));
+        if (draft && (draft.background || draft.image || draft.shape !== 'default' || draft.html.trim() || draft.css.trim())) {
+            t.qrStyles.push({ ...where, ...draft });
+        }
+    }
+    const designActions = make('div'); designActions.className = 'cqs-actions';
+    designActions.append(
+        upload('QR 배경 이미지 업로드', MAX_ICON_BYTES, () => {
+            const where = target(), draft = designDraft();
+            return image => edit(t => saveDesign(t, where, { ...draft, image }));
+        }),
+        btn('QR 배경 이미지 제거', () => edit(t => saveDesign(t, target(), designDraft('')))),
+        btn('QR 디자인 반영', () => edit(t => saveDesign(t, target(), designDraft()))),
+        btn('QR 디자인 초기화', () => edit(t => saveDesign(t, target(), null)))
+    );
+    designFields.append(field('배경색 지정', useBackground), field('버튼 배경색', background), field('버튼 모양', shape));
+    design.append(designFields, imagePreview, field('개별 QR HTML', qrHtml), field('개별 QR CSS', qrCss), designActions);
+    node.append(design);
+    function refresh(t){
+        const h=t.handle;handleSource.value=h.icon.type;handleValue.value=['text','fa'].includes(h.icon.type)?h.icon.value:'';
+        handleLabel.value=h.label;handleShow.checked=h.showLabel;handleSize.value=h.size;handleMode();
+        handlePreview.replaceChildren();
+        const glyph=make('span');glyph.className='cqs-handle-icon';glyph.style.setProperty('--cqs-handle-icon-size',`${h.size}px`);glyph.setAttribute('aria-hidden','true');
+        if(h.icon.type==='image'){const image=make('img');image.src=h.icon.value;image.alt='';glyph.append(image);}
+        else if(h.icon.type==='fa')glyph.classList.add('fa-solid',...h.icon.value.split(/\s+/).filter(Boolean));
+        else if(h.icon.type==='text')glyph.textContent=h.icon.value;
+        else if(h.icon.type==='native')glyph.textContent=t.decoration.symbol.trim()||'✦';
+        if(h.icon.type!=='none')handlePreview.append(glyph);
+        if(h.showLabel&&h.label.trim())handlePreview.append(make('span',h.label));
+        const wp=t.wallpaper;wpPreview.hidden=!wp.image;if(wp.image)wpPreview.src=wp.image;else wpPreview.removeAttribute('src');
+        size.value=wp.size;position.value=wp.position;repeat.value=wp.repeat;
+        for(const [key,{input,output}]of Object.entries(sliders)){input.value=Math.round(wp[key]*100);output.textContent=input.value+'%';}
+        ruleList.replaceChildren();for(const rule of t.icons.rules){const row=make('div');row.className='cqs-rule';row.append(make('span',`${rule.set??'모든 세트'} / ${rule.id!==undefined?'#'+rule.id:rule.label??'전체'} · ${rule.icon.type}`),btn('삭제',()=>edit(d=>{d.icons.rules=d.icons.rules.filter(r=>!isSame(r,rule));})));ruleList.append(row);}
+        loadIcon();
+    }
+    // Initial population is deferred until all controls exist.
+    refreshTargets();
+    return {node,refresh,refreshTargets};
+}
+
+return { readImageFile, createAssetsEditor };
+})();
+modules['source'] = (() => {
+/** Source is declarative. Live controls are moved into slots and keep their event listeners. */
+const tags = new Set('div span section article header footer main nav aside p h2 h3 h4 strong em small b i mark ul ol li figure figcaption img br hr'.split(' '));
+const panelSlots = ['eyebrow', 'heading', 'subtitle', 'close', 'search', 'refresh', 'settings', 'qr', 'status'];
+const handleSlots = ['icon', 'label'];
+const qrSlots = ['icon', 'label'];
+const groups = new Set(['CSSMediaRule', 'CSSSupportsRule', 'CSSContainerRule']);
+const ruleNames = new Set(['CSSStyleRule', 'CSSKeyframesRule', ...groups]);
+
+function cleanHtml(input, allowed, required, label) {
+    if (!input.trim()) return null;
+    const parsed = document.createElement('template');
+    parsed.innerHTML = input;
+    const inert = parsed.content.ownerDocument;
+    const result = inert.createDocumentFragment();
+    const slots = new Set();
+    function copy(source, target) {
+        for (const node of source.childNodes) {
+            if (node.nodeType === Node.TEXT_NODE) {
+                target.append(inert.createTextNode(node.textContent));
+                continue;
+            }
+            if (node.nodeType !== Node.ELEMENT_NODE) continue;
+            const tag = node.localName;
+            if (!tags.has(tag) || node.namespaceURI !== 'http://www.w3.org/1999/xhtml') throw new Error(`${label}: <${tag}> 태그는 사용할 수 없습니다.`);
+            const next = inert.createElement(tag);
+            for (const {name, value} of node.attributes) {
+                if (name === 'data-cqs-slot') {
+                    if (!allowed.includes(value) || slots.has(value) || ['img', 'br', 'hr'].includes(tag)) {
+                        throw new Error(`${label}: 알 수 없거나 중복된 슬롯 ${value}`);
+                    }
+                    slots.add(value);
+                } else if (name === 'src' && tag === 'img') {
+                    if (!/^data:image\/(png|jpeg|gif|webp);base64,[a-z0-9+/]+={0,2}$/i.test(value)
+                        && !/^https:\/\/[^\s]+$/i.test(value)) throw new Error(`${label}: 이미지 주소는 HTTPS 또는 래스터 data URL을 사용하세요.`);
+                } else if (!(name === 'alt' && tag === 'img') && !['class', 'title', 'aria-hidden'].includes(name)) {
+                    throw new Error(`${label}: ${name} 속성은 사용할 수 없습니다.`);
+                }
+                next.setAttribute(name, value);
+            }
+            if (node.hasAttribute('data-cqs-slot') && node.querySelector('[data-cqs-slot]')) {
+                throw new Error(`${label}: 슬롯 안에는 다른 슬롯을 넣을 수 없습니다.`);
+            }
+            copy(node, next);
+            target.append(next);
+        }
+    }
+    copy(parsed.content, result);
+    if (required.some(name => !slots.has(name))) throw new Error(`${label}: 필수 슬롯 ${required.join(', ')}을 넣어주세요.`);
+    if (allowed === handleSlots && !slots.size) throw new Error('손잡이 HTML에는 icon 또는 label 슬롯을 넣어주세요.');
+    return result;
+}
+
+function cssFor(input, scope, label) {
+    if (!input.replace(/\/\*[\s\S]*?\*\//g, '').trim()) return '';
+    const sheet = new CSSStyleSheet();
+    sheet.replaceSync(input);
+    if (!sheet.cssRules.length) throw new Error(`${label}: 적용할 CSS 규칙이 없습니다.`);
+    function checkRules(rules) {
+        for (const rule of rules) {
+            const type = rule.constructor.name;
+            if (!ruleNames.has(type) && type !== 'CSSNestedDeclarations') throw new Error(`${label}: 지원하지 않는 CSS 규칙입니다.`);
+            if (groups.has(type) || type === 'CSSStyleRule') checkRules(rule.cssRules || []);
+        }
+    }
+    checkRules(sheet.cssRules);
+    // CSSOM serializes complete rules so malformed input cannot close the enclosing scope.
+    sheet.replaceSync(`@scope (${scope}) { ${[...sheet.cssRules].map(rule => rule.cssText).join('\n')} }`);
+    if (sheet.cssRules[0]?.constructor.name !== 'CSSScopeRule') throw new Error('이 브라우저는 CSS @scope를 지원하지 않습니다.');
+    return sheet.cssRules[0].cssText;
+}
+
+function compileSource(theme) {
+    const {source, qrStyles} = theme;
+    return {
+        panel: cleanHtml(source.panelHtml, panelSlots, ['close', 'qr'], '패널 HTML'),
+        handle: cleanHtml(source.handleHtml, handleSlots, [], '손잡이 HTML'),
+        panelCss: cssFor(source.panelCss, '#cqs-root', '패널 CSS'),
+        chatCss: cssFor(source.chatCss, '#sheld, #bg1, #bg_custom, #options', '채팅 CSS'),
+        menuCss: cssFor(source.menuCss, '#top-bar, #top-settings-holder', '상단 메뉴 CSS'),
+        qr: qrStyles.map((rule, index) => ({
+            html: cleanHtml(rule.html, qrSlots, ['label'], 'QR HTML'),
+            css: cssFor(rule.css, `#cqs-root .cqs-qr[data-cqs-design="${index}"]`, 'QR CSS')
+        }))
+    };
+}
+
+function fillSlots(template, slots) {
+    const fragment = document.importNode(template, true);
+    for (const node of fragment.querySelectorAll('[data-cqs-slot]')) node.append(...(slots[node.dataset.cqsSlot] || []));
+    return fragment;
+}
+
+return { compileSource, fillSlots };
+})();
+modules['source-ui'] = (() => {
+const fields = [
+    ['panelHtml', '패널 HTML', `<header class="cqs-header">
+  <div class="cqs-row">
+    <span data-cqs-slot="eyebrow"></span>
+    <span data-cqs-slot="close"></span>
+  </div>
+  <div data-cqs-slot="heading"></div>
+  <div data-cqs-slot="subtitle"></div>
+</header>
+<div class="cqs-toolbar">
+  <span data-cqs-slot="search"></span>
+  <span data-cqs-slot="refresh"></span>
+  <span data-cqs-slot="settings"></span>
+</div>
+<div class="cqs-qr-area" data-cqs-slot="qr"></div>
+<footer data-cqs-slot="status"></footer>`],
+    ['handleHtml', '손잡이 HTML', `<span class="my-handle">
+  <span data-cqs-slot="icon"></span>
+  <span data-cqs-slot="label"></span>
+</span>`],
+    ['panelCss', '패널 · 손잡이 CSS', `#cqs-panel { border-radius: 8px 28px 8px 28px; }
+.cqs-handle .my-handle { display: flex; align-items: center; gap: .4rem; }
+.cqs-grid { grid-template-columns: 1fr; }`],
+    ['chatCss', '채팅 · 배경 · 입력창 CSS', `:scope #chat { background: #f1edf9; }
+:scope[data-cqs-mode="bubbles"] .mes { border-radius: 22px; }
+:scope[data-cqs-mode="document"] .mes_text { line-height: 2; }
+:scope #send_textarea { letter-spacing: .02em; }
+:scope #send_but { color: #7754ab; }
+:scope#bg1 { filter: saturate(.7); }`],
+    ['menuCss', '상단 메뉴 CSS', `:scope#top-bar { background: #342b50; }
+.drawer-toggle .drawer-icon { color: #d4c4fc; }
+.drawer-content { border-color: #9d86be; }`]
+];
+
+function createSourceEditor({ patch, info }) {
+    const node = document.createElement('details');
+    node.className = 'cqs-editor cqs-source-editor';
+    const heading = document.createElement('summary');
+    heading.textContent = '소스 편집 · 패널 HTML과 영역별 CSS';
+    const note = document.createElement('p');
+    note.className = 'cqs-note';
+    note.textContent = '빈 칸은 기본 디자인을 사용합니다. CSS는 각 영역에만 적용됩니다. 패널 HTML에는 close와 qr 슬롯을 넣으세요. 저장 후 캐릭터 설정에서 HTML/CSS 적용을 켜주세요.';
+    node.append(heading, note);
+    const inputs = new Map();
+    for (const [key, title, sample] of fields) {
+        const label = document.createElement('label');
+        label.className = 'cqs-field';
+        const name = document.createElement('span');
+        name.textContent = title;
+        const input = document.createElement('textarea');
+        input.className = 'cqs-json';
+        input.rows = key === 'panelHtml' ? 8 : 5;
+        input.spellcheck = false;
+        input.autocomplete = 'off';
+        input.maxLength = 48000;
+        input.placeholder = sample;
+        label.append(name, input);
+        const insert = document.createElement('button');
+        insert.type = 'button';
+        insert.className = 'cqs-button';
+        insert.textContent = `${title} 예제 넣기`;
+        function update() {
+            try { patch(key, input.value); }
+            catch (error) { info(error.message); }
+            insert.disabled = Boolean(input.value.trim());
+        }
+        input.addEventListener('input', update);
+        insert.addEventListener('click', () => { input.value = sample; update(); });
+        node.append(label, insert);
+        inputs.set(key, { input, insert });
+    }
+    return {
+        node,
+        refresh(theme) {
+            for (const [key, { input, insert }] of inputs) {
+                input.value = theme.source[key];
+                insert.disabled = Boolean(input.value.trim());
+            }
+        }
+    };
+}
+
+return { createSourceEditor };
+})();
+modules['index'] = (() => {
+const { DEFAULT_THEME, validateTheme, themeVariables, characterKey, resolveIcon, resolveHandleIcon, displayLabel, MAX_THEME_BYTES, qrTarget, sameQrTarget } = modules['theme'];
+const { createAssetsEditor } = modules['assets-ui'];
+const { compileSource, fillSlots } = modules['source'];
+const { createSourceEditor } = modules['source-ui'];
+const KEY = 'customStudio';
+const LEGACY_KEY = 'cuteQrStudio';   // 이전 이름에서 쓰던 설정을 한 번 옮겨 온다
+const ctx = () => SillyTavern.getContext();
+const el = (tag, cls, text) => {
+    const node = document.createElement(tag);
+    if (cls) node.className = cls;
+    if (text !== undefined) node.textContent = text;
+    return node;
+};
+let root, panel, handle, content, heading, subtitle, search, status, dialog, settingsHost, themeStyle, sourceStyle;
+let panelParts, panelDefaults, generationControl;
+let currentKey = null, currentChat = null, currentProfile = null, currentTheme, currentSource;
+let searchTerm = '', busy = false, generating = false, statusMessage = '', statusError = false;
+let mounted = false, active = true;
+// v0.4.0: 확장에 함께 들어 있는 내장 테마(themes/index.json). 사용자 저장본이 같은 id면 사용자 것이 우선합니다.
+let bundled = {};
+// v0.4.0: 설정창의 '지금 화면에 미리보기'. 저장하지 않은 테마를 현재 캐릭터에만 잠시 입혀 봅니다.
+let preview = null;
+const narrow = globalThis.matchMedia?.('(max-width: 600px)');
+let safeMode = new URLSearchParams(location.search).get('cqs-safe') === '1';
+function settings() {
+    const all = ctx().extensionSettings;
+    if (!all[KEY] && all[LEGACY_KEY]) all[KEY] = structuredClone(all[LEGACY_KEY]);
+    all[KEY] ??= { schema: 1, profiles: {}, themes: {} };
+    all[KEY].profiles ??= {};
+    all[KEY].themes ??= {};
+    return all[KEY];
+}
+function save() { ctx().saveSettingsDebounced(); }
+function themes() { return { 'modern-cutie': DEFAULT_THEME, ...bundled, ...settings().themes }; }
+function isBuiltIn(id) { return id === 'modern-cutie' || (Object.hasOwn(bundled, id) && !Object.hasOwn(settings().themes, id)); }
+function themeOptions() {
+    return Object.entries(themes()).map(([id, theme]) => [id, isBuiltIn(id) ? `${theme.name} · 내장` : theme.name]);
+}
+async function loadBundled() {
+    const injected = globalThis.__CQS_BUNDLED_THEMES__;
+    let list = Array.isArray(injected) ? injected : null;
+    if (!list) {
+        try {
+            const base = new URL('./themes/', import.meta.url);
+            const index = await (await fetch(new URL('index.json', base))).json();
+            const files = Array.isArray(index?.themes) ? index.themes.filter(name => typeof name === 'string' && /^[a-z0-9-]+\.json$/.test(name)) : [];
+            list = await Promise.all(files.map(async name => (await fetch(new URL(name, base))).json()));
+        } catch (error) { console.warn('[Custom Studio] 내장 테마를 읽지 못했습니다.', error); list = []; }
+    }
+    const next = {};
+    for (const raw of list) {
+        try { const theme = validateTheme(raw); if (theme.id !== 'modern-cutie') next[theme.id] = theme; }
+        catch (error) { console.warn('[Custom Studio] 내장 테마 형식 오류', raw?.id, error.message); }
+    }
+    bundled = next;
+    sync();
+}
+function themeFor(profile) {
+    try { return validateTheme(themes()[profile?.theme] || DEFAULT_THEME); }
+    catch { return structuredClone(DEFAULT_THEME); }
+}
+function profileFor(key) {
+    const stored = settings().profiles[key];
+    return {
+        enabled: false, theme: 'modern-cutie', side: 'right', showHidden: false, open: false,
+        stripPrefix: false, panelEnabled: true, chatEnabled: true, menuEnabled: true,
+        sourceEnabled: false, chatStyle: stored ? 'cards' : 'native', closeAfterRun: 'mobile', ...stored,
+        sets: Array.isArray(stored?.sets) ? [...new Set(stored.sets.filter(name => typeof name === 'string'))] : []
+    };
+}
+function activeCharacter() {
+    const context = ctx();
+    return context.chatId == null || context.chatId === '' ? null : characterKey(context);
+}
+function qrApi() {
+    const api = globalThis.quickReplyApi;
+    if (!api || typeof api.listSets !== 'function' || typeof api.getSetByName !== 'function') throw new Error('Quick Replies를 켠 뒤 QR 새로고침을 눌러주세요.');
+    return api;
+}
+function setNames() {
+    const names = qrApi().listSets();
+    if (!Array.isArray(names)) throw new Error('QR 세트 목록 형식이 호환되지 않습니다.');
+    return [...new Set(names.map(x => typeof x === 'string' ? x : x?.name).filter(x => typeof x === 'string' && x))];
+}
+function button(text, fn, cls = 'cqs-button') {
+    const b = el('button', cls, text); b.type = 'button';
+    b.addEventListener('click', fn); return b;
+}
+function syncChatMode() {
+    const shell = document.getElementById('sheld');
+    if (!shell) return;
+    const classes = document.body.classList;
+    if (!classes.contains('cqs-chat')) delete shell.dataset.cqsMode;
+    else shell.dataset.cqsMode = classes.contains('bubblechat') ? 'bubbles' : classes.contains('documentstyle') ? 'document' : 'flat';
+}
+function clearTheme() {
+    document.body.classList.remove('cqs-themed', 'cqs-chat');
+    syncChatMode();
+    delete document.body.dataset.cqsBackground;
+    delete document.body.dataset.cqsWallpaper;
+    delete document.body.dataset.cqsChatStyle;
+    if (themeStyle) themeStyle.textContent = '';
+    if (sourceStyle) sourceStyle.textContent = '';
+    currentSource = null;
+}
+function applyTheme(theme, profile) {
+    const variables = el('div').style;
+    for (const [key, value] of Object.entries(themeVariables(theme))) variables.setProperty(key, value);
+    themeStyle.textContent = `body.cqs-themed { ${variables.cssText} }`;
+    document.body.classList.add('cqs-themed');
+    document.body.classList.toggle('cqs-chat', profile.chatEnabled);
+    syncChatMode();
+    document.body.dataset.cqsBackground = theme.decoration.background;
+    document.body.dataset.cqsWallpaper = String(Boolean(theme.wallpaper.image));
+    document.body.dataset.cqsChatStyle = profile.chatStyle === 'cards' ? 'cards' : 'native';
+    if (!safeMode && profile.sourceEnabled) {
+        try {
+            currentSource = compileSource(theme);
+            sourceStyle.textContent = [
+                profile.panelEnabled ? currentSource.panelCss : '',
+                profile.chatEnabled ? currentSource.chatCss : '',
+                profile.menuEnabled ? currentSource.menuCss : '',
+                ...(profile.panelEnabled ? currentSource.qr.map(rule => rule.css) : [])
+            ].join('\n');
+        } catch (error) {
+            statusMessage = `소스 적용 실패. 기본 디자인으로 표시합니다. ${error.message}`;
+            statusError = true;
+            console.warn('[Custom Studio]', error);
+        }
+    }
+}
+function setOpen(open, persist = true) {
+    open = Boolean(open && currentProfile?.enabled && currentProfile.panelEnabled);
+    panel.hidden = !open;
+    handle.setAttribute('aria-expanded', String(open));
+    if (currentKey && persist && !(preview && preview.key === currentKey)) {
+        settings().profiles[currentKey] = { ...currentProfile, open };
+        currentProfile = settings().profiles[currentKey];
+        save();
+    }
+    if (open) {
+        renderQr();
+        if (persist) panelParts.close.focus({ preventScroll: true });
+    }
+}
+function renderHandle(theme) {
+    const chosen = resolveHandleIcon(theme);
+    const icon = iconNode(chosen, 'cqs-handle-icon');
+    icon?.style.setProperty('--cqs-handle-icon-size', `${theme.handle.size}px`);
+    const label = theme.handle.showLabel && theme.handle.label.trim() ? el('span', 'cqs-handle-label', theme.handle.label) : null;
+    const slots = { icon: icon ? [icon] : [], label: label ? [label] : [] };
+    if (currentSource?.handle) {
+        handle.replaceChildren(fillSlots(currentSource.handle, slots));
+        if (!handle.textContent.trim() && !handle.querySelector('.cqs-handle-icon, img')) handle.append(icon || label || 'QR');
+    } else handle.replaceChildren(...slots.icon, ...slots.label);
+}
+function sync() {
+    if (!mounted || !active) return;
+    const nextKey = activeCharacter();
+    const nextChat = ctx().chatId;
+    if (nextKey !== currentKey || nextChat !== currentChat) {
+        searchTerm = '';
+        search.value = '';
+        generating = generationControl?.style.display === 'flex';
+        statusMessage = '';
+        statusError = false;
+        dialog.close();
+    }
+    currentKey = nextKey;
+    currentChat = nextChat;
+    const previewing = Boolean(preview && preview.key === nextKey);
+    if (preview && !previewing) preview = null;
+    currentProfile = nextKey ? (previewing ? preview.profile : profileFor(nextKey)) : null;
+    clearTheme();
+    root.hidden = !currentProfile?.enabled || !currentProfile.panelEnabled;
+    if (!currentProfile?.enabled) { setOpen(false, false); return; }
+    currentTheme = previewing ? preview.theme : themeFor(currentProfile);
+    applyTheme(currentTheme, currentProfile);
+    root.dataset.side = currentProfile.side === 'left' ? 'left' : 'right';
+    heading.textContent = `${currentTheme.decoration.symbol} ${currentTheme.decoration.title}`;
+    subtitle.textContent = currentTheme.decoration.subtitle;
+    if (currentSource?.panel) {
+        panel.replaceChildren(fillSlots(currentSource.panel, Object.fromEntries(Object.entries(panelParts).map(([key, node]) => [key, [node]]))));
+    } else {
+        const { header, top, toolbar } = panelDefaults;
+        top.replaceChildren(panelParts.eyebrow, panelParts.close);
+        header.replaceChildren(top, heading, subtitle);
+        toolbar.replaceChildren(search, panelParts.refresh, panelParts.settings);
+        panel.replaceChildren(header, toolbar, content, status);
+    }
+    renderHandle(currentTheme);
+    setOpen(currentProfile.open, false);
+}
+async function runQr(setName, target, owner, chatId) {
+    const isCurrent = () => active && activeCharacter() === owner && ctx().chatId === chatId;
+    if (busy || generating || !isCurrent()) return;
+    busy = true;
+    statusMessage = '';
+    renderQr();
+    const mode = currentProfile?.closeAfterRun;
+    if (mode === 'always' || (mode !== 'never' && narrow?.matches)) setOpen(false);
+    try {
+        const api = qrApi();
+        const set = api.getSetByName(setName);
+        const qr = set?.qrList?.find(item => sameQrTarget(target, qrTarget(setName, item)));
+        if (!qr) throw new Error('QR이 삭제되거나 변경되었습니다. 새로고침해 주세요.');
+        if (typeof qr.execute === 'function') await qr.execute();
+        else if (typeof api.executeQuickReply === 'function') await api.executeQuickReply(setName, target.id ?? target.label);
+        else throw new Error('QR 실행 API를 사용할 수 없습니다.');
+        if (isCurrent()) { statusMessage = '실행 완료'; statusError = false; }
+    } catch (error) {
+        if (isCurrent()) {
+            statusMessage = `QR 실행 실패 · ${error.message}`;
+            statusError = true;
+            globalThis.toastr?.error(statusMessage, '커스텀 스튜디오');
+        }
+    } finally {
+        busy = false;
+        if (active) renderQr();
+    }
+}
+function iconNode(chosen, cls) {
+    if (chosen.type === 'none') return null;
+    const icon = el('span', cls);
+    icon.setAttribute('aria-hidden', 'true');
+    if (chosen.type === 'fa') icon.classList.add('fa-solid', ...chosen.value.split(/\s+/).filter(Boolean));
+    else if (chosen.type === 'image') {
+        const img = el('img', 'cqs-qr-image');
+        img.src = chosen.value;
+        img.alt = '';
+        icon.append(img);
+    } else icon.textContent = chosen.value;
+    return icon;
+}
+function decorateQr(b, label, icon, target) {
+    const index = currentTheme.qrStyles.findIndex(rule => sameQrTarget(rule, target));
+    const style = currentTheme.qrStyles[index];
+    if (style) {
+        b.dataset.cqsDesign = String(index);
+        b.dataset.cqsShape = style.shape;
+        if (style.background) b.style.setProperty('--cqs-qr-bg', style.background);
+        if (style.image) b.style.setProperty('--cqs-qr-image', `url("${style.image}")`);
+    }
+    const custom = currentSource?.qr[index]?.html;
+    if (custom) b.append(fillSlots(custom, { icon: icon ? [icon] : [], label: [label] }));
+    else b.append(...(icon ? [icon] : []), label);
+}
+function renderQr() {
+    if (panel.hidden || root.hidden) return;
+    content.replaceChildren();
+    status.textContent = busy ? 'QR 실행 중…' : generating ? '응답 생성 중…' : statusMessage || '버튼을 누르면 연결된 QR이 실행됩니다.';
+    status.dataset.error = String(!busy && !generating && statusError);
+    let names;
+    try { names = setNames(); } catch (error) { content.append(el('p','cqs-empty',error.message)); return; }
+    const selected = Array.isArray(currentProfile.sets) ? currentProfile.sets : [];
+    if (!selected.length) { content.append(el('p','cqs-empty','설정에서 이 캐릭터에 연결할 QR 세트를 선택하세요.')); return; }
+    let total = 0;
+    for (const name of selected) {
+        const section = el('section','cqs-set');
+        const title = el('h3','cqs-set-title', name); section.append(title);
+        if (!names.includes(name)) { section.append(el('p','cqs-empty','세트를 찾지 못했어요. 설정에서 다시 연결해 주세요.')); content.append(section); continue; }
+        let set;
+        try { set = qrApi().getSetByName(name); } catch { continue; }
+        const items = (Array.isArray(set?.qrList) ? set.qrList : []).filter(qr => qr && (currentProfile.showHidden || !qr.isHidden) && `${qr.label || ''} ${qr.title || ''}`.toLocaleLowerCase().includes(searchTerm));
+        if (!items.length && searchTerm) continue;
+        title.append(el('span','cqs-count',String(items.length)));
+        const grid = el('div','cqs-grid');
+        for (const qr of items) {
+            const b = el('button', 'cqs-qr'); b.type = 'button';
+            const target = qrTarget(name, qr);
+            const icon = iconNode(resolveIcon(currentTheme, name, qr), 'cqs-qr-icon');
+            const label = displayLabel(qr.label, currentProfile.stripPrefix) || qr.title || `QR ${qr.id ?? ''}`;
+            decorateQr(b, el('span', 'cqs-qr-label', label), icon, target);
+            b.title = qr.title || qr.label || 'QR 실행';
+            b.setAttribute('aria-label', label);
+            b.disabled = busy || generating;
+            const owner = currentKey, chatId = currentChat;
+            b.addEventListener('click', () => runQr(name, target, owner, chatId));
+            grid.append(b); total++;
+        }
+        if (!items.length) grid.append(el('p','cqs-empty','표시할 버튼이 없습니다. 숨김 QR 설정을 확인하세요.'));
+        section.append(grid); content.append(section);
+    }
+    if (!total && searchTerm) content.append(el('p','cqs-empty','검색 결과가 없습니다.'));
+}
+function field(label, input) { const wrap = el('label','cqs-field'); wrap.append(el('span','',label), input); return wrap; }
+function select(options, value) {
+    const input = el('select');
+    for (const [val,label] of options) { const o = el('option','',label); o.value = val; input.append(o); }
+    input.value = value; return input;
+}
+function check(text, checked) {
+    const label = el('label','cqs-check'); const input = el('input'); input.type = 'checkbox'; input.checked = checked;
+    label.append(input, el('span','',text)); return {label,input};
+}
+function download(name, data) {
+    const url = URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+    const a = el('a'); a.href = url; a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(url), 3000);
+}
+function showSettings() {
+    if (dialog.open) return;
+    const owner = activeCharacter();
+    dialog.replaceChildren();
+    const head = el('div','cqs-dialog-head'); head.append(el('h2','','커스텀 스튜디오'),button('닫기',()=>dialog.close())); dialog.append(head);
+    if (!owner) {
+        dialog.append(el('p','','테마를 지정할 캐릭터의 1:1 대화방을 먼저 열어주세요. 그룹 대화에는 적용하지 않습니다.'));
+        dialog.showModal(); return;
+    }
+    const profile = structuredClone(profileFor(owner));
+    const char = ctx().characters[ctx().characterId];
+    dialog.append(el('p','cqs-note',`${char.name} · 이 캐릭터의 모든 대화방에 적용`));
+    const enabled = check('이 캐릭터에 테마 사용', profile.enabled);
+    const usePanel = check('QR 사이드패널 표시', profile.panelEnabled);
+    const useChat = check('채팅 화면 꾸미기', profile.chatEnabled);
+    const useMenu = check('상단 메뉴 CSS 적용', profile.menuEnabled);
+    const useSource = check('이 캐릭터에서 테마의 HTML/CSS 적용', profile.sourceEnabled);
+    const chatStyle = select([['native', '실리태번 채팅 형식 유지'], ['cards', '카드 모양 (메시지마다 상자)']], profile.chatStyle);
+    const themeSelect = select(themeOptions(), profile.theme);
+    themeSelect.addEventListener('change', () => { useSource.input.checked = themeSelect.value === profile.theme && profile.sourceEnabled; });
+    const side = select([['right','오른쪽'],['left','왼쪽']],profile.side);
+    const hidden = check('숨김 QR도 패널에 표시',profile.showHidden);
+    const strip = check('버튼 이름 앞 이모지·기호 숨기기 (패널 표시만, 원본 QR은 그대로)',Boolean(profile.stripPrefix));
+    const closeAfter = select([['mobile','좁은 화면에서만 닫기 (기본)'],['always','항상 닫기'],['never','열어 두기']], profile.closeAfterRun || 'mobile');
+    dialog.append(enabled.label, field('테마', themeSelect), usePanel.label, useChat.label, useMenu.label,
+        field('메시지 레이아웃', chatStyle), field('패널 위치', side), field('QR을 누른 뒤 패널', closeAfter), hidden.label, strip.label, useSource.label,
+        el('p', 'cqs-note', safeMode ? '소스 복구 모드가 켜져 있습니다. 페이지를 다시 열면 저장한 소스를 다시 적용할 수 있습니다.'
+            : 'HTML/CSS는 신뢰하는 테마만 켜세요. Alt+Shift+Q로 이 페이지에서 소스를 잠시 끌 수 있습니다.'));
+    const setTitle = el('div','cqs-row'); setTitle.append(el('h3','','연결할 QR 세트'));
+    const sets = el('div','cqs-set-picker');
+    let picks = [];
+    function refreshPicks() {
+        const previous = picks.length ? picks.filter(x=>x.input.checked).map(x=>x.name) : profile.sets;
+        sets.replaceChildren(); picks = [];
+        let available = [];
+        try {
+            available = setNames();
+            for (const name of [...new Set([...previous,...available])]) {
+                const item = check(name + (available.includes(name) ? '' : ' (찾을 수 없음)'), previous.includes(name));
+                picks.push({...item,name}); sets.append(item.label);
+            }
+            if (!available.length) sets.append(el('p','cqs-note','기본 Quick Replies 설정에서 QR JSON을 가져온 후 새로고침하세요.'));
+        } catch(error) {
+            sets.append(el('p','cqs-note',error.message));
+            for (const name of previous) {
+                const item = check(name, true);
+                picks.push({ ...item, name });
+                sets.append(item.label);
+            }
+        }
+    }
+    setTitle.append(button('QR 새로고침', () => { refreshPicks(); assets?.refreshTargets(); })); dialog.append(setTitle,sets); refreshPicks();
+    const message = el('p','cqs-note'); message.setAttribute('role','status');
+    const saveProfile = button('캐릭터에 적용',()=>{
+        if (activeCharacter() !== owner) { dialog.close(); return; }
+        if (useSource.input.checked && !safeMode) {
+            try { compileSource(themeFor({theme: themeSelect.value})); }
+            catch (error) { message.textContent = error.message; return; }
+        }
+        settings().profiles[owner] = {
+            ...profile, enabled: enabled.input.checked, theme: themeSelect.value,
+            sets: picks.filter(p => p.input.checked).map(p => p.name), side: side.value,
+            showHidden: hidden.input.checked, stripPrefix: strip.input.checked,
+            panelEnabled: usePanel.input.checked, chatEnabled: useChat.input.checked, menuEnabled: useMenu.input.checked,
+            sourceEnabled: useSource.input.checked, chatStyle: chatStyle.value, closeAfterRun: closeAfter.value
+        };
+        endPreview(false);
+        statusMessage = ''; statusError = false;
+        save(); sync(); message.textContent = '저장했어요. 이 캐릭터의 새 대화방에도 적용됩니다.';
+    },'cqs-button cqs-primary');
+    const details = el('details','cqs-editor'); details.append(el('summary','','테마 만들기 · 가져오기 / 내보내기'));
+    details.append(el('p','cqs-note','색상·QR 아이콘·배경 이미지를 꾸민 뒤 새 id와 이름으로 저장하세요. 이미지는 테마 JSON에 함께 담깁니다.'));
+    const textarea = el('textarea','cqs-json'); textarea.rows = 12; textarea.spellcheck = false; textarea.setAttribute('aria-label','테마 JSON');
+    const colorGrid = el('div','cqs-colors');
+    const themeId=el('input');themeId.type='text';themeId.maxLength=64;
+    const themeName=el('input');themeName.type='text';themeName.maxLength=80;
+    const identity=el('div','cqs-asset-grid');identity.append(field('테마 id (수정본은 새 id)',themeId),field('테마 이름',themeName));
+    for(const [key,input] of [['id',themeId],['name',themeName]])input.addEventListener('input',()=>{try{const t=JSON.parse(textarea.value);t[key]=input.value;textarea.value=JSON.stringify(t,null,2);}catch{message.textContent='JSON 오류를 먼저 수정하세요.';}});
+    let assets, sourceEditor;
+
+    function fillEditor(theme) {
+        textarea.value = JSON.stringify(theme,null,2); themeId.value=theme.id;themeName.value=theme.name;colorGrid.replaceChildren();
+        assets?.refresh(theme);
+        sourceEditor?.refresh(theme);
+        for (const [key,value] of Object.entries(theme.colors)) {
+            const input = el('input'); input.type = 'color'; input.value = value; input.title = key;
+            input.addEventListener('input',()=>{ try { const t=JSON.parse(textarea.value); t.colors ??= {}; t.colors[key]=input.value; textarea.value=JSON.stringify(t,null,2); } catch { message.textContent='JSON 오류를 먼저 수정하세요.'; } });
+            colorGrid.append(field(key,input));
+        }
+    }
+    fillEditor(themeFor(profile));
+    assets=createAssetsEditor({
+        read:()=>validateTheme(JSON.parse(textarea.value)), raw:()=>textarea.value,
+        write:t=>{const valid=validateTheme(t);fillEditor(valid);},
+        info:text=>{message.textContent=text;},listSets:setNames,getSet:name=>qrApi().getSetByName(name)
+    });
+    assets.refresh(themeFor(profile));
+    sourceEditor = createSourceEditor({
+        patch: (key, value) => {
+            const draft = JSON.parse(textarea.value);
+            draft.source ??= {};
+            draft.source[key] = value;
+            textarea.value = JSON.stringify(draft, null, 2);
+        },
+        info: text => { message.textContent = text; }
+    });
+    sourceEditor.refresh(themeFor(profile));
+    textarea.addEventListener('change',()=>{try{const t=validateTheme(JSON.parse(textarea.value));fillEditor(t);}catch(error){message.textContent=error.message;}});
+
+    const actions = el('div','cqs-actions');
+    actions.append(button('선택 테마 불러오기',()=>fillEditor(themeFor({theme:themeSelect.value}))));
+    const file = el('input'); file.type='file'; file.accept='.json,application/json'; file.hidden=true;
+    file.addEventListener('change',async()=>{
+        try {
+            if (!file.files?.[0]) return;
+            if (file.files[0].size > MAX_THEME_BYTES) throw new Error('테마 파일은 6 MB 이하로 만들어 주세요.');
+            fillEditor(validateTheme(JSON.parse(await file.files[0].text())));
+            message.textContent='파일을 읽었어요. 테마 저장 후 캐릭터에 적용하세요.';
+        } catch(error) { message.textContent=error.message; }
+        finally { file.value=''; }
+    });
+    actions.append(button('JSON 가져오기',()=>file.click()),file);
+    actions.append(button('JSON 내보내기',()=>{
+        try { const t=validateTheme(JSON.parse(textarea.value)); compileSource(t); download(`${t.id}.json`,t); message.textContent='테마 파일을 내보냈어요.'; }
+        catch(error) { message.textContent=error.message; }
+    }));
+    const saveTheme = button('테마 저장',()=>{
+        try {
+            const t = validateTheme(JSON.parse(textarea.value));
+            compileSource(t);
+            if (isBuiltIn(t.id)) throw new Error(`내장 테마는 그대로 두고 복사해서 고쳐 주세요. id를 my-${t.id}처럼 바꾸면 새 테마로 저장됩니다.`);
+            if (Object.hasOwn(settings().themes,t.id) && !confirm('같은 id의 테마를 덮어쓸까요? 사용 중인 모든 캐릭터에 반영됩니다.')) return;
+            settings().themes[t.id]=t; save();
+            themeSelect.replaceChildren(...themeOptions().map(([id,name])=>{const o=el('option','',name);o.value=id;return o;}));
+            themeSelect.value=t.id; themeSelect.dispatchEvent(new Event('change')); fillEditor(t); sync(); message.textContent='테마를 저장했어요. 위의 캐릭터에 적용 버튼을 눌러주세요.';
+        } catch(error) { message.textContent=error.message; }
+    },'cqs-button');
+    saveTheme.hidden = true;
+    // v0.4.0: 저장 전에 지금 화면에 입혀 보기. 설정창은 아래쪽 막대로 접히고, 닫으면 원래 테마로 돌아갑니다.
+    const previewBtn = button('지금 화면에 미리보기', () => {
+        if (activeCharacter() !== owner) { dialog.close(); return; }
+        try {
+            const t = validateTheme(JSON.parse(textarea.value));
+            if (useSource.input.checked && !safeMode) compileSource(t);
+            preview = { key: owner, theme: t, profile: {
+                ...profile, enabled: true, theme: t.id, open: usePanel.input.checked,
+                sets: picks.filter(p => p.input.checked).map(p => p.name), side: side.value,
+                showHidden: hidden.input.checked, stripPrefix: strip.input.checked,
+                panelEnabled: usePanel.input.checked, chatEnabled: useChat.input.checked, menuEnabled: useMenu.input.checked,
+                sourceEnabled: useSource.input.checked, chatStyle: chatStyle.value, closeAfterRun: 'never'
+            } };
+            statusMessage = ''; statusError = false;
+            sync();
+            peek(true);
+            message.textContent = '미리보기 중 · 저장 전입니다. 패널 버튼도 눌러 볼 수 있어요.';
+        } catch (error) { message.textContent = error.message; }
+    });
+    const backBtn = button('편집으로 돌아가기', () => peek(false));
+    const endBtn = button('미리보기 끝', () => { endPreview(); peek(false); message.textContent = '미리보기를 끝내고 원래 테마로 돌아왔어요.'; });
+    previewBtn.hidden = true; backBtn.classList.add('cqs-peek-only'); endBtn.classList.add('cqs-peek-only');
+    details.addEventListener('toggle', () => { saveTheme.hidden = !details.open; previewBtn.hidden = !details.open; });
+    details.append(identity, sourceEditor.node, colorGrid, assets.node, el('h3','','테마 JSON (고급 편집)'), textarea, actions);
+    const footer = el('footer', 'cqs-dialog-footer');
+    const footerActions = el('div', 'cqs-actions');
+    footerActions.append(backBtn, endBtn, previewBtn, saveTheme, saveProfile);
+    footer.append(message, footerActions);
+    dialog.append(details, footer);
+    dialog.showModal();
+}
+// dialog.close()의 close 이벤트는 나중에 따로 도착하므로, 모드 전환으로 닫은 횟수만큼 건너뛴다.
+let skipClose = 0;
+function peek(on) {
+    if (dialog.open) { skipClose++; dialog.close(); }
+    dialog.classList.toggle('cqs-peek', on);
+    if (on) dialog.show(); else dialog.showModal();
+}
+function endPreview(resync = true) {
+    if (!preview) return;
+    preview = null;
+    if (resync) sync();
+}
+function onOutside(event) {
+    if (!active) return;
+    if (!panel?.hidden && !root.contains(event.target) && !dialog.open) setOpen(false);
+}
+function onKey(event) {
+    if (!active) return;
+    if (event.altKey && event.shiftKey && event.code === 'KeyQ') {
+        event.preventDefault();
+        safeMode = true;
+        dialog.close();
+        sync();
+        showSettings();
+    } else if (event.key === 'Escape' && !dialog.open && !panel.hidden && !document.querySelector('dialog[open]:not(.cqs-dialog)')) { setOpen(false); handle.focus(); }
+}
+function mount() {
+    if (mounted) return;
+    mounted = true;
+    root = el('div'); root.id='cqs-root'; root.hidden=true;
+    handle=button('✦ QR',()=>setOpen(panel.hidden),'cqs-handle'); handle.setAttribute('aria-controls','cqs-panel'); handle.setAttribute('aria-label','QR 패널 열기 또는 닫기');
+    panel=el('aside'); panel.id='cqs-panel'; panel.hidden=true; panel.setAttribute('aria-label','QR 사이드패널');
+    const header=el('header','cqs-header'); const top=el('div','cqs-row');
+    top.append(el('span','cqs-eyebrow','CUSTOM STUDIO'),button('×',()=>{setOpen(false);handle.focus();},'cqs-close'));
+    top.lastChild.setAttribute('aria-label','QR 패널 닫기');
+    heading=el('h2'); subtitle=el('p'); header.append(top,heading,subtitle);
+    const toolbar=el('div','cqs-toolbar');
+    search=el('input'); search.type='search'; search.placeholder='버튼 찾기…'; search.setAttribute('aria-label','QR 버튼 검색');
+    search.addEventListener('input',()=>{searchTerm=search.value.toLocaleLowerCase();renderQr();});
+    const refresh = button('↻', () => { statusMessage = ''; statusError = false; renderQr(); });
+    refresh.setAttribute('aria-label', 'QR 패널 새로고침');
+    const openSettings = button('설정', showSettings);
+    content=el('div','cqs-content'); status=el('p','cqs-status'); status.setAttribute('aria-live','polite');
+    panelParts = { eyebrow: top.firstChild, close: top.lastChild, heading, subtitle, search, refresh, settings: openSettings, qr: content, status };
+    panelDefaults = { header, top, toolbar };
+    root.append(handle, panel); document.body.append(root);
+    themeStyle = el('style'); themeStyle.id = 'cqs-theme-vars';
+    sourceStyle = el('style'); sourceStyle.id = 'cqs-source';
+    document.head.append(themeStyle, sourceStyle);
+    dialog=el('dialog','cqs-dialog'); dialog.id='cqs-settings'; dialog.setAttribute('aria-label','커스텀 스튜디오 설정'); document.body.append(dialog);
+    dialog.addEventListener('close', () => { if (skipClose) { skipClose--; return; } dialog.classList.remove('cqs-peek'); endPreview(); });
+    settingsHost=el('div','cqs-settings-entry'); settingsHost.append(button('✦ 커스텀 스튜디오 · 캐릭터 테마 설정',showSettings,'menu_button'));
+    (document.querySelector('#extensions_settings2') || document.querySelector('#extensions_settings') || document.body).append(settingsHost);
+    new MutationObserver(syncChatMode).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    document.addEventListener('pointerdown',onOutside); document.addEventListener('keydown',onKey, true);
+    const {eventSource,eventTypes: event_types = ctx().event_types}=ctx();
+    function listen(type,handler) { if(type) eventSource.on(type,handler); }
+    listen(event_types.CHAT_CHANGED,sync); listen(event_types.CHARACTER_EDITED,sync);
+    function setGenerating(next) {
+        if (generating === next) return;
+        generating = next;
+        if (active) renderQr();
+    }
+    generationControl = document.querySelector('#mes_stop');
+    if (generationControl) {
+        // ST changes the inline display only when generation has actually taken over the composer.
+        // GENERATION_STARTED can also fire for commands and requests that exit before generation.
+        const updateGeneration = () => setGenerating(generationControl.style.display === 'flex');
+        new MutationObserver(updateGeneration).observe(generationControl, { attributes: true, attributeFilter: ['style'] });
+        updateGeneration();
+    } else {
+        listen(event_types.GENERATION_STARTED, (_type, _options, dryRun) => { if (!dryRun) setGenerating(true); });
+        listen(event_types.GENERATION_ENDED, () => setGenerating(false));
+        listen(event_types.GENERATION_STOPPED, () => setGenerating(false));
+    }
+    settingsHost.hidden = !active;
+    sync();
+    loadBundled();
+}
+function onDisable() {
+    active=false;clearTheme();
+    if (mounted) setOpen(false, false);
+    if(root)root.hidden=true;
+    dialog?.close(); if(settingsHost)settingsHost.hidden=true;
+}
+function onEnable() { active=true; if(settingsHost)settingsHost.hidden=false;sync(); }
+const context = ctx();
+const ready = (context.eventTypes || context.event_types)?.APP_READY;
+if (ready) context.eventSource.on(ready, mount);
+else if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount, { once: true });
+else mount();
+return { onDisable, onEnable };
+})();</script></body></html>
