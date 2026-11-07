@@ -1,0 +1,68 @@
+{
+  "format": "custom-studio-theme",
+  "version": 1,
+  "id": "chic-modern",
+  "name": "시크 모던",
+  "author": "Custom Studio",
+  "colors": {
+    "canvas": "#17181c",
+    "surface": "#1f2025",
+    "user": "#26272d",
+    "text": "#ecebe7",
+    "muted": "#a6a39c",
+    "accent": "#d6c19c",
+    "accentSoft": "#2e2a23",
+    "border": "#34353b",
+    "quote": "#e2d2b4",
+    "code": "#222328",
+    "headerA": "#25262c",
+    "headerB": "#1d1e23",
+    "button": "#1e1f24",
+    "buttonHover": "#2a2b31"
+  },
+  "layout": {
+    "panelWidth": 330,
+    "radius": 14,
+    "buttonRadius": 9,
+    "gap": 8,
+    "columns": 2,
+    "fontSize": 16,
+    "lineHeight": 1.8
+  },
+  "decoration": {
+    "symbol": "◆",
+    "title": "Studio",
+    "subtitle": "정돈된 바로가기",
+    "background": "plain"
+  },
+  "icons": {
+    "default": {
+      "type": "native"
+    },
+    "rules": []
+  },
+  "handle": {
+    "icon": {
+      "type": "text",
+      "value": "◆"
+    },
+    "label": "QR",
+    "showLabel": true,
+    "size": 18
+  },
+  "wallpaper": {
+    "image": "",
+    "size": "cover",
+    "position": "center",
+    "repeat": "no-repeat",
+    "overlay": 0.2,
+    "messageOpacity": 0.94
+  },
+  "source": {
+    "panelHtml": "<header class=\"cm-head\">\n  <div class=\"cm-row\"><span class=\"cm-mark\" aria-hidden=\"true\"></span><span class=\"cm-eb\" data-cqs-slot=\"eyebrow\"></span><span data-cqs-slot=\"close\"></span></div>\n  <div class=\"cm-title\" data-cqs-slot=\"heading\"></div>\n  <div class=\"cm-sub\" data-cqs-slot=\"subtitle\"></div>\n</header>\n<div class=\"cm-tools\"><span class=\"cm-find\" data-cqs-slot=\"search\"></span><span data-cqs-slot=\"refresh\"></span><span data-cqs-slot=\"settings\"></span></div>\n<div class=\"cm-body\" data-cqs-slot=\"qr\"></div>\n<footer class=\"cm-foot\" data-cqs-slot=\"status\"></footer>",
+    "handleHtml": "",
+    "panelCss": ":scope { --cm-line: color-mix(in srgb, var(--cqs-accent) 34%, var(--cqs-border)); }\n#cqs-panel { font-family: system-ui,-apple-system,'Pretendard','Noto Sans KR',sans-serif; border-color: var(--cqs-border); background: linear-gradient(180deg, var(--cqs-headerA), var(--cqs-canvas) 140px); box-shadow: 0 30px 70px -30px rgba(0,0,0,.8); }\n#cqs-panel .cm-head { padding: 18px 18px 12px; border-bottom: 1px solid var(--cqs-border); }\n#cqs-panel .cm-row { display: flex; align-items: center; gap: 9px; }\n#cqs-panel .cm-mark { width: 9px; height: 9px; transform: rotate(45deg); background: var(--cqs-accent); }\n#cqs-panel .cm-eb { flex: 1; min-width: 0; }\n#cqs-panel .cqs-eyebrow { font-size: 9.5px; font-weight: 700; letter-spacing: .3em; color: var(--cqs-muted); }\n#cqs-panel .cqs-close { width: 30px; height: 30px; font-size: 19px; color: var(--cqs-muted); background: transparent; box-shadow: inset 0 0 0 1px var(--cqs-border); }\n#cqs-panel .cqs-close:hover { color: var(--cqs-accent); box-shadow: inset 0 0 0 1px var(--cm-line); }\n#cqs-panel .cm-title h2 { margin: 14px 0 4px; font-size: 21px; font-weight: 700; letter-spacing: -.02em; color: var(--cqs-text); }\n#cqs-panel .cm-sub p { margin: 0; font-size: 12px; color: var(--cqs-muted); }\n#cqs-panel .cm-tools { display: flex; gap: 6px; padding: 12px 14px 4px; }\n#cqs-panel .cm-find { flex: 1; min-width: 0; display: flex; }\n#cqs-panel .cm-tools input { width: 100%; min-width: 0; padding: 9px 12px; border-radius: 8px; font: 13px system-ui,-apple-system,'Pretendard','Noto Sans KR',sans-serif; color: var(--cqs-text); background: var(--cqs-surface); border: 1px solid var(--cqs-border); }\n#cqs-panel .cm-tools input:focus { outline: none; border-color: var(--cm-line); }\n#cqs-panel .cm-tools .cqs-button { min-height: 36px; padding: 7px 11px; border-radius: 8px; font-size: 12px; color: var(--cqs-muted); background: var(--cqs-surface); }\n#cqs-panel .cm-tools .cqs-button:hover { color: var(--cqs-accent); border-color: var(--cm-line); }\n#cqs-panel .cqs-set-title { font-size: 10px; letter-spacing: .24em; color: var(--cqs-muted); }\n#cqs-panel .cqs-set-title::after { content: \"\"; flex: 1; height: 1px; background: var(--cqs-border); order: 3; }\n#cqs-panel .cqs-count { order: 2; color: var(--cqs-onAccent); background: var(--cqs-accent); }\n#cqs-panel .cqs-qr { min-height: 56px; padding: 10px 12px; flex-direction: row; justify-content: flex-start; gap: 10px; text-align: left; border-color: var(--cqs-border); transition: border-color .18s, background .18s; }\n#cqs-panel .cqs-qr:hover:not(:disabled) { transform: none; border-color: var(--cm-line); }\n#cqs-panel .cqs-qr-icon { flex: none; width: 30px; height: 30px; border-radius: 7px; display: grid; place-items: center; font-size: 13px; background: var(--cqs-accentSoft); }\n#cqs-panel .cqs-qr-label { font-size: 13px; font-weight: 600; text-align: left; }\n#cqs-panel .cm-foot { border-top: 1px solid var(--cqs-border); background: var(--cqs-surface); }\n#cqs-panel .cm-foot .cqs-status { border: 0; padding: 12px 16px; background: none; }\n:scope > .cqs-handle { top: 42vh; top: 42dvh; border-radius: 10px 0 0 10px; color: var(--cqs-accent); background: var(--cqs-surface); border-color: var(--cm-line); }\n:scope[data-side=\"left\"] > .cqs-handle { border-radius: 0 10px 10px 0; }",
+    "chatCss": ":scope #send_form#send_form { border-radius: 12px; border: 1px solid var(--cqs-border); }\n:scope #send_form:focus-within { border-color: color-mix(in srgb, var(--cqs-accent) 45%, transparent); }\n:scope #chat .mes .avatar img { box-shadow: 0 0 0 1px var(--cqs-border); }",
+    "menuCss": ":scope#top-bar { background: var(--cqs-canvas); border-bottom: 1px solid var(--cqs-border); }\n:scope .drawer-icon.openIcon, :scope .drawer-icon:hover { color: var(--cqs-accent); }"
+  }
+}
