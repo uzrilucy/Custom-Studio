@@ -1,0 +1,61 @@
+{
+  "format": "custom-studio-theme",
+  "version": 1,
+  "id": "modern-cutie",
+  "name": "모던 큐티",
+  "author": "Custom Studio",
+  "colors": {
+    "canvas": "#fff5f9",
+    "surface": "#ffffff",
+    "user": "#f5edff",
+    "text": "#51394f",
+    "muted": "#80677d",
+    "accent": "#aa467b",
+    "accentSoft": "#f9e1ed",
+    "border": "#ebd3e2",
+    "quote": "#906594",
+    "code": "#f1e9f4",
+    "headerA": "#fbe1ed",
+    "headerB": "#ebe4ff",
+    "button": "#fffafd",
+    "buttonHover": "#f5e5fa"
+  },
+  "layout": {
+    "panelWidth": 326,
+    "radius": 22,
+    "buttonRadius": 15,
+    "gap": 10,
+    "columns": 2,
+    "fontSize": 16,
+    "lineHeight": 1.8
+  },
+  "decoration": {
+    "symbol": "✦",
+    "title": "Little shortcuts",
+    "subtitle": "작은 버튼, 나만의 이야기",
+    "background": "dots"
+  },
+  "icons": {
+    "default": {
+      "type": "text",
+      "value": "♡"
+    },
+    "rules": []
+  },
+  "handle": {
+    "icon": {
+      "type": "native"
+    },
+    "label": "QR",
+    "showLabel": true,
+    "size": 24
+  },
+  "wallpaper": {
+    "image": "",
+    "size": "cover",
+    "position": "center",
+    "repeat": "no-repeat",
+    "overlay": 0.2,
+    "messageOpacity": 0.94
+  }
+}

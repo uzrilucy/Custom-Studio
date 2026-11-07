@@ -1,0 +1,60 @@
+{
+  "format": "custom-studio-theme",
+  "version": 1,
+  "id": "mint-green",
+  "name": "민트 그린",
+  "author": "Custom Studio",
+  "colors": {
+    "canvas": "#f2f8f4",
+    "surface": "#ffffff",
+    "user": "#e3f2e8",
+    "text": "#213c2c",
+    "muted": "#53705e",
+    "accent": "#23704a",
+    "accentSoft": "#d9eee1",
+    "border": "#cbe2d3",
+    "quote": "#296d49",
+    "code": "#e6f1ea",
+    "headerA": "#d8efe0",
+    "headerB": "#e9f4e2",
+    "button": "#f8fcf9",
+    "buttonHover": "#e4f2e9"
+  },
+  "layout": {
+    "panelWidth": 330,
+    "radius": 20,
+    "buttonRadius": 14,
+    "gap": 10,
+    "columns": 2,
+    "fontSize": 16,
+    "lineHeight": 1.8
+  },
+  "decoration": {
+    "symbol": "✿",
+    "title": "Fresh shortcuts",
+    "subtitle": "산뜻하게 정리한 바로가기",
+    "background": "dots"
+  },
+  "icons": {
+    "default": {
+      "type": "native"
+    },
+    "rules": []
+  },
+  "handle": {
+    "icon": {
+      "type": "native"
+    },
+    "label": "QR",
+    "showLabel": true,
+    "size": 22
+  },
+  "wallpaper": {
+    "image": "",
+    "size": "cover",
+    "position": "center",
+    "repeat": "no-repeat",
+    "overlay": 0.2,
+    "messageOpacity": 0.94
+  }
+}

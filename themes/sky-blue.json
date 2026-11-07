@@ -1,0 +1,60 @@
+{
+  "format": "custom-studio-theme",
+  "version": 1,
+  "id": "sky-blue",
+  "name": "스카이 블루",
+  "author": "Custom Studio",
+  "colors": {
+    "canvas": "#f2f7fc",
+    "surface": "#ffffff",
+    "user": "#e5f0fa",
+    "text": "#22374b",
+    "muted": "#566d83",
+    "accent": "#2468a8",
+    "accentSoft": "#dceaf7",
+    "border": "#cddff0",
+    "quote": "#2b6299",
+    "code": "#e8f0f8",
+    "headerA": "#d9eafa",
+    "headerB": "#e7eefd",
+    "button": "#f8fbfe",
+    "buttonHover": "#e6f0fa"
+  },
+  "layout": {
+    "panelWidth": 330,
+    "radius": 20,
+    "buttonRadius": 14,
+    "gap": 10,
+    "columns": 2,
+    "fontSize": 16,
+    "lineHeight": 1.8
+  },
+  "decoration": {
+    "symbol": "☁",
+    "title": "Clear shortcuts",
+    "subtitle": "맑은 날의 작은 버튼",
+    "background": "dots"
+  },
+  "icons": {
+    "default": {
+      "type": "native"
+    },
+    "rules": []
+  },
+  "handle": {
+    "icon": {
+      "type": "native"
+    },
+    "label": "QR",
+    "showLabel": true,
+    "size": 22
+  },
+  "wallpaper": {
+    "image": "",
+    "size": "cover",
+    "position": "center",
+    "repeat": "no-repeat",
+    "overlay": 0.2,
+    "messageOpacity": 0.94
+  }
+}
