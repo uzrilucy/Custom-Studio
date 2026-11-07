@@ -1,8 +1,8 @@
-# 커스텀 스튜디오 (Custom Studio) 0.4.0
+# 커스텀 스튜디오 (Custom Studio) 1.0
 
 SillyTavern 캐릭터별 테마와 Quick Reply 사이드패널입니다. 캐릭터마다 채팅, 상단 메뉴, QR 패널을 따로 켤 수 있습니다. 기본 테마는 밀키 핑크와 라벤더를 조합한 **모던 큐티**입니다. 이 밖에 **스카이 블루**, **민트 그린**, **시크 모던**이 내장되어 있습니다.
 
-## 0.4.0에서 바뀐 것
+## 1.0에서 바뀐 것
 
 - **이름 변경:** 확장 이름이 「커스텀 스튜디오」로 바뀌었습니다.
   - 이전 이름으로 저장한 캐릭터 설정과 테마는 처음 켤 때 자동으로 옮겨 옵니다.
@@ -28,7 +28,7 @@ SillyTavern 캐릭터별 테마와 Quick Reply 사이드패널입니다. 캐릭�
 
 모든 사용자에게 설치할 때는 `SillyTavern/public/scripts/extensions/third-party/`에 같은 폴더를 넣을 수 있습니다. 두 위치 중 하나를 사용하세요. Termux에서 실행 중이라면 Termux의 실리태번 폴더에 설치합니다. ‘확장 설치’ URL 입력칸은 Git 저장소용입니다.
 
-대상은 **SillyTavern 1.19.0 이상**입니다. HTML 구조 편집은 브라우저 내장 기능을 사용하며 영역별 CSS에는 `@scope`를 지원하는 브라우저가 필요합니다. [SillyTavern UI 확장 문서](https://docs.sillytavern.app/for-contributors/writing-extensions/)
+대상은 **SillyTavern 1.11.0 이상**입니다(1.11.8 · 1.12.14 · 1.13.5 · 1.15.0 · 1.17.0 · 1.19.0에서 확인). 1.10 이하에서는 테마만 적용되고 QR 패널은 비어 있습니다. HTML 구조 편집은 브라우저 내장 기능을 사용하며 영역별 CSS에는 `@scope`를 지원하는 브라우저가 필요합니다. [SillyTavern UI 확장 문서](https://docs.sillytavern.app/for-contributors/writing-extensions/)
 
 ## 캐릭터에 테마 지정
 
@@ -79,7 +79,8 @@ SillyTavern 캐릭터별 테마와 Quick Reply 사이드패널입니다. 캐릭�
 
 ## 포함된 문서와 미리보기
 
-- `THEME_GUIDE.md`에 슬롯, CSS 적용 범위, JSON 항목과 예제를 정리했습니다.
+- `THEME_GUIDE.md`: 사람용 테마 제작 가이드. 색·이미지 → 버튼별 꾸미기 → 소스 편집 순서로, 슬롯·CSS 적용 범위·JSON 항목·제한을 정리했습니다.
+- `THEME_GUIDE_AI.md`: AI에게 테마를 맡길 때 그대로 붙여 넣는 사양서. 스키마·허용 태그·함정·검증 체크리스트·예제가 들어 있습니다.
 - `themes/`에 내장 테마 목록(`index.json`)과 기본 테마들이 있습니다. `chic-modern.json`은 패널 HTML과 영역별 CSS를 쓰는 예제이기도 합니다. `modern-cutie.json`은 0.2.x 형식 예제입니다.
 - `preview.html`은 브라우저에서 열어보는 독립 미리보기입니다. 샘플 QR은 미리보기 결과만 표시합니다.
 - `docs/VALIDATION.md`에 점검 결과와 검증 범위를 기록했습니다.

@@ -6,8 +6,8 @@
   "js": "index.js",
   "css": "style.css",
   "author": "Custom Studio",
-  "version": "0.4.0",
-  "minimum_client_version": "1.19.0",
+  "version": "1.0.0",
+  "minimum_client_version": "1.11.0",
   "auto_update": false,
   "hooks": {
     "enable": "onEnable",

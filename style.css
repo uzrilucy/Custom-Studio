@@ -169,10 +169,10 @@ body.cqs-chat #send_form {--SmartThemeBodyColor:var(--cqs-text);color-scheme:var
     .cqs-dialog-footer {bottom:-18px;}
 }
 
-/* v0.4.0: 실리태번 모바일은 body를 position:fixed로 두고 html에 transform이 걸려 있어 html 높이가 0이 된다.
+/* 실리태번 모바일은 body를 position:fixed로 두고 html에 transform이 걸려 있어 html 높이가 0이 된다.
    그 안의 고정 요소에 top/bottom이나 %를 쓰면 패널이 2px로 접히므로 높이와 위치를 화면 단위(dvh)로 준다. */
 
-/* v0.4.0: 미리보기 중에는 설정창을 아래 막대로 접어 화면을 가리지 않는다. */
+/* 미리보기 중에는 설정창을 아래 막대로 접어 화면을 가리지 않는다. */
 .cqs-dialog .cqs-peek-only {display:none;}
 .cqs-dialog.cqs-peek {position:fixed;inset:auto 0 max(12px,env(safe-area-inset-bottom)) 0;z-index:4100;margin:0 auto;max-height:none;overflow:visible;padding:12px 16px;width:min(560px,calc(100vw - 24px));}
 .cqs-dialog.cqs-peek > :not(.cqs-dialog-footer) {display:none;}

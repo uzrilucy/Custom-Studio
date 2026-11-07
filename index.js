@@ -16,9 +16,9 @@ let panelParts, panelDefaults, generationControl;
 let currentKey = null, currentChat = null, currentProfile = null, currentTheme, currentSource;
 let searchTerm = '', busy = false, generating = false, statusMessage = '', statusError = false;
 let mounted = false, active = true;
-// v0.4.0: 확장에 함께 들어 있는 내장 테마(themes/index.json). 사용자 저장본이 같은 id면 사용자 것이 우선합니다.
+// 확장에 함께 들어 있는 내장 테마(themes/index.json). 사용자 저장본이 같은 id면 사용자 것이 우선합니다.
 let bundled = {};
-// v0.4.0: 설정창의 '지금 화면에 미리보기'. 저장하지 않은 테마를 현재 캐릭터에만 잠시 입혀 봅니다.
+// 설정창의 '지금 화면에 미리보기'. 저장하지 않은 테마를 현재 캐릭터에만 잠시 입혀 봅니다.
 let preview = null;
 const narrow = globalThis.matchMedia?.('(max-width: 600px)');
 let safeMode = new URLSearchParams(location.search).get('cqs-safe') === '1';
@@ -74,7 +74,7 @@ function activeCharacter() {
 }
 function qrApi() {
     const api = globalThis.quickReplyApi;
-    if (!api || typeof api.listSets !== 'function' || typeof api.getSetByName !== 'function') throw new Error('Quick Replies를 켠 뒤 QR 새로고침을 눌러주세요.');
+    if (!api || typeof api.listSets !== 'function' || typeof api.getSetByName !== 'function') throw new Error('Quick Replies 확장을 켠 뒤 QR 새로고침을 눌러주세요. QR 패널은 실리태번 1.11.0 이상에서 동작합니다.');
     return api;
 }
 function setNames() {
@@ -435,7 +435,7 @@ function showSettings() {
         } catch(error) { message.textContent=error.message; }
     },'cqs-button');
     saveTheme.hidden = true;
-    // v0.4.0: 저장 전에 지금 화면에 입혀 보기. 설정창은 아래쪽 막대로 접히고, 닫으면 원래 테마로 돌아갑니다.
+    // 저장 전에 지금 화면에 입혀 보기. 설정창은 아래쪽 막대로 접히고, 닫으면 원래 테마로 돌아갑니다.
     const previewBtn = button('지금 화면에 미리보기', () => {
         if (activeCharacter() !== owner) { dialog.close(); return; }
         try {
