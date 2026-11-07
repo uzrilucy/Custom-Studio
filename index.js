@@ -2,6 +2,7 @@ import { DEFAULT_THEME, CUTIE_SOURCE, validateTheme, themeVariables, characterKe
 import { createAssetsEditor } from './assets-ui.js';
 import { compileSource, fillSlots } from './source.js';
 import { createSourceEditor } from './source-ui.js';
+import { hostBase, muteHostCss } from './host.js';
 const KEY = 'customStudio';
 const LEGACY_KEY = 'cuteQrStudio';   // 이전 이름에서 쓰던 설정을 한 번 옮겨 온다
 const ctx = () => SillyTavern.getContext();
@@ -11,7 +12,7 @@ const el = (tag, cls, text) => {
     if (text !== undefined) node.textContent = text;
     return node;
 };
-let root, panel, handle, content, heading, subtitle, search, status, dialog, settingsHost, themeStyle, sourceStyle;
+let hostStyle, root, panel, handle, content, heading, subtitle, search, status, dialog, settingsHost, themeStyle, sourceStyle;
 let panelParts, panelDefaults, generationControl;
 let currentKey = null, currentChat = null, currentProfile = null, currentTheme, currentSource;
 let searchTerm = '', busy = false, generating = false, statusMessage = '', statusError = false;
@@ -65,7 +66,7 @@ function profileFor(key) {
     const profile = {
         enabled: false, theme: 'modern-cutie', side: 'right', showHidden: false, open: false,
         stripPrefix: false, panelEnabled: true, chatEnabled: true, menuEnabled: true,
-        sourceEnabled: undefined, chatStyle: stored ? 'cards' : 'native', closeAfterRun: 'mobile', ...stored,
+        applyMode: 'full', muteHostCss: false, sourceEnabled: undefined, chatStyle: stored ? 'cards' : 'native', closeAfterRun: 'mobile', ...stored,
         sets: Array.isArray(stored?.sets) ? [...new Set(stored.sets.filter(name => typeof name === 'string'))] : []
     };
     // 내장 테마는 확장과 함께 배포된 믿을 수 있는 소스라 따로 고르지 않았으면 디자인까지 켠다.
@@ -98,7 +99,8 @@ function syncChatMode() {
     else shell.dataset.cqsMode = classes.contains('bubblechat') ? 'bubbles' : classes.contains('documentstyle') ? 'document' : 'flat';
 }
 function clearTheme() {
-    document.body.classList.remove('cqs-themed', 'cqs-chat', 'cqs-menu');
+    document.body.classList.remove('cqs-themed', 'cqs-chat', 'cqs-menu', 'cqs-full');
+    muteHostCss(false);
     syncChatMode();
     delete document.body.dataset.cqsBackground;
     delete document.body.dataset.cqsWallpaper;
@@ -114,6 +116,13 @@ function applyTheme(theme, profile) {
     document.body.classList.add('cqs-themed');
     document.body.classList.toggle('cqs-chat', profile.chatEnabled);
     document.body.classList.toggle('cqs-menu', profile.menuEnabled);
+    // 완전 적용: 사용자 실리 테마가 바꾼 겉모습을 실리 기본값으로 되돌린 위에 캐릭터 테마를 올린다.
+    const full = profile.applyMode !== 'color' && (profile.chatEnabled || profile.menuEnabled);
+    if (full && hostStyle && !hostStyle.textContent) {
+        try { hostStyle.textContent = hostBase(); } catch (error) { console.warn('[Custom Studio] 완전 적용 준비 실패', error); }
+    }
+    document.body.classList.toggle('cqs-full', full);
+    muteHostCss(full && Boolean(profile.muteHostCss));
     syncChatMode();
     document.body.dataset.cqsBackground = theme.decoration.background;
     document.body.dataset.cqsWallpaper = String(Boolean(theme.wallpaper.image));
@@ -319,6 +328,8 @@ function showSettings() {
     const useChat = check('채팅 화면 꾸미기', profile.chatEnabled);
     const useMenu = check('상단 메뉴·서랍 꾸미기', profile.menuEnabled);
     const useSource = check('이 캐릭터에서 테마의 HTML/CSS 적용', profile.sourceEnabled);
+    const applyMode = select([['full', '완전 적용 (기본) · 사용자 실리 테마 위에 덮어쓰기'], ['color', '색만 바꾸기 · 사용자 테마의 배치·아이콘 유지']], profile.applyMode === 'color' ? 'color' : 'full');
+    const mute = check('그래도 남는 부분이 있으면: 이 캐릭터에서 실리 사용자 CSS 잠시 끄기', Boolean(profile.muteHostCss));
     const chatStyle = select([['native', '실리태번 채팅 형식 유지'], ['cards', '카드 모양 (메시지마다 상자)']], profile.chatStyle);
     const themeSelect = select(themeOptions(), profile.theme);
     themeSelect.addEventListener('change', () => { useSource.input.checked = themeSelect.value === profile.theme ? profile.sourceEnabled : isBuiltIn(themeSelect.value); });
@@ -327,6 +338,7 @@ function showSettings() {
     const strip = check('버튼 이름 앞 이모지·기호 숨기기 (패널 표시만, 원본 QR은 그대로)',Boolean(profile.stripPrefix));
     const closeAfter = select([['mobile','좁은 화면에서만 닫기 (기본)'],['always','항상 닫기'],['never','열어 두기']], profile.closeAfterRun || 'mobile');
     dialog.append(enabled.label, field('테마', themeSelect), usePanel.label, useChat.label, useMenu.label,
+        field('실리 테마 위에 적용하는 방식', applyMode), mute.label,
         field('메시지 레이아웃', chatStyle), field('패널 위치', side), field('QR을 누른 뒤 패널', closeAfter), hidden.label, strip.label, useSource.label,
         el('p', 'cqs-note', safeMode ? '소스 복구 모드가 켜져 있습니다. 페이지를 다시 열면 저장한 소스를 다시 적용할 수 있습니다.'
             : 'HTML/CSS는 신뢰하는 테마만 켜세요. Alt+Shift+Q로 이 페이지에서 소스를 잠시 끌 수 있습니다.'));
@@ -366,7 +378,8 @@ function showSettings() {
             sets: picks.filter(p => p.input.checked).map(p => p.name), side: side.value,
             showHidden: hidden.input.checked, stripPrefix: strip.input.checked,
             panelEnabled: usePanel.input.checked, chatEnabled: useChat.input.checked, menuEnabled: useMenu.input.checked,
-            sourceEnabled: useSource.input.checked, chatStyle: chatStyle.value, closeAfterRun: closeAfter.value
+            sourceEnabled: useSource.input.checked, chatStyle: chatStyle.value, closeAfterRun: closeAfter.value,
+            applyMode: applyMode.value, muteHostCss: mute.input.checked
         };
         endPreview(false);
         statusMessage = ''; statusError = false;
@@ -451,7 +464,8 @@ function showSettings() {
                 sets: picks.filter(p => p.input.checked).map(p => p.name), side: side.value,
                 showHidden: hidden.input.checked, stripPrefix: strip.input.checked,
                 panelEnabled: usePanel.input.checked, chatEnabled: useChat.input.checked, menuEnabled: useMenu.input.checked,
-                sourceEnabled: useSource.input.checked, chatStyle: chatStyle.value, closeAfterRun: 'never'
+                sourceEnabled: useSource.input.checked, chatStyle: chatStyle.value, closeAfterRun: 'never',
+                applyMode: applyMode.value, muteHostCss: mute.input.checked
             } };
             statusMessage = ''; statusError = false;
             sync();
@@ -520,6 +534,8 @@ function mount() {
     // 테마 레이어를 문서 맨 앞에서 선언해 두면, 이 레이어의 !important 규칙이 실리태번 사용자 CSS·다른 확장의 !important보다 앞선다.
     const layerOrder = el('style'); layerOrder.id = 'cqs-layer-order'; layerOrder.textContent = '@layer cqs-force;';
     document.head.prepend(layerOrder);
+    hostStyle = el('style'); hostStyle.id = 'cqs-host-base';
+    layerOrder.after(hostStyle);
     themeStyle = el('style'); themeStyle.id = 'cqs-theme-vars';
     sourceStyle = el('style'); sourceStyle.id = 'cqs-source';
     document.head.append(themeStyle, sourceStyle);

@@ -15,7 +15,7 @@
 | --- | --- | --- |
 | 1. 색과 이미지만 | 기본 디자인에 내 색 · 배경 · 아이콘 입히기 | 필요 없음 |
 | 2. 버튼 하나하나 | QR마다 아이콘 · 배경 · 모양 | 필요 없음 |
-| 3. 소스 편집 | 패널 구조와 채팅 · 입력창 · 상단 메뉴를 CSS로 자유롭게 | HTML · CSS |
+| 3. 소스 편집 | 패널 구조, 채팅 · 입력창 · 상단 메뉴의 디자인 · 아이콘 · 배치를 CSS로 자유롭게 | HTML · CSS |
 
 > AI에게 테마를 만들어 달라고 할 때는 같이 들어 있는 `THEME_GUIDE_AI.md`를 통째로 붙여 주세요. AI가 지켜야 할 규칙만 압축한 문서입니다.
 
@@ -237,6 +237,64 @@
   - `var(--cqs-scheme)` light / dark
   - `var(--cqs-message-surface)` · `var(--cqs-message-user)` 배경 투명도가 반영된 메시지 색
 - 버튼에 지정한 배경색 · 배경 이미지: `var(--cqs-qr-bg)` `var(--cqs-qr-image)`
+
+#### 실리 화면을 통째로 바꾸기 (완전 적용 · 아이콘 · 배치)
+
+캐릭터 설정의 「실리 테마 위에 적용하는 방식」이 **완전 적용(기본)**이면 확장이 먼저 판을 정리합니다.
+
+- 사용자가 쓰던 실리태번 테마가 바꿔 둔 모든 것을 실리 기본값으로 되돌립니다. 아이콘 글리프, 글꼴, 여백, 테두리, 그림자, 꾸밈 가상 요소, 배치 방향이 대상입니다.
+- 사용자 CSS를 끄지 않습니다. 그 위에 더 높은 우선순위로 깔아서 이깁니다.
+- 그 위에 테마의 채팅 CSS · 상단 메뉴 CSS가 올라갑니다. 그래서 테마는 깨끗한 실리 기본 화면에서 출발한다고 생각하고 짜면 됩니다.
+- 「색만 바꾸기」를 고르면 사용자 테마의 배치와 아이콘을 그대로 두고 색만 바꿉니다.
+
+**아이콘 바꾸기.** 실리 아이콘은 Font Awesome 글리프를 `::before`로 그립니다. 그 `::before`에 모양을 씌우면 원하는 그림으로 바뀝니다.
+
+```css
+/* 상단 메뉴 CSS — 캐릭터 관리 아이콘을 직접 그린 SVG로 */
+:scope #rightNavDrawerIcon { --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2'%3E%3Crect x='3' y='5' width='18' height='14' rx='2'/%3E%3C/svg%3E"); }
+:scope #rightNavDrawerIcon::before {
+  content: ""; display: inline-block; width: 1em; height: 1em; vertical-align: -.14em;
+  background: currentColor; -webkit-mask: var(--ico) center / contain no-repeat; mask: var(--ico) center / contain no-repeat;
+}
+```
+
+- SVG는 `#` → `%23`, `<` → `%3C`, `>` → `%3E`로 바꿔 넣습니다.
+- 색은 SVG가 아니라 `color`로 정합니다. 마스크라서 `currentColor`가 칠해집니다.
+- 다른 Font Awesome 아이콘으로 바꾸고 싶다면 `content: "\f004";`처럼 글리프 번호만 바꿔도 됩니다.
+
+| 위치 | 선택자 | 범위 |
+| --- | --- | --- |
+| 상단: AI 응답 설정 | `#ai-config-button .drawer-icon` | 상단 메뉴 CSS |
+| 상단: API 연결 | `#sys-settings-button .drawer-icon` (끊김: `#API-status-top.fa-plug-circle-exclamation`) | 상단 메뉴 CSS |
+| 상단: 서식 | `#advanced-formatting-button .drawer-icon` | 상단 메뉴 CSS |
+| 상단: 월드 인포 | `#WIDrawerIcon` | 상단 메뉴 CSS |
+| 상단: 사용자 설정 | `#user-settings-button .drawer-icon` | 상단 메뉴 CSS |
+| 상단: 배경 | `#backgrounds-button .drawer-icon` | 상단 메뉴 CSS |
+| 상단: 확장 | `#extensions-settings-button .drawer-icon` | 상단 메뉴 CSS |
+| 상단: 페르소나 | `#persona-management-button .drawer-icon` | 상단 메뉴 CSS |
+| 상단: 캐릭터 관리 | `#rightNavDrawerIcon` | 상단 메뉴 CSS |
+| 입력창: 메뉴 · 마법봉 | `#options_button` · `#extensionsMenuButton` | 채팅 CSS |
+| 입력창: 보내기 · 정지 | `#send_but` · `#mes_stop .fa-circle-stop` | 채팅 CSS |
+| 입력창: 이어 쓰기 · 대신 쓰기 | `#mes_continue` · `#mes_impersonate` | 채팅 CSS |
+| 메시지: 넘기기 | `#chat .swipe_left` · `#chat .swipe_right` | 채팅 CSS |
+| 메시지: 더보기 · 편집 | `#chat .mes .extraMesButtonsHint` · `#chat .mes .mes_edit` | 채팅 CSS |
+
+**배치 바꾸기.** 여백 · 방향 · 정렬 · 모양은 자유롭게 바꿔도 됩니다.
+
+```css
+/* 채팅 CSS — 내 메시지를 오른쪽으로(채팅 앱처럼) */
+:scope #chat .mes[is_user="true"] { flex-direction: row-reverse; }
+:scope #chat .mes[is_user="true"] .ch_name { flex-direction: row-reverse; }
+/* 아바타 크기 · 모양은 실리 변수로 */
+:scope #chat .mes { --avatar-base-width: 44px; --avatar-base-height: 44px; --avatar-base-border-radius: 50%; }
+/* 좌우 여백을 줄 때는 폭을 auto로 (100%에 여백을 더하면 옆으로 넘칩니다) */
+:scope #chat .mes { margin: 8px 12px; width: auto; box-sizing: border-box; }
+/* 버튼 모양 바꾸기 — 크기를 건드리지 않고 배경으로 동그라미를 그립니다 */
+:scope #send_form #send_but { color: #fff; background: radial-gradient(circle, var(--cqs-accent) 0 58%, transparent 60%); }
+```
+
+- 채팅 폭은 사용자의 실리 설정(채팅 폭)을 따르게 두는 것을 권합니다. 봇 카드가 그 폭에 맞춰 만들어져 있기 때문입니다.
+- 완전 적용으로도 남는 부분이 있다면, 캐릭터 설정에서 「이 캐릭터에서 실리 사용자 CSS 잠시 끄기」를 켭니다. 그 캐릭터 화면에서만 사용자 CSS를 꺼 두고, 다른 캐릭터로 가면 바로 되돌립니다. 다른 꾸미기 확장이 화면 구조를 직접 바꾼 경우가 이런 예입니다.
 
 #### 꼭 알아야 할 함정 네 가지
 

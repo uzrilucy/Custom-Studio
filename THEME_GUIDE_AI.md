@@ -147,10 +147,23 @@ Each field is wrapped in `@scope (ROOT)`, so it can only affect its root.
 5. **Native QR bar.** To hide it while the theme is active: chatCss `:scope #qr--bar { display: none; }`.
 
 **Already themed without any source:** background (`#bg1`), chat column, messages (text, names, `q`, `em`, timestamps, buttons), input bar, native QR bar, top bar, drawers and their inputs all follow `colors` automatically. Use chatCss/menuCss only for distinctive design on top.
-6. **No layout breakage.**
-   - Do not change `display` or `position` of SillyTavern containers (`#sheld`, `#chat`, `#form_sheld`, `#top-bar`) or hide their controls.
-   - Restyle color, border, background, radius, shadow and typography instead.
-7. **Keep the readable contrast** (section 1). Do not rely on transparency over busy backgrounds for body text.
+6. **Full mode (default).** With the profile's apply mode "full", the extension first re-applies SillyTavern's own stylesheet values over whatever theme the user runs: icons, fonts, spacing, borders, shadows, pseudo-element decorations and flex direction. Design as if starting from stock SillyTavern; the user's theme does not leak in.
+7. **Icons.** SillyTavern icons are Font Awesome glyphs drawn in `::before`. To replace one, set `content: ""` and paint a mask:
+   `:scope SEL { --ico: url("data:image/svg+xml,...") } :scope SEL::before { content: ""; display: inline-block; width: 1em; height: 1em; vertical-align: -.14em; background: currentColor; -webkit-mask: var(--ico) center / contain no-repeat; mask: var(--ico) center / contain no-repeat; }`
+   - Inside the SVG data URL use single quotes and encode `#` `<` `>` as `%23` `%3C` `%3E`.
+   - Color comes from `color`, not from the SVG.
+   - Targets in menuCss: `#ai-config-button .drawer-icon`, `#sys-settings-button .drawer-icon` (disconnected state: `#API-status-top.fa-plug-circle-exclamation`), `#advanced-formatting-button .drawer-icon`, `#WIDrawerIcon`, `#user-settings-button .drawer-icon`, `#backgrounds-button .drawer-icon`, `#extensions-settings-button .drawer-icon`, `#persona-management-button .drawer-icon`, `#rightNavDrawerIcon`.
+   - Targets in chatCss: `#options_button`, `#extensionsMenuButton`, `#send_but`, `#mes_stop .fa-circle-stop`, `#mes_continue`, `#mes_impersonate`, `#chat .swipe_left`, `#chat .swipe_right`, `#chat .mes .extraMesButtonsHint`, `#chat .mes .mes_edit`.
+8. **Layout.**
+   - Allowed: padding, margin, gap, flex-direction (e.g. user messages `row-reverse`), alignment, radius.
+   - Avatars via `--avatar-base-width`, `--avatar-base-height` and `--avatar-base-border-radius` on `#chat .mes`.
+   - When adding horizontal margin to `.mes`, also set `width: auto; box-sizing: border-box`.
+   - Leave chat width (`--sheldWidth`) to the user's setting; bot HTML cards depend on it.
+   - Draw button shapes with backgrounds (`radial-gradient` circle) instead of resizing SillyTavern buttons.
+9. **No layout breakage.**
+   - Do not change `display`, `position`, `width`/`height` or `transform` of SillyTavern containers (`#sheld`, `#chat`, `#form_sheld`, `#top-bar`, drawers) or hide their controls.
+   - Spacing, direction, alignment, radius, colors, borders, shadows, typography and icons are all fair game.
+10. **Keep the readable contrast** (section 1). Do not rely on transparency over busy backgrounds for body text.
 
 ## 5. Output checklist
 
